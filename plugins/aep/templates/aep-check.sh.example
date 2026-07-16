@@ -1,0 +1,13 @@
+#!/bin/sh
+# AEP project check — edit this to run YOUR real build+test command.
+# Exit 0 = green (task may complete). Non-zero = red (completion blocked).
+# Keep it fast: prefer affected tests over the full suite where possible.
+#
+# Examples:
+#   dotnet build --nologo -clp:ErrorsOnly && dotnet test --nologo
+#   npm run lint && npm test -- --run
+#   pytest -q && ruff check .
+#   go vet ./... && go test ./...
+
+echo "AEP check stub: no project check configured yet (always green)."
+exit 0
