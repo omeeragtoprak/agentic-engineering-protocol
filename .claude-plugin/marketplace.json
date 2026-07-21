@@ -1,18 +1,23 @@
 {
   "name": "agentic-engineering",
-  "owner": { "name": "Ömer Faruk (omeeragtoprak)", "url": "https://github.com/omeeragtoprak" },
+  "owner": {
+    "name": "Ömer Faruk (omeeragtoprak)",
+    "url": "https://github.com/omeeragtoprak"
+  },
   "metadata": {
     "description": "Marketplace for the Agentic Engineering Protocol (AEP) — disciplined, evidence-driven execution for AI coding agents.",
-    "version": "1.0.0"
+    "version": "1.0.1"
   },
   "plugins": [
     {
       "name": "aep",
       "source": "./plugins/aep",
       "description": "Agentic Engineering Protocol: Explore → Plan → Implement → Verify → Deliver with skeptical loops, adversarial review, and a Stop-hook verify gate.",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "category": "development",
-      "author": { "name": "Ömer Faruk (omeeragtoprak)" },
+      "author": {
+        "name": "Ömer Faruk (omeeragtoprak)"
+      },
       "homepage": "https://github.com/omeeragtoprak/agentic-engineering-protocol"
     }
   ]

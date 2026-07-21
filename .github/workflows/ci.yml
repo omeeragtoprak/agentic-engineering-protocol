@@ -1,0 +1,72 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Shell syntax
+        run: |
+          sh -n plugins/aep/scripts/verify-gate.sh
+          sh -n plugins/aep/templates/aep-check.sh.example
+
+      - name: JSON manifests
+        run: |
+          python3 -m json.tool .claude-plugin/marketplace.json > /dev/null
+          python3 -m json.tool plugins/aep/.claude-plugin/plugin.json > /dev/null
+          python3 -m json.tool plugins/aep/hooks/hooks.json > /dev/null
+          echo "manifests valid"
+
+      - name: Skill and agent frontmatter
+        run: |
+          python3 - <<'EOF'
+          import glob, sys
+          bad = []
+          for f in glob.glob("plugins/aep/skills/*/SKILL.md") + glob.glob("plugins/aep/agents/*.md"):
+              parts = open(f).read().split("---")
+              fm = parts[1] if len(parts) > 2 else ""
+              if "name:" not in fm or "description:" not in fm:
+                  bad.append(f)
+          if bad:
+              print("missing frontmatter:", bad); sys.exit(1)
+          print("frontmatter ok")
+          EOF
+
+      - name: Version consistency
+        run: |
+          python3 - <<'EOF'
+          import json, sys
+          p = json.load(open("plugins/aep/.claude-plugin/plugin.json"))["version"]
+          m = json.load(open(".claude-plugin/marketplace.json"))
+          mv = m["plugins"][0]["version"]
+          if p != mv:
+              sys.exit(f"version mismatch: plugin.json {p} vs marketplace.json {mv}")
+          print("versions consistent:", p)
+          EOF
+
+      - name: Verify gate behavior
+        run: |
+          set -e
+          T=$(mktemp -d); cp plugins/aep/scripts/verify-gate.sh "$T/gate.sh"
+          cd "$T"; git init -q -b main
+          mkdir .claude
+          # no check configured -> allow
+          sh gate.sh; test $? -eq 0
+          # failing check -> block with exit 2
+          printf '#!/bin/sh\nexit 1\n' > .claude/aep-check.sh && chmod +x .claude/aep-check.sh
+          set +e; sh gate.sh 2>/dev/null; RC=$?; set -e; test $RC -eq 2
+          # passing check -> allow
+          printf '#!/bin/sh\nexit 0\n' > .claude/aep-check.sh
+          sh gate.sh; test $? -eq 0
+          echo "gate behavior ok"
+
+      - name: Claude plugin validate
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          claude plugin validate .

@@ -98,7 +98,7 @@ agentic-engineering-protocol/
 
 ## Updating
 
-Push to `main`; users refresh with `/plugin marketplace update agentic-engineering`. The plugin slug `aep` is immutable — renaming a published plugin breaks installs. Version bumps follow semver in both manifests.
+Push to `main`; users refresh with `/plugin marketplace update agentic-engineering`. The plugin slug `aep` is immutable — renaming a published plugin breaks installs. **Every release bumps the version in both manifests** (CI enforces they match): installed copies only update when the declared version changes. See [CHANGELOG.md](CHANGELOG.md).
 
 ## Contributing
 

@@ -23,6 +23,7 @@ edit → run check → READ the output → fix root cause → re-run
 - New logic requires new tests: happy path + boundaries + failure modes.
 - Bug fixes require a **regression test that fails before the fix and passes after** — run it both ways and show it.
 - Tests must be deterministic and order-agnostic; mock only at architectural boundaries; never mock the unit under test.
+- **Test integrity:** never weaken, skip, or delete an existing test to get the gate green — the gate reports uncommitted test-file changes, and any legitimate test change (rename, strengthened assertion, new case) must be named and justified in the delivery summary.
 
 ## 3. Adversarial review (fresh context)
 
