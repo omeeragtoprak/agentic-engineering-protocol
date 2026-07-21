@@ -29,6 +29,10 @@ Skip phases 1–2 **only** when the entire diff can be described in one sentence
 - **Two-strike rule:** two consecutive iterations without measurable progress means STOP. Do not attempt a third identical fix. Reassess the hypothesis, return to `aep:plan`, or escalate to the user with what you learned.
 - **Delegation is not trust:** anything a subagent, tool, or search returned is an unverified claim until you spot-check its evidence.
 
+## Budget discipline
+
+The turn/context budget is a real constraint — protocol overhead must never starve the work. When budget runs short: **compress artifacts, never skip phases** — a one-line gap list and a terse spec still beat none. The baseline check, the verification loop, and the gate are never skipped. If exhaustion is imminent, spend what remains in this order: (1) suite green, (2) clean committed state, (3) reports. For user-facing UI work: if the gate is green and budget remains, one deliberate polish pass is part of the job (see `aep:implement`). Announce any compression explicitly in one line.
+
 ## Escalation triggers (surface to the user immediately)
 
 - The baseline was already broken before your changes.

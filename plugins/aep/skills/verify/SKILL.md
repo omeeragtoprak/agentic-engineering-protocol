@@ -34,9 +34,11 @@ The agent that wrote the code does not grade it. For significant diffs:
 
 Treat findings skeptically in both directions: verify each reported gap is real before fixing it (reviewers asked to find gaps will report some even in sound work), and do not dismiss a finding without evidence.
 
-## 4. Gap-closure audit
+## 4. Gap-closure & spec-compliance audit
 
 Re-run the Phase 1 gap list against the implemented state. Every gap is **demonstrably closed** (name the test/command that proves it) or **explicitly deferred** with a reason. "Mostly done" is not done. For large tasks, delegate this to the `aep:gap-auditor` agent.
+
+Then walk the spec's **Acceptance list** (`.claude/specs/<task-slug>.md` if persisted) criterion by criterion — each one gets a named proof: a test, a command output, or a behavioral probe. Prefer probes that exercise the artifact (boot the server and hit the endpoint; load the page and read real pixels/console/FPS; run the CLI and assert exit codes) over static pattern-matching on the source.
 
 ## 5. Evidence block (mandatory output)
 
@@ -45,6 +47,7 @@ Re-run the Phase 1 gap list against the implemented state. Every gap is **demons
 Build:      <command> → <exit status / summary>
 Lint/Types: <command> → <result>
 Tests:      <command> → <X passed / Y failed / skipped+why>
+Spec:       <n/n acceptance criteria proven (checker or named probe)>
 Regression: <test name> → fails on <pre-fix ref>, passes on HEAD
 Review:     <findings count → resolved/rejected-with-reason>
 Gaps:       <n/n closed; deferred: ...>

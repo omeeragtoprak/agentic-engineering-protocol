@@ -10,7 +10,7 @@ Bootstrap AEP into this repository. Execute these steps in order and report what
    - Same rule for `CLAUDE.md` using `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.md`: create if absent; if present, propose adding only the `@AGENTS.md` import line and the "Claude Code specifics" block.
 
 2. **Install the verify gate (optional but recommended).**
-   - Copy `${CLAUDE_PLUGIN_ROOT}/templates/aep-check.sh.example` to `.claude/aep-check.sh`, make it executable, and edit it to run this project's REAL build+test command (discover it from the repo: package.json scripts, csproj/sln, Makefile, CI config). If you cannot determine the command with confidence, leave the stub as a no-op and tell the user exactly what to put in it.
+   - Copy `${CLAUDE_PLUGIN_ROOT}/templates/aep-check.sh.example` to `.claude/aep-check.sh`, make it executable, and edit it to run this project's REAL build+test command (discover it from the repo: package.json scripts, csproj/sln, Makefile, CI config). If you cannot determine the command with confidence, leave the stub as a no-op and tell the user exactly what to put in it. For tasks with machine-checkable acceptance criteria, `${CLAUDE_PLUGIN_ROOT}/templates/spec_check.py.example` shows how to chain an executable spec checker into the same gate.
    - Explain in one line: while this script exists and fails, the Stop hook blocks task completion.
 
 3. **Populate §P (bootstrap rule).**

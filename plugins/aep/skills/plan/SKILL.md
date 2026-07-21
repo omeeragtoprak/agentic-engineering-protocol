@@ -31,11 +31,14 @@ Files:      <files to create/modify>
 Data/API:   <schema, contract, or endpoint changes; "none" if none>
 Migration:  <forward path + rollback path; "n/a" if none>
 Test plan:  <which tests prove which gaps closed — map to Gap Analysis numbers>
+Acceptance: <numbered, independently checkable criteria — the contract Phase 4 walks one by one>
 Risks:      <what could still go wrong + mitigation>
 Out of scope:<what you are deliberately NOT touching>
 ```
 
 The spec must be checkable: Phase 4 verifies the diff *against this spec*, so vague specs produce unverifiable work.
+
+**Spec-anchored persistence.** For non-trivial or multi-session work, save the spec to `.claude/specs/<task-slug>.md` and keep it updated as the source of truth — the diff converges to the spec, not the other way around. Where acceptance criteria are machine-checkable, mirror them in an executable checker (see `templates/spec_check.py.example`) and wire it into `.claude/aep-check.sh` so the verify gate enforces the spec itself, not just the test suite. Prefer behavioral checks (run the artifact, assert observable behavior) over keyword greps — greps false-fail on renamed concepts and false-pass on keyword stuffing.
 
 ## 3. Approval gate (IMPORTANT)
 

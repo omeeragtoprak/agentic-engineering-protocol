@@ -75,7 +75,7 @@ agentic-engineering-protocol/
     ├── skills/
     │   ├── protocol/    # full-loop orchestrator with phase exit gates
     │   ├── explore/     # read-only ingestion + As-Is/To-Be gap analysis + premise check
-    │   ├── plan/        # generate→critique→refine brainstorming loop + tech spec + approval gates
+    │   ├── plan/        # generate→critique→refine loop + spec-anchored tech spec (.claude/specs/) + approval gates
     │   ├── implement/   # production-grade coding standards, atomic scope
     │   ├── verify/      # closed feedback loop, regression tests, adversarial review, gap closure, evidence block
     │   ├── deliver/     # delivery summary, commit etiquette, persistent-memory (§P) updates
@@ -84,7 +84,7 @@ agentic-engineering-protocol/
     │   ├── adversarial-reviewer.md      # tries to REFUTE the diff against its spec, fresh context
     │   └── gap-auditor.md               # certifies every gap closed/deferred/open, with evidence
     ├── hooks/hooks.json + scripts/verify-gate.sh   # deterministic completion gate
-    └── templates/                       # AGENTS.md core, CLAUDE.md adapter, aep-check.sh.example
+    └── templates/                       # AGENTS.md core, CLAUDE.md adapter, aep-check.sh.example, spec_check.py.example
 ```
 
 ## Design principles (opinionated, evidence-based)

@@ -44,6 +44,10 @@ Repo conventions (§P.3) win over this floor. Where the repo is silent, these ru
 - One task = one coherent change set. No drive-by refactors inside a bug fix; if you spot unrelated debt, log it in §P.5 and move on.
 - Every edit stays inside the spec's file list; growing the list mid-implementation means the spec was wrong — go back to `aep:plan` and say so.
 
+## Craft on user-facing surfaces
+
+Visual and interaction quality is part of production-grade for UI work — "meets the spec but looks unfinished" is not done. Once every check is green and budget remains, invest **one deliberate polish pass** (hierarchy, spacing, motion, color, empty/error states). Never at the gate's expense, never beyond the spec's intent.
+
 ## Exit gate
 
 Code complete · scope atomic · conventions matched · nothing hardcoded. Proceed to `aep:verify` — immediately, not "later".
