@@ -17,7 +17,7 @@ Monolithic instruction files degrade: the longer the always-loaded file, the mor
 |---|---|---|---|
 | Always-on core | `AGENTS.md` (+ thin `CLAUDE.md` adapter) | Every session, in full | Operating stance, non-negotiables, protocol summary, project memory (§P) |
 | Phase playbooks | 7 skills (`aep:*`) | On demand (name+description always visible; body loads when invoked/matched) | Deep procedural detail: checklists, templates, loop algorithms |
-| Fresh-context review | 2 subagents | On delegation, isolated context | Adversarial review & gap audit — the author never grades its own work |
+| Fresh-context review | 4 subagents | On delegation, isolated context | Adversarial review, gap audit, security & performance audits — the author never grades its own work |
 | Hard enforcement | Stop hook (`verify-gate.sh`) | Deterministic, outside the model | Blocks "task complete" while the project's check fails |
 | Bootstrap | `/aep:init` command | Manual | Installs the core + gate into any repository, populates project facts |
 
@@ -49,11 +49,9 @@ Or invoke phases directly: `/aep:explore`, `/aep:plan`, `/aep:verify`, … The s
 Skills follow the **Agent Skills open standard** (a directory with a `SKILL.md`: `name` + `description` frontmatter, markdown body — no tool-specific extensions), so they are portable:
 
 ```bash
-# Codex CLI — per project (whole team gets it via git):
-mkdir -p .agents/skills && cp -r plugins/aep/skills/* .agents/skills/
-
-# Codex CLI — personal/global:
-mkdir -p ~/.codex/skills && cp -r plugins/aep/skills/* ~/.codex/skills/
+./install.sh codex-project   # skills -> ./.agents/skills, core -> ./AGENTS.md
+./install.sh codex-global    # skills -> ~/.codex/skills
+./install.sh agents-md       # AGENTS.md core only (any AGENTS.md-reading tool)
 ```
 
 Then install the always-on core into the repository root:
@@ -69,6 +67,8 @@ Codex reads `AGENTS.md` natively; Claude Code reads it through the `CLAUDE.md` a
 ```
 agentic-engineering-protocol/
 ├── .claude-plugin/marketplace.json      # marketplace catalog
+├── bench/                               # AEP-Bench: seeded-bug tasks + scorer (tamper audit included)
+├── install.sh                           # installer for Codex & other AGENTS.md/Agent Skills tools
 └── plugins/aep/
     ├── .claude-plugin/plugin.json       # plugin manifest (slug: aep, immutable)
     ├── commands/init.md                 # /aep:init — bootstrap a repository
@@ -82,7 +82,9 @@ agentic-engineering-protocol/
     │   └── standards/   # security (OWASP-aligned) + performance/DB + testing reference
     ├── agents/
     │   ├── adversarial-reviewer.md      # tries to REFUTE the diff against its spec, fresh context
-    │   └── gap-auditor.md               # certifies every gap closed/deferred/open, with evidence
+    │   ├── gap-auditor.md               # certifies every gap closed/deferred/open, with evidence
+    │   ├── security-auditor.md          # attacker-mindset audit: OWASP, boundaries, secrets
+    │   └── performance-auditor.md       # scale hazards: hot paths, N+1, allocations
     ├── hooks/hooks.json + scripts/verify-gate.sh   # deterministic completion gate
     └── templates/                       # AGENTS.md core, CLAUDE.md adapter, aep-check.sh.example, spec_check.py.example
 ```

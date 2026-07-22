@@ -5,6 +5,25 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.2.0] - 2026-07-22
+
+### Added
+- **Aspect-verifier pack:** two new fresh-context subagents — `aep:security-auditor`
+  (attacker-mindset OWASP/boundary/secrets audit) and `aep:performance-auditor`
+  (hot paths, N+1, allocations, unbounded growth). `aep:verify` now scales the
+  review panel with the surface: two reviewers is the floor, not the ceiling.
+- **AEP-Bench** (`bench/`): the seeded-bug task corpus behind the launch numbers,
+  with `score.sh` (suite state, original-assertions tamper audit, tests added)
+  and documented methodology — including the honest ties.
+- **`install.sh`** for non-Claude-Code tools: `codex-project`, `codex-global`,
+  `agents-md`, and generic Agent Skills targets.
+- Community files: CONTRIBUTING.md (contributions follow the protocol),
+  SECURITY.md, and issue templates (bug report, protocol change).
+
+### Notes
+- Official `claude plugin eval` cases are deferred until the feature exits early
+  access; `bench/` is runnable today with any agent.
+
 ## [1.1.0] - 2026-07-21
 
 ### Added

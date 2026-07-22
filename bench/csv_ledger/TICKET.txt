@@ -1,0 +1,1 @@
+Support ticket: "Monthly totals are wrong whenever exports contain refunds written like (123.45)." Investigate and fix ledger.py. Docstrings describe the intended behavior.

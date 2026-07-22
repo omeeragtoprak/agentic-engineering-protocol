@@ -34,6 +34,8 @@ The agent that wrote the code does not grade it. For significant diffs:
 
 Treat findings skeptically in both directions: verify each reported gap is real before fixing it (reviewers asked to find gaps will report some even in sound work), and do not dismiss a finding without evidence.
 
+**Scale the panel with the surface.** Independent verifiers with distinct lenses catch what redundant ones cannot: for diffs touching auth, input handling, or anything user-reachable, also run `aep:security-auditor`; for diffs touching hot paths, queries, or data volume, also run `aep:performance-auditor`. Two reviewers is the floor for significant work, not the ceiling.
+
 ## 4. Gap-closure & spec-compliance audit
 
 Re-run the Phase 1 gap list against the implemented state. Every gap is **demonstrably closed** (name the test/command that proves it) or **explicitly deferred** with a reason. "Mostly done" is not done. For large tasks, delegate this to the `aep:gap-auditor` agent.

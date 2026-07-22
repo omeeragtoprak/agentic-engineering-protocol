@@ -1,0 +1,1 @@
+Support ticket: "Users report being rate-limited even though they are under the limit, and limits seem to leak between users." Investigate and fix limiter.py. Docstrings describe the intended behavior.

@@ -1,0 +1,1 @@
+Support ticket: "Customer order totals come out wrong whenever a discount code is used - a $100 cart with SAVE10 charged the customer $10." Investigate and fix pricing.py. Docstrings describe the intended behavior.
