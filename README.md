@@ -16,7 +16,7 @@ Monolithic instruction files degrade: the longer the always-loaded file, the mor
 | Layer | Mechanism | Loaded | Carries |
 |---|---|---|---|
 | Always-on core | `AGENTS.md` (+ thin `CLAUDE.md` adapter) | Every session, in full | Operating stance, non-negotiables, protocol summary, project memory (§P) |
-| Phase playbooks | 7 skills (`aep:*`) | On demand (name+description always visible; body loads when invoked/matched) | Deep procedural detail: checklists, templates, loop algorithms |
+| Playbooks | 9 skills (`aep:*`) | On demand (name+description always visible; body loads when invoked/matched) | Deep procedural detail: 5 phases + standards + triangulated research + orchestration |
 | Fresh-context review | 4 subagents | On delegation, isolated context | Adversarial review, gap audit, security & performance audits — the author never grades its own work |
 | Hard enforcement | Stop hook (`verify-gate.sh`) | Deterministic, outside the model | Blocks "task complete" while the project's check fails |
 | Bootstrap | `/aep:init` command | Manual | Installs the core + gate into any repository, populates project facts |
@@ -77,9 +77,11 @@ agentic-engineering-protocol/
     │   ├── explore/     # read-only ingestion + As-Is/To-Be gap analysis + premise check
     │   ├── plan/        # generate→critique→refine loop + spec-anchored tech spec (.claude/specs/) + approval gates
     │   ├── implement/   # production-grade coding standards, atomic scope
-    │   ├── verify/      # closed feedback loop, regression tests, adversarial review, gap closure, evidence block
+    │   ├── verify/      # closed feedback loop, regression tests, isolated adversarial review, gap closure, evidence block
     │   ├── deliver/     # delivery summary, commit etiquette, persistent-memory (§P) updates
-    │   └── standards/   # security (OWASP-aligned) + performance/DB + testing reference
+    │   ├── standards/   # security (OWASP-aligned) + performance/DB + testing reference
+    │   ├── research/    # sub-branch decomposition, multi-angle search, source triangulation, (unverified) labeling
+    │   └── orchestrate/ # seam-based decomposition, delegation contracts, behavioral verification of subagents
     ├── agents/
     │   ├── adversarial-reviewer.md      # tries to REFUTE the diff against its spec, fresh context
     │   ├── gap-auditor.md               # certifies every gap closed/deferred/open, with evidence

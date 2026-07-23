@@ -19,6 +19,10 @@ Run the phases in order. Each phase has an explicit **exit gate**; do not enter 
 | 4. Verify | `aep:verify` | All checks green with evidence; regression tests in place; adversarial review findings resolved; gap list closed |
 | 5. Deliver | `aep:deliver` | Summary with evidence delivered; commits atomic; §P memory updated if durable knowledge emerged |
 
+## Cross-cutting tools
+
+Two protocols run across all phases when their conditions hit: **`aep:research`** whenever a decision rests on a claim not proven in this repository (library/API choices, version-specific behavior, security advisories) — memory is a hypothesis, the web is evidence; **`aep:orchestrate`** whenever work spans enough seams that subagent fan-out beats serial work — briefs carry contracts, and no subagent claim enters the result unverified.
+
 ## Skip rule
 
 Skip phases 1–2 **only** when the entire diff can be described in one sentence (typo, log line, rename). When you skip, say so explicitly in one line. When in doubt, do not skip.

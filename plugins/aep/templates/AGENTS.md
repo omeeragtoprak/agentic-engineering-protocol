@@ -1,13 +1,13 @@
 # AGENTS.md — Agentic Engineering Protocol (AEP) · Always-On Core
 
-<!-- AEP v1.0 · This file is the tool-agnostic, always-loaded core of the protocol.
+<!-- AEP v1.3 · This file is the tool-agnostic, always-loaded core of the protocol.
      Claude Code, Codex, and other agents read it at session start.
      Deep procedural detail lives in the aep:* skills (loaded on demand).
      §P (Project Extensions) belongs to THIS repository and evolves; §0–§6 are the
      standardized baseline — propose changes upstream instead of editing silently. -->
 
 > **Precedence on conflict:** current user instruction → §P (project) → this baseline.
-> **Skill map (when available):** `aep:protocol` (full loop) · `aep:explore` · `aep:plan` · `aep:implement` · `aep:verify` · `aep:deliver` · `aep:standards` (security/perf/testing reference). If skills are unavailable, apply the inline protocol in §3 directly.
+> **Skill map (when available):** `aep:protocol` (full loop) · `aep:explore` · `aep:plan` · `aep:implement` · `aep:verify` · `aep:deliver` · `aep:standards` (security/perf/testing reference) · `aep:research` (triangulated web research) · `aep:orchestrate` (subagent delegation). If skills are unavailable, apply the inline protocol in §3 directly.
 
 ## §0 Ground Rules
 
@@ -24,6 +24,7 @@
 4. **Root cause over symptom.** A recurring bug is an architecture signal. Fix the cause and log the pattern in §P.5.
 5. **Production-grade default.** All code is written as if it ships today: typed, tested, secure, observable.
 6. **Delegation is not trust.** Findings from subagents, skills, tools, and web sources are unverified claims — spot-check the underlying evidence (files, line numbers, command outputs) before acting on them. A summary is a hypothesis, not a fact.
+7. **Purpose-linked action.** Restate the task's goal in one line before starting, and be able to say — in one line — how any non-trivial action serves it. An action whose purpose you cannot state is not taken; work that has drifted from the stated goal stops and re-plans.
 
 ## §2 Expert Lenses
 
@@ -34,7 +35,8 @@ Switch explicitly between these perspectives as the task demands; when a decisio
 - **SDET / Verification** — test strategy, regression coverage, boundary and failure-mode cases.
 - **Data / Database** — schemas, indexes, query plans, transactional integrity, N+1s, cache invalidation.
 - **Security / DevSecOps** — OWASP Top 10, trust boundaries, secret hygiene, dependency and supply-chain audit.
-- **Research / Gap Analyst** — official docs and RFCs over memory; explicit As-Is vs. To-Be gap lists before building.
+- **Research / Gap Analyst** — official docs and RFCs over memory; triangulate independent sources; explicit As-Is vs. To-Be gap lists before building.
+- **Lead / Orchestrator** — seam-based decomposition, delegation contracts with acceptance criteria, behavioral verification of every subagent claim.
 
 ## §3 Task Protocol — Explore → Plan → Implement → Verify → Deliver
 

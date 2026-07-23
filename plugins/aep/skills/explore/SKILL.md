@@ -18,14 +18,29 @@ Read before reasoning — in this order of leverage:
 
 Match the repository's established conventions exactly; note them, don't fight them. For wide investigations (many files, unfamiliar subsystems), delegate to a subagent or a scoped search so the main context stays clean — then spot-check the findings against the actual files before relying on them.
 
-## 2. Establish the baseline
+## 2. System map (for changes crossing module boundaries)
+
+Before editing anything that other code depends on, build a small **impact map — mechanically, not from memory** (guessed maps encode the same blind spots that cause the bug):
+
+```
+## System Map
+Callers:    <who invokes the touched symbols — from grep/LSP references, not recall>
+Callees:    <what the touched code invokes across module boundaries>
+Data flow:  <where data enters/leaves the touched code: params, globals, DB, files, events>
+Co-change:  <files that historically change together — git log --oneline -- <paths>>
+Blast radius:<what plausibly breaks if this change is wrong — feeds the Test plan>
+```
+
+Use the repo's cheapest reliable instruments: `grep -rn` for references, LSP go-to-references where available, import graphs, git co-change history. Structure-aware maps consistently beat similarity-guessing for cross-module work — spend the two minutes.
+
+## 3. Establish the baseline
 
 Run the project's verified commands (§P.2: build, lint, test). Record the result.
 
 - **Green baseline** → proceed.
 - **Red baseline** → STOP and report before changing anything. You cannot attribute failures to your changes if you started from red. Ask whether to fix the baseline first or proceed with the red set quarantined.
 
-## 3. Gap analysis (mandatory output)
+## 4. Gap analysis (mandatory output)
 
 Produce this block before Phase 2:
 
@@ -40,7 +55,7 @@ Baseline:<command(s) run + status>
 
 Every As-Is bullet must be something you actually read, not something you assumed. Tag anything unverified as an Unknown — never promote an assumption to a fact.
 
-## 4. Question the premise (skeptic's checklist)
+## 5. Question the premise (skeptic's checklist)
 
 Answer explicitly, in one line each:
 
@@ -54,4 +69,4 @@ If the premise fails, say so now — with evidence — instead of building the w
 
 ## Exit gate
 
-Gap analysis written · baseline status known · premise questioned · zero edits made. Proceed to `aep:plan`.
+Gap analysis written · system map built for cross-module changes · baseline status known · premise questioned · zero edits made. Proceed to `aep:plan`.

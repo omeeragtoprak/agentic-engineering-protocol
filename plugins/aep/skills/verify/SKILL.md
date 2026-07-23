@@ -30,6 +30,7 @@ edit → run check → READ the output → fix root cause → re-run
 The agent that wrote the code does not grade it. For significant diffs:
 
 - **Claude Code:** invoke the `aep:adversarial-reviewer` subagent with the diff and the spec.
+- **Isolation matters:** give reviewers the diff and the spec — **never your reasoning, draft summary, or expected verdict**. A verifier that sees the author's conclusion tends to repeat it instead of testing it; that isolation is what makes fresh-context review work.
 - **Other tools:** open a fresh session/context, paste only the diff + spec, and instruct: *"Try to refute this implementation against the spec. Report only gaps affecting correctness or stated requirements — not style preferences."*
 
 Treat findings skeptically in both directions: verify each reported gap is real before fixing it (reviewers asked to find gaps will report some even in sound work), and do not dismiss a finding without evidence.
