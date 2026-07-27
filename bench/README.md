@@ -25,6 +25,10 @@ whether the suite got hardened, and whether the original tests survived intact**
 pristine tests from this directory re-run against the fixed code — catches
 gate-gaming by test-weakening) · tests added.
 
+## Measuring a run
+
+Count behaviors from the **session transcript** (`~/.claude/projects/<slug>/<session>.jsonl`, one JSON object per line — count `tool_use` entries by name), not from the harness result JSON: its `usage.server_tool_use.web_search_requests` counter reads 0 even for sessions that ran several searches, and a single unreliable instrument produces confident wrong findings.
+
 ## Method notes & honesty
 
 - Single-run comparisons, not statistical benchmarks. Report per-arm scores; never mix arms across rounds.

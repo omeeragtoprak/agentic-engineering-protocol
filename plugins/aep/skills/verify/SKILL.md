@@ -33,6 +33,8 @@ The agent that wrote the code does not grade it. For significant diffs:
 - **Isolation matters:** give reviewers the diff and the spec — **never your reasoning, draft summary, or expected verdict**. A verifier that sees the author's conclusion tends to repeat it instead of testing it; that isolation is what makes fresh-context review work.
 - **Other tools:** open a fresh session/context, paste only the diff + spec, and instruct: *"Try to refute this implementation against the spec. Report only gaps affecting correctness or stated requirements — not style preferences."*
 
+**When no fresh context is available** (subagents disabled, single-session tool): say so explicitly, run the review pass anyway, and record it in the delivery summary as *weaker evidence — the context that wrote the code graded it*. Never let an unavailable reviewer silently downgrade to no review at all.
+
 Treat findings skeptically in both directions: verify each reported gap is real before fixing it (reviewers asked to find gaps will report some even in sound work), and do not dismiss a finding without evidence.
 
 **Scale the panel with the surface.** Independent verifiers with distinct lenses catch what redundant ones cannot: for diffs touching auth, input handling, or anything user-reachable, also run `aep:security-auditor`; for diffs touching hot paths, queries, or data volume, also run `aep:performance-auditor`. Two reviewers is the floor for significant work, not the ceiling.

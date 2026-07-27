@@ -14,10 +14,14 @@ Run the phases in order. Each phase has an explicit **exit gate**; do not enter 
 | Phase | Playbook | Exit gate |
 |---|---|---|
 | 1. Explore | `aep:explore` | Gap analysis written (As-Is → To-Be → gaps); baseline status known; premise questioned; zero production code written |
-| 2. Plan | `aep:plan` | One approach selected from a generate→critique→refine loop; short spec written; high-risk changes approved by the user |
+| 2. Plan | `aep:plan` | One approach selected from a generate→critique→refine loop; spec written **with a numbered Acceptance list**, and persisted to `.claude/specs/<task-slug>.md` for non-trivial work; high-risk changes approved by the user |
 | 3. Implement | `aep:implement` | Code complete, atomic in scope, matching repo conventions |
-| 4. Verify | `aep:verify` | All checks green with evidence; regression tests in place; adversarial review findings resolved; gap list closed |
+| 4. Verify | `aep:verify` | All checks green with evidence; regression tests in place; adversarial review run **in a context that did not write the code** — where that is impossible, the weaker path used is named in the delivery summary; acceptance list proven item by item; gap list closed |
 | 5. Deliver | `aep:deliver` | Summary with evidence delivered; commits atomic; §P memory updated if durable knowledge emerged |
+
+## Artifacts are load-bearing
+
+Running the loop inline instead of invoking the phase skills is allowed, but the phase **artifacts** are not optional: gap analysis, system map (cross-module changes), persisted spec with acceptance criteria, evidence block, delivery summary. Compress them under budget pressure — never drop them. Keep their block headings intact so tooling and later sessions can find them.
 
 ## Cross-cutting tools
 

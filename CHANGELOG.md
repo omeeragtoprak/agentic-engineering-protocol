@@ -5,6 +5,45 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.4.0] - 2026-07-27
+
+Fixes found by running v1.3.0 against a live cross-module task (two independent
+sessions, same ticket, both green and behaviorally verified) — the protocol
+audited by its own method.
+
+### Fixed
+- **Artifact rules now live in the orchestrator, not only in the phase skills.**
+  An agent that runs the loop inline never loads a phase-skill body, so the
+  spec-persistence and acceptance-list rules were invisible to it — observed:
+  neither session persisted `.claude/specs/`. `aep:protocol`'s Plan and Verify
+  exit gates now carry those rules, plus an explicit "artifacts are
+  load-bearing" clause (compress under budget, never drop; keep block headings
+  so tooling and later sessions can find them).
+- **No-fresh-context fallback is now a rule.** When subagents are unavailable,
+  the review still runs, is labeled *weaker evidence — the context that wrote
+  the code graded it*, and is disclosed in the delivery summary. (One session
+  invented exactly this behavior and disclosed the deviation; codifying it
+  removes the coin flip.)
+- **Spec persistence is unconditional about location:** create `.claude/specs/`
+  if absent — "the repo has no docs directory" was an observed excuse for
+  skipping it.
+
+### Changed
+- `bench/README.md` documents how to measure a run: count `tool_use` entries in
+  the session transcript, not `usage.server_tool_use.web_search_requests` — that
+  counter reads 0 for sessions that demonstrably ran several searches, and a
+  single unreliable instrument produces confident wrong findings.
+
+### Validation notes (both sessions, same ticket)
+- Research reflex fired in both (7 searches + 6 fetches total), multi-angle and
+  primary-source heavy (AWS analysis, Python docs, RFC 9110), with empirical
+  runtime verification where sources were vague.
+- Cross-module reasoning produced opposite latency budgets per caller —
+  behaviorally verified: interactive 2 attempts / <=0.1 s backoff vs batch
+  5-7 attempts / 2-3.7 s.
+- Suites hardened 3 -> 37 and 3 -> 33 tests, green; permanent failures not
+  retried; backward compatibility preserved by default.
+
 ## [1.3.0] - 2026-07-23
 
 Research-grounded "engineering intelligence" release — every mechanism below maps

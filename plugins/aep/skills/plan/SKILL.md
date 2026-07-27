@@ -38,7 +38,7 @@ Out of scope:<what you are deliberately NOT touching>
 
 The spec must be checkable: Phase 4 verifies the diff *against this spec*, so vague specs produce unverifiable work.
 
-**Spec-anchored persistence.** For non-trivial or multi-session work, save the spec to `.claude/specs/<task-slug>.md` and keep it updated as the source of truth — the diff converges to the spec, not the other way around. Where acceptance criteria are machine-checkable, mirror them in an executable checker (see `templates/spec_check.py.example`) and wire it into `.claude/aep-check.sh` so the verify gate enforces the spec itself, not just the test suite. Prefer behavioral checks (run the artifact, assert observable behavior) over keyword greps — greps false-fail on renamed concepts and false-pass on keyword stuffing.
+**Spec-anchored persistence.** For non-trivial or multi-session work, save the spec to `.claude/specs/<task-slug>.md` and keep it updated as the source of truth: the diff converges to the spec, not the other way around. Create the directory if it is absent — a repo without a docs folder is not a reason to skip persistence. Where acceptance criteria are machine-checkable, mirror them in an executable checker (see `templates/spec_check.py.example`) and wire it into `.claude/aep-check.sh` so the verify gate enforces the spec itself, not just the test suite. Prefer behavioral checks (run the artifact, assert observable behavior) over keyword greps — greps false-fail on renamed concepts and false-pass on keyword stuffing.
 
 ## 3. Approval gate (IMPORTANT)
 
