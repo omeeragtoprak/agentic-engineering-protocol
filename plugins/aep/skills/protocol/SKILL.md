@@ -39,7 +39,10 @@ Skip phases 1–2 **only** when the entire diff can be described in one sentence
 
 ## Budget discipline
 
-The turn/context budget is a real constraint — protocol overhead must never starve the work. When budget runs short: **compress artifacts, never skip phases** — a one-line gap list and a terse spec still beat none. The baseline check, the verification loop, and the gate are never skipped. If exhaustion is imminent, spend what remains in this order: (1) suite green, (2) clean committed state, (3) reports. For user-facing UI work: if the gate is green and budget remains, one deliberate polish pass is part of the job (see `aep:implement`). Announce any compression explicitly in one line.
+The turn/context budget is a real constraint and you usually **cannot see how much of it is left** — a session can be cut off mid-phase without warning. So do not plan around exhaustion; make every stopping point safe:
+
+- **Leave a committable green state at every phase boundary.** Never carry a knowingly red suite across a phase gate; if a phase must end red, say so in one line before continuing.
+- **Compress artifacts, never skip phases** — a one-line gap list and a terse spec still beat none. The baseline check, the verification loop, and the gate are never skipped. For user-facing UI work: if the gate is green and budget remains, one deliberate polish pass is part of the job (see `aep:implement`). Announce any compression explicitly in one line.
 
 ## Escalation triggers (surface to the user immediately)
 

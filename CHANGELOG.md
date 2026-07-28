@@ -5,6 +5,26 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.4.2] - 2026-07-28
+
+Round-3 validation (n=2) confirmed the v1.4.1 fix and exposed one more rule with
+an unfollowable shape. Record: `docs/validation-log.md`.
+
+### Confirmed
+- Reviewer provenance went **0/2 -> 2/2**. Both deliveries named the reviewer
+  unprompted ("authoring context — weaker"), one offering to run a proper
+  fresh-context review. Together with the spec-persistence flip, this establishes
+  the design rule: **unconditional positives are followed; conditional negatives
+  are dropped** — same layer, same wording budget, opposite adherence.
+
+### Fixed
+- **Budget discipline reframed.** The old rule ("when budget is nearly exhausted,
+  prioritize green suite > committed state > reports") assumes the agent can see
+  its remaining budget — it cannot, and sessions are cut off mid-phase without
+  warning; one Round-3 session was killed leaving a red suite. Replaced with an
+  unconditional positive that needs no hidden state: *leave a committable green
+  state at every phase boundary; if a phase must end red, say so in one line.*
+
 ## [1.4.1] - 2026-07-28
 
 Round-2 validation (v1.4.0, n=2, same cross-module task) confirmed one fix and

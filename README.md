@@ -94,9 +94,10 @@ agentic-engineering-protocol/
 ## Validation
 
 AEP is measured on real tasks and the failures are published next to the wins —
-see [docs/validation-log.md](docs/validation-log.md). Round 2 confirmed one fix
-(spec persistence 0/2 → 2/2) and refuted the shape of another (a conditional
-disclosure rule that was dropped 0/2, now rewritten as an unconditional one).
+see [docs/validation-log.md](docs/validation-log.md). Three measured rounds so far: two fixes confirmed by
+0/2 → 2/2 flips (spec persistence, reviewer provenance) and one rule refuted by
+its shape — which produced a reusable design rule: **unconditional positives are
+followed where conditional negatives are dropped.**
 Task corpus and scorer: [bench/](bench/).
 
 ## Design principles (opinionated, evidence-based)

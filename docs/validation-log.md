@@ -64,8 +64,45 @@ delivery-summary field names. Agents reproduce substance, not format.
 who graded the diff (`fresh-context subagent` / `separate session` /
 `authoring context (weaker)`), with no branch to forget.
 
-**Open:** whether the unconditional form holds. Not yet re-measured; this entry
-will be updated with the result rather than quietly dropped.
+**Result (Round 3):** the unconditional form held **2/2** — see below.
+
+## Round 3 — v1.4.1, same task (n=2)
+
+**Primary hypothesis confirmed: 0/2 → 2/2.** Both deliveries named the reviewer
+unprompted:
+
+> "**Adversarial review: authoring context — weaker.** No fresh-context subagent
+> graded this diff … so that pass carries author bias" (run A, which also offered
+> to run a proper one)
+>
+> "**Reviewer: authoring context — weaker.** I did the adversarial pass myself"
+> (run B)
+
+**Design rule established:** an *unconditional positive* ("always name X") is
+followed where a *conditional negative* ("if you could not do X, say so") is
+dropped — same layer, same wording budget, opposite adherence. Both AEP rules
+that flipped 0/2 → 2/2 have this shape.
+
+**No regressions:** spec persisted 2/2 · atomic commits, clean trees 2/2 ·
+suites green (38 and 30 tests) · behavioral probes 5/5 and 5/6.
+
+**Notes on the one probe miss:** run B defaults `retry=None` to an INTERACTIVE
+preset, so a bare `get_json(url)` now retries within a sub-second budget. That is
+a documented, tested design choice (not a silent regression) — but it is the one
+place where a generic helper retries without the caller opting in, which is only
+safe because the helper is GET-only.
+
+**Method caveat:** at a 45-turn cap both Round-3 sessions were cut off mid-Verify
+(one left the suite red), producing no measurable delivery; both were re-run from
+baseline at 60 turns. The cap change is a measurement fix, not a moved goalpost —
+the metric was fixed before the round started.
+
+**New finding — budget rules need a shape that survives invisibility.** The
+v1.1 rule ("when budget is nearly exhausted, prioritize green suite > committed
+state > reports") cannot be followed: the agent cannot see how many turns remain,
+and the harness cuts the session without warning. Reframed in v1.4.2 as an
+unconditional positive — *leave a committable green state at every phase
+boundary* — which needs no hidden state. Not yet re-measured.
 
 ## Standing caveats
 
