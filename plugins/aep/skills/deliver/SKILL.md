@@ -11,6 +11,7 @@ description: Delivery discipline — evidence-backed summary, atomic commit etiq
 ## Delivered: <task>
 What & why:  <1–3 sentences — the change and its rationale>
 Evidence:    <reference the Verification Evidence block>
+Reviewed by: <fresh-context subagent | separate session | authoring context (weaker)>
 Trade-offs:  <what was consciously sacrificed and why>
 Risks left:  <known residual risks + suggested mitigations>
 Needs human: <decisions outside agent authority, if any>

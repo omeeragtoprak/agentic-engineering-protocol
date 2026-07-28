@@ -91,6 +91,14 @@ agentic-engineering-protocol/
     └── templates/                       # AGENTS.md core, CLAUDE.md adapter, aep-check.sh.example, spec_check.py.example
 ```
 
+## Validation
+
+AEP is measured on real tasks and the failures are published next to the wins —
+see [docs/validation-log.md](docs/validation-log.md). Round 2 confirmed one fix
+(spec persistence 0/2 → 2/2) and refuted the shape of another (a conditional
+disclosure rule that was dropped 0/2, now rewritten as an unconditional one).
+Task corpus and scorer: [bench/](bench/).
+
 ## Design principles (opinionated, evidence-based)
 
 1. **Instruction files are advisory; hooks are deterministic.** Anything that must be *guaranteed* lives in the Stop hook or your CI — never only in prose.

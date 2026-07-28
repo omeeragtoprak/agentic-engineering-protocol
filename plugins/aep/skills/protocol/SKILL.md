@@ -16,7 +16,7 @@ Run the phases in order. Each phase has an explicit **exit gate**; do not enter 
 | 1. Explore | `aep:explore` | Gap analysis written (As-Is → To-Be → gaps); baseline status known; premise questioned; zero production code written |
 | 2. Plan | `aep:plan` | One approach selected from a generate→critique→refine loop; spec written **with a numbered Acceptance list**, and persisted to `.claude/specs/<task-slug>.md` for non-trivial work; high-risk changes approved by the user |
 | 3. Implement | `aep:implement` | Code complete, atomic in scope, matching repo conventions |
-| 4. Verify | `aep:verify` | All checks green with evidence; regression tests in place; adversarial review run **in a context that did not write the code** — where that is impossible, the weaker path used is named in the delivery summary; acceptance list proven item by item; gap list closed |
+| 4. Verify | `aep:verify` | All checks green with evidence; regression tests in place; adversarial review run **and its reviewer named** — every delivery states who graded the diff (`fresh-context subagent` / `separate session` / `authoring context — weaker`), unconditionally; acceptance list proven item by item; gap list closed |
 | 5. Deliver | `aep:deliver` | Summary with evidence delivered; commits atomic; §P memory updated if durable knowledge emerged |
 
 ## Artifacts are load-bearing

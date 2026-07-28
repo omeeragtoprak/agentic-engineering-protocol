@@ -5,6 +5,37 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.4.1] - 2026-07-28
+
+Round-2 validation (v1.4.0, n=2, same cross-module task) confirmed one fix and
+refuted the shape of another. Full record: `docs/validation-log.md`.
+
+### Confirmed
+- Spec persistence went **0/2 -> 2/2** once the rule moved into the orchestrator
+  exit gate — moving load-bearing rules to the always-visible layer was the
+  right diagnosis.
+
+### Fixed
+- **Reviewer provenance is now unconditional.** v1.4.0 asked agents to disclose
+  *when* fresh-context review was impossible; that conditional negative was
+  dropped 0/2. Every delivery now names who graded the diff
+  (`fresh-context subagent` / `separate session` / `authoring context (weaker)`)
+  with no branch to forget — the same unconditional-positive shape that worked
+  for spec persistence.
+
+### Added
+- `docs/validation-log.md` — measured rounds with failures published next to
+  wins, plus measurement discipline (count `tool_use` in the session transcript;
+  probe behavior against the real interface, never by grepping source — three
+  source-grep probes produced false failures during these rounds).
+
+### Observed, not yet fixed
+- Named template fields are not reproduced verbatim: both sessions produced an
+  `## Evidence` section, neither emitted the `Review:` row or the
+  delivery-summary field names. Agents reproduce substance, not format — so
+  rules that exist only as a template row are unreliable. Load-bearing
+  requirements belong in exit gates, phrased as unconditional actions.
+
 ## [1.4.0] - 2026-07-27
 
 Fixes found by running v1.3.0 against a live cross-module task (two independent
