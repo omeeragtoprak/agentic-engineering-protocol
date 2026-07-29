@@ -5,6 +5,34 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.4.3] - 2026-07-29
+
+Round-4 validation refuted the v1.4.2 budget rule. Record: `docs/validation-log.md`.
+
+### Changed
+- **Budget discipline now names a limit instead of a rule.** Two measured
+  cutoffs (one before the v1.4.2 reframe, one after) left a red suite: a hard
+  interrupt mid-edit lands wherever it lands, and "be in a green state at phase
+  boundaries" is a *continuous property* an interrupt ignores — unlike the
+  *discrete actions* that flipped 0/2 → 2/2 in earlier rounds. The protocol now
+  says so plainly and asks only for what prose can deliver: **name the state of
+  the tree whenever you stop** (committed / uncommitted-green / uncommitted-red),
+  and **commit green checkpoints where repo convention allows**.
+
+### Added
+- `bench/retry-crossmodule` — a feature task rather than a bug hunt: one shared
+  helper, two callers with opposite latency budgets, and a transient-failure
+  classification question the repo cannot answer. Baseline green, so passing the
+  suite is free and the differences appear in system mapping, research, and
+  disclosure. Includes a behavioral scoring guide.
+
+### Note on measurement
+- Five string-matching metrics across four rounds produced false results on agent
+  output — including scoring an exemplary run (fresh-context review, mutation
+  testing, live-socket tests, human escalation) as a failure because it wrote
+  "Graded by a fresh-context subagent" instead of "Reviewer:". The validation log
+  now leads with this: read the artifact, never score by regex alone.
+
 ## [1.4.2] - 2026-07-28
 
 Round-3 validation (n=2) confirmed the v1.4.1 fix and exposed one more rule with

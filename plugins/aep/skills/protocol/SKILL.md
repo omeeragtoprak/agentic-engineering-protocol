@@ -39,9 +39,10 @@ Skip phases 1–2 **only** when the entire diff can be described in one sentence
 
 ## Budget discipline
 
-The turn/context budget is a real constraint and you usually **cannot see how much of it is left** — a session can be cut off mid-phase without warning. So do not plan around exhaustion; make every stopping point safe:
+The turn/context budget is a real constraint and you usually **cannot see how much of it is left**. A hard interrupt mid-edit is not something any instruction can make safe — measured twice, sessions killed inside the verification loop left a red suite — so treat that as a protocol limit, not a rule to try harder at. What is actionable:
 
-- **Leave a committable green state at every phase boundary.** Never carry a knowingly red suite across a phase gate; if a phase must end red, say so in one line before continuing.
+- **Whenever you stop, name the state of the tree** — committed / uncommitted-green / uncommitted-red, in one line, unconditionally. An interrupted task that is legible costs the next session minutes; one that lies costs it hours.
+- **Commit green checkpoints at phase boundaries** where repo convention allows it; where it does not (unattended runs, review-first workflows), say what is left uncommitted instead.
 - **Compress artifacts, never skip phases** — a one-line gap list and a terse spec still beat none. The baseline check, the verification loop, and the gate are never skipped. For user-facing UI work: if the gate is green and budget remains, one deliberate polish pass is part of the job (see `aep:implement`). Announce any compression explicitly in one line.
 
 ## Escalation triggers (surface to the user immediately)

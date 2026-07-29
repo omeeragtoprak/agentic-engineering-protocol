@@ -102,7 +102,41 @@ v1.1 rule ("when budget is nearly exhausted, prioritize green suite > committed
 state > reports") cannot be followed: the agent cannot see how many turns remain,
 and the harness cuts the session without warning. Reframed in v1.4.2 as an
 unconditional positive — *leave a committable green state at every phase
-boundary* — which needs no hidden state. Not yet re-measured.
+boundary*. **Round 4 refuted it** (below).
+
+## Round 4 — v1.4.2, cross-module task at a deliberately tight budget (n=2)
+
+Design: 30-turn cap, intended to force a cutoff and test the new budget rule.
+Only one session actually cut off (A finished in 19 turns), so n=1 valid for the
+primary metric.
+
+**Refuted — the budget rule does not work, and cannot.** The cut-off session (B,
+killed at turn 31 inside the verification loop) left the suite **red** and
+nothing committed — the same outcome as the pre-fix Round-3 cutoff. Diagnosis: a
+hard interrupt lands wherever it lands. "Be in a green state at phase
+boundaries" is a *continuous property* an arbitrary interrupt ignores, unlike the
+*discrete actions* (write the spec file, name the reviewer) that both flipped
+0/2 → 2/2. **v1.4.3 stops pretending:** the protocol now names this as a limit,
+and asks for the two things prose can deliver — name the tree's state whenever
+you stop, and commit green checkpoints where convention allows.
+
+**The other session was exemplary, and my scorecard was wrong about it.** Run A
+graded its own work with a **fresh-context subagent** and said so
+("Graded by a fresh-context subagent … briefed with diff + spec only"), verified
+each of the reviewer's six findings independently before acting, ran **mutation
+testing** (13 mutants, all detected — "tests that can't fail prove nothing"),
+added a real-socket integration suite beyond mocks, escalated two issues needing
+a human decision, and disclosed that it had deliberately not committed
+("Nothing committed — say the word"). My automated check scored this as "no
+reviewer disclosure" because it grepped for `Reviewer:` and the run wrote
+`Graded by a …` instead.
+
+**Measurement lesson (the strongest of the series).** Five times across four
+rounds, a string-matching metric produced a false negative or false positive on
+agent output: `retries=1` vs a dict key · "no tests added" when tests went to a
+new file · "retry broken" when the API took a policy object · "0 web searches"
+from an unpopulated harness counter · "no reviewer named" for a run that named
+it in a heading. **Read the artifact; never score agent behavior by regex alone.**
 
 ## Standing caveats
 
