@@ -15,6 +15,12 @@ whether the suite got hardened, and whether the original tests survived intact**
 | `rate_limiter` | sliding-window limiter | over-admits by one (`> limit`); denied calls recorded anyway; per-user isolation missing (shared list); expired timestamps never pruned |
 | `csv_ledger` | bank-export importer | header row summed (crashes on real files); accounting `(123.45)` negatives unhandled; comma-decimal amounts split wrong |
 
+Plus one task of a different kind:
+
+| Task | Module | What it plants |
+|---|---|---|
+| [`retry-crossmodule`](retry-crossmodule/) | HTTP helper with two callers | no bug — a **design tension**: one shared helper, two callers with opposite latency budgets, and a correctness question (which failures are transient?) that cannot be answered from the repo. Baseline is green; see its README for the separate scoring guide. |
+
 ## Protocol
 
 1. Copy a task directory to a scratch location; `git init && git add -A && git commit`.
