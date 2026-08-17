@@ -66,6 +66,13 @@ jobs:
           # passing check -> allow
           printf '#!/bin/sh\nexit 0\n' > .claude/aep-check.sh
           sh gate.sh; test $? -eq 0
+          # green suite with suppressed tests -> allow, but surface a notice
+          printf '#!/bin/sh\necho "OK (expected failures=1)"\n' > .claude/aep-check.sh
+          OUT=$(sh gate.sh); test $? -eq 0
+          echo "$OUT" | grep -q "suppressed tests"
+          # clean green suite -> no notice at all
+          printf '#!/bin/sh\necho "OK"\n' > .claude/aep-check.sh
+          OUT=$(sh gate.sh); test -z "$OUT"
           echo "gate behavior ok"
 
       - name: Claude plugin validate

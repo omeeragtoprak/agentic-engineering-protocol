@@ -23,6 +23,7 @@ edit → run check → READ the output → fix root cause → re-run
 - New logic requires new tests: happy path + boundaries + failure modes.
 - Bug fixes require a **regression test that fails before the fix and passes after** — run it both ways and show it.
 - Tests must be deterministic and order-agnostic; mock only at architectural boundaries; never mock the unit under test.
+- **Name every suppressed test.** Skips, `expectedFailure`/`xfail`, and disabled cases satisfy a green exit code while the assertion behind them is not enforced — the gate cannot tell the difference. The evidence block names each one and why, unconditionally; a suppression nobody mentions is indistinguishable from a defect nobody found.
 - **Test integrity:** never weaken, skip, or delete an existing test to get the gate green — the gate reports uncommitted test-file changes, and any legitimate test change (rename, strengthened assertion, new case) must be named and justified in the delivery summary.
 
 ## 3. Adversarial review (fresh context)
@@ -51,7 +52,7 @@ Then walk the spec's **Acceptance list** (`.claude/specs/<task-slug>.md` if pers
 ## Verification Evidence
 Build:      <command> → <exit status / summary>
 Lint/Types: <command> → <result>
-Tests:      <command> → <X passed / Y failed / skipped+why>
+Tests:      <command> → <X passed / Y failed / each skipped-or-xfail test named + why>
 Spec:       <n/n acceptance criteria proven (checker or named probe)>
 Regression: <test name> → fails on <pre-fix ref>, passes on HEAD
 Review:     <reviewer: fresh-context subagent | separate session | authoring context (weaker)> → <findings count → resolved/rejected-with-reason>

@@ -32,10 +32,23 @@ if [ $STATUS -ne 0 ]; then
   exit 2                    # exit 2 = block stop, stderr is fed back to the agent
 fi
 
-if [ -n "$TAMPER" ]; then
-  # Check is green but test files changed: surface to the user, non-blocking.
+# Suppressed tests satisfy an exit code while a real assertion is knowingly
+# failing (unittest expectedFailure, pytest xfail, skips). Legitimate, but never
+# invisible: measured in a controlled run where the gate passed a suite carrying
+# a known-broken contract test.
+SUPPRESSED=$(printf '%s\n' "$OUTPUT" | grep -Eio '[0-9]+ (expected failures?|skipped|xfailed|xpassed)|OK \((expected failures|skipped)[^)]*\)' | head -3 | tr '\n' ' ')
+
+if [ -n "$TAMPER" ] || [ -n "$SUPPRESSED" ]; then
+  # Check is green but something deserves a look: surface it, non-blocking.
   ESC=$(printf '%s' "$TAMPER" | tr '\n' ';' | tr -d '"\\')
-  printf '{"systemMessage":"AEP gate green, but test files have uncommitted changes (%s). Confirm tests were strengthened, not weakened - see the delivery summary."}\n' "$ESC"
+  SUP=$(printf '%s' "$SUPPRESSED" | tr -d '"\\')
+  if [ -n "$TAMPER" ] && [ -n "$SUPPRESSED" ]; then
+    printf '{"systemMessage":"AEP gate green, with two things to confirm: test files have uncommitted changes (%s), and the suite reports suppressed tests (%s). Name both in the delivery summary - a green exit code does not mean every assertion ran."}\n' "$ESC" "$SUP"
+  elif [ -n "$TAMPER" ]; then
+    printf '{"systemMessage":"AEP gate green, but test files have uncommitted changes (%s). Confirm tests were strengthened, not weakened - see the delivery summary."}\n' "$ESC"
+  else
+    printf '{"systemMessage":"AEP gate green, but the suite reports suppressed tests (%s). Skips and expected-failures satisfy the exit code while a real assertion is not being enforced - name each one and why in the delivery summary."}\n' "$SUP"
+  fi
 fi
 
 exit 0

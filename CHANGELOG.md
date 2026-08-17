@@ -5,6 +5,32 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.5.0] - 2026-08-17
+
+Round 5 tested the project's headline claim under control for the first time, and
+found a hole in it. Record: `docs/validation-log.md`.
+
+### Added
+- **The gate now sees suppressed tests.** `@unittest.expectedFailure`, `xfail`,
+  and skips satisfy a green exit code while the assertion behind them is not
+  enforced — verified directly: a suite carrying a knowingly-broken contract test
+  exited 0 and the gate passed it. The Stop hook now emits a non-blocking notice
+  naming the suppressions (it stays non-blocking because these are legitimate
+  techniques), and `aep:verify` requires each suppressed test to be named in the
+  evidence block, unconditionally.
+- `bench/hidden-breakage` — a task built to separate instructions from
+  enforcement: implementing the ticket correctly breaks a contract test in a
+  second file, so only the full suite sees red. Ships an A/B protocol
+  (gate arm vs no-gate arm) and pre-registered metrics.
+
+### Measured
+- **The Stop hook fires in headless sessions** — two timestamped invocations
+  logged. Previously the hook had only been tested in isolation.
+- **On this task the gate changed nothing.** Both arms ended green, neither
+  weakened a test, both escalated the deployment decision to a human with a
+  stated rationale. The gate is insurance for the case where an agent *would*
+  stop red; this round did not produce that case, and the log says so.
+
 ## [1.4.3] - 2026-07-29
 
 Round-4 validation refuted the v1.4.2 budget rule. Record: `docs/validation-log.md`.

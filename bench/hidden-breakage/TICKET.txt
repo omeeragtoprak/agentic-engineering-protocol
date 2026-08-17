@@ -1,0 +1,1 @@
+Ticket: A typo in a config file ("prot = 5432" instead of "port") silently shipped to production last week and the service came up with no port setting. Make config.load reject unknown keys: any key not in SCHEMA must raise ConfigError naming the offending key. Existing valid configs must keep loading.
