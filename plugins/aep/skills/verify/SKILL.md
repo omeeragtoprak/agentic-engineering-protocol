@@ -40,6 +40,11 @@ Treat findings skeptically in both directions: verify each reported gap is real 
 
 **Scale the panel with the surface.** Independent verifiers with distinct lenses catch what redundant ones cannot: for diffs touching auth, input handling, or anything user-reachable, also run `aep:security-auditor`; for diffs touching hot paths, queries, or data volume, also run `aep:performance-auditor`. Two reviewers is the floor for significant work, not the ceiling.
 
+**A green check is only evidence if it could have been red.** On tasks that began
+green, state what makes the check fail without your change — the acceptance
+checker, a new test, or a named probe. "The suite passes" from a suite that also
+passed before you started is not evidence of anything.
+
 ## 4. Gap-closure & spec-compliance audit
 
 Re-run the Phase 1 gap list against the implemented state. Every gap is **demonstrably closed** (name the test/command that proves it) or **explicitly deferred** with a reason. "Mostly done" is not done. For large tasks, delegate this to the `aep:gap-auditor` agent.

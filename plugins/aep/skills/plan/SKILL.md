@@ -38,6 +38,12 @@ Out of scope:<what you are deliberately NOT touching>
 
 The spec must be checkable: Phase 4 verifies the diff *against this spec*, so vague specs produce unverifiable work.
 
+**Red-first on a green baseline.** If the baseline check already passes, it cannot
+distinguish your finished work from an untouched repo — write the acceptance
+criteria as executable checks, wire them into the project check, and watch it fail
+before you implement. Confirming the check fails is part of the plan's exit gate,
+not an optional flourish.
+
 **Spec-anchored persistence.** For non-trivial or multi-session work, save the spec to `.claude/specs/<task-slug>.md` and keep it updated as the source of truth: the diff converges to the spec, not the other way around. Create the directory if it is absent — a repo without a docs folder is not a reason to skip persistence. Where acceptance criteria are machine-checkable, mirror them in an executable checker (see `templates/spec_check.py.example`) and wire it into `.claude/aep-check.sh` so the verify gate enforces the spec itself, not just the test suite. Prefer behavioral checks (run the artifact, assert observable behavior) over keyword greps — greps false-fail on renamed concepts and false-pass on keyword stuffing.
 
 ## 3. Approval gate (IMPORTANT)
@@ -46,4 +52,4 @@ Present the spec and **wait for explicit approval before implementing** when the
 
 ## Exit gate
 
-One approach selected via the loop · spec written · high-risk changes approved. Proceed to `aep:implement`.
+One approach selected via the loop · spec written with a numbered Acceptance list · on a green baseline, the check made red first and confirmed failing · high-risk changes approved. Proceed to `aep:implement`.

@@ -42,6 +42,8 @@ Then run disciplined tasks:
 
 Or invoke phases directly: `/aep:explore`, `/aep:plan`, `/aep:verify`, … The skills also auto-match — asking for "a production-grade fix" or "analyze before changing" triggers the right phase without the slash.
 
+**What the gate is, measured:** in controlled A/B rounds (same task, same model, one file different) the gate has **not blocked once** — capable models running these instructions verify themselves, and the hook found nothing to catch. Treat it as insurance for the tail case (an agent that *would* stop red), not as a performance multiplier; the numbers are in [docs/validation-log.md](docs/validation-log.md).
+
 **The verify gate:** `/aep:init` creates `.claude/aep-check.sh`. Point it at your real build+test command. While it exists and fails, a Stop hook blocks the agent from declaring the task complete (with a built-in safety override after repeated blocks, so a broken check can't dead-lock a session).
 
 ## Quick start — Codex & other agents

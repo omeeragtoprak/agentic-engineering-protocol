@@ -14,10 +14,22 @@ Run the phases in order. Each phase has an explicit **exit gate**; do not enter 
 | Phase | Playbook | Exit gate |
 |---|---|---|
 | 1. Explore | `aep:explore` | Gap analysis written (As-Is → To-Be → gaps); baseline status known; premise questioned; zero production code written |
-| 2. Plan | `aep:plan` | One approach selected from a generate→critique→refine loop; spec written **with a numbered Acceptance list**, and persisted to `.claude/specs/<task-slug>.md` for non-trivial work; high-risk changes approved by the user |
+| 2. Plan | `aep:plan` | One approach selected from a generate→critique→refine loop; spec written **with a numbered Acceptance list**, and persisted to `.claude/specs/<task-slug>.md` for non-trivial work; high-risk changes approved by the user; **on a green baseline, the acceptance criteria are wired into the project check before implementing, so an untouched repo fails it** |
 | 3. Implement | `aep:implement` | Code complete, atomic in scope, matching repo conventions |
 | 4. Verify | `aep:verify` | All checks green with evidence; regression tests in place; adversarial review run **and its reviewer named** — every delivery states who graded the diff (`fresh-context subagent` / `separate session` / `authoring context — weaker`), unconditionally; acceptance list proven item by item; gap list closed |
 | 5. Deliver | `aep:deliver` | Summary with evidence delivered; commits atomic; §P memory updated if durable knowledge emerged |
+
+## A green baseline cannot prove completion
+
+When the suite is already green before you start — feature work, most refactors —
+passing it proves nothing: **a session that does nothing at all passes.** Measured:
+two sessions ran Explore and Plan properly, wrote no code, and the gate let both
+stop green because the untouched repo was green.
+
+So on a green baseline, make the check red *before* implementing: turn the spec's
+acceptance criteria into executable checks (`templates/spec_check.py.example`),
+wire them into `.claude/aep-check.sh`, and confirm the check now **fails**. Only
+then implement. A gate that cannot fail is not a gate.
 
 ## Artifacts are load-bearing
 

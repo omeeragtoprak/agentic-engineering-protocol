@@ -178,6 +178,67 @@ xfail/xpass) as a non-blocking notice, and `aep:verify` requires each one to be
 named in the evidence block — the unconditional-positive shape that held in
 Rounds 3 and 4.
 
+## Round 6 — the gate against a *wider* project check (controlled A/B, n=1 per arm)
+
+Round 5's arms both reached green unaided, so the blocking path stayed untested.
+Round 6 aimed at it: the project's definition of done is wider than the natural
+test loop — `make check` runs tests **and** lint (line length 88, no broad
+`except`), the gate runs `make check`, and the ticket ("helpful error messages")
+reliably produces long f-strings. Nothing hidden: `§P.2` names both commands and
+`lint.py` sits in the repo. Task: `bench/wider-check`.
+
+**The gate again never blocked** — one invocation, `exit=0`. The reason is worth
+recording precisely: the gate arm ran the lint/check itself **twelve times** and
+never once produced a violation (`0 lint finding(s)`, eleven times over). There
+was nothing for the hook to catch.
+
+**Both arms delivered the same quality.** Tests green, lint clean, persisted spec
+with an acceptance list, `§P.4` updated with a dated decision, fresh-context
+subagent review named in both, and both proved the regression direction by
+running the *new* tests against the *old* module. `lint.py` and the `Makefile`
+were untouched in both — no rule was weakened to buy a pass.
+
+**Rules confirmed again:** reviewer provenance named 2/2 (v1.4.1). Tree state
+named 2/2 (v1.4.3) — the gate arm wrote *"Tree state: **uncommitted-green**
+(nothing committed per session convention)"*, using the rule's own vocabulary;
+the other committed and said so.
+
+**Standing conclusion after two controlled rounds: with a capable model and the
+AEP instructions loaded, the gate does not change outcomes — it has not blocked
+once in four arms.** The instructions are doing the work; the hook is insurance
+against the tail case (an agent that would stop red), which these rounds did not
+produce. Round 7 tests the obvious follow-up: a weaker model, where
+self-verification is likelier to lapse.
+
+## Round 7 — a weaker model, and the gate's blind spot (controlled A/B, n=1 per arm)
+
+Four arms had passed without the gate ever blocking, so Round 7 moved to Haiku
+4.5, where self-verification should lapse sooner. Same task (`bench/wider-check`),
+same A/B, 40-turn cap.
+
+**Both arms produced nothing — and both were allowed to stop green.** Neither
+session wrote a single line: `settings.py`, the tests, `lint.py` and the
+`Makefile` were byte-identical to baseline, no commits, an entirely clean tree.
+The transcripts show why, and it is not incompetence: both ran the protocol
+faithfully — gap analysis, three distinct approaches, a critique matrix — and the
+session simply ended inside Plan. The gate ran, the suite was green, `exit=0`.
+
+**This is the deepest finding of the series: the gate cannot tell "done" from
+"nothing done."** It asks whether the project check passes. On a task whose
+baseline is already green — feature work, most refactors — an untouched repo
+passes. The harness reported `success` for both sessions.
+
+**Fix (v1.6.0), red-first:** on a green baseline the acceptance criteria are
+turned into executable checks and wired into the project check *before*
+implementing, and the check is confirmed **failing** first. That is now part of
+the Plan exit gate in the orchestrator (the layer that flipped two earlier rules
+0/2 → 2/2), with matching rules in `aep:plan` and `aep:verify` ("a green check is
+only evidence if it could have been red"). Not yet re-measured.
+
+**What this does not say.** It is not evidence that Haiku cannot do the task, and
+not a gate-vs-no-gate difference — both arms behaved identically. It is evidence
+about the *shape of the check*: a gate that cannot fail is not a gate.
+
 ## Standing caveats
 
 - n=2 per round is a signal, not statistics. A 0/2 → 2/2 flip after a targeted

@@ -5,6 +5,28 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.6.0] - 2026-08-25
+
+Round 7 found the verify gate's blind spot. Record: `docs/validation-log.md`.
+
+### Added
+- **Red-first on a green baseline.** Measured: two sessions ran Explore and Plan
+  faithfully, wrote no code at all, and the gate let both stop — the repo's
+  baseline was already green, so an untouched tree passed the check and the
+  harness reported success. A gate that cannot fail is not a gate. On a green
+  baseline the protocol now requires the spec's acceptance criteria to be wired
+  into the project check **before** implementing, with the check confirmed
+  failing first. Enforced from the orchestrator's Plan exit gate, with matching
+  rules in `aep:plan` and `aep:verify` ("a green check is only evidence if it
+  could have been red").
+
+### Measured
+- Rounds 5–7 ran three controlled A/Bs of the gate itself (same task, same model,
+  one file different). **The gate has not blocked once in six arms** — capable
+  models running these instructions verify themselves, and the weak-model round
+  failed in a way the gate structurally cannot catch. The README now says this
+  plainly instead of implying the hook is what makes the difference.
+
 ## [1.5.0] - 2026-08-17
 
 Round 5 tested the project's headline claim under control for the first time, and
