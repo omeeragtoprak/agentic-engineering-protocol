@@ -5,6 +5,23 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.6.1] - 2026-08-26
+
+### Fixed
+- **A phase boundary is not a stopping point.** Measured across Rounds 7–8: four
+  small-model sessions ended cleanly — no error, no turn-limit hit — right after
+  writing "proceeding to Phase 3: Implement", having produced no code, and the
+  gate allowed it because an untouched repo is green. The protocol's own phase
+  reports read like finished answers. The orchestrator now says to announce the
+  phase result and keep going in the same turn, with a closed list of legitimate
+  stops: the Plan approval gate, an escalation trigger, or a completed Deliver.
+
+### Not yet measurable
+- v1.6.0's red-first rule remains unvalidated: neither Round-8 session reached
+  implementation. One did plan the exact required sequence unprompted (write
+  failing acceptance checks, wire them into the gate, confirm red, then
+  implement), so the rule is legible — it has simply not been observed executing.
+
 ## [1.6.0] - 2026-08-25
 
 Round 7 found the verify gate's blind spot. Record: `docs/validation-log.md`.

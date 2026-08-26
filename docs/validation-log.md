@@ -239,6 +239,32 @@ only evidence if it could have been red"). Not yet re-measured.
 not a gate-vs-no-gate difference — both arms behaved identically. It is evidence
 about the *shape of the check*: a gate that cannot fail is not a gate.
 
+## Round 8 — testing red-first, and finding why the small-model rounds produce nothing (n=2, both gated)
+
+v1.6.0's red-first rule could not be evaluated: **neither session reached
+implementation.** But the reason turned out to be a sharper defect than the one
+being tested.
+
+**4/4 small-model sessions stop at a phase boundary.** Across Rounds 7 and 8,
+every Haiku session ended with `stop_reason=end_turn` — no error, no turn-limit
+hit, well under the cap — immediately after writing a phase report ending in
+"proceeding to Phase 3: Implement" or "ready for Phase 2: Plan". The protocol's
+own structure invites it: a phase report reads like a finished answer, so the
+model yields the turn. A stronger model continues; a weaker one stops. This also
+explains every "the gate never blocked" result in these rounds — the session
+stops cleanly with an untouched, and therefore green, repo.
+
+**The red-first rule is legible, at least.** Run B planned exactly the required
+sequence unprompted: *"I need to write acceptance tests that fail against the
+current code … create a spec_check.py … wire it into `.claude/aep-check.sh`, and
+confirm it fails before I implement."* Then the session ended. Stated 1/2,
+executed 0/2 — the rule reads correctly but has not yet been observed working.
+
+**Fix (v1.6.1):** *a phase boundary is not a stopping point* — announce the phase
+result and continue in the same turn, with a closed list of legitimate stops
+(Plan approval gate, escalation trigger, completed Deliver). Same
+unconditional-positive shape as the two rules that flipped 0/2 → 2/2.
+
 ## Standing caveats
 
 - n=2 per round is a signal, not statistics. A 0/2 → 2/2 flip after a targeted

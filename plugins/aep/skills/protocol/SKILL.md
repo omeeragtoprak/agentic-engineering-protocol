@@ -19,6 +19,18 @@ Run the phases in order. Each phase has an explicit **exit gate**; do not enter 
 | 4. Verify | `aep:verify` | All checks green with evidence; regression tests in place; adversarial review run **and its reviewer named** — every delivery states who graded the diff (`fresh-context subagent` / `separate session` / `authoring context — weaker`), unconditionally; acceptance list proven item by item; gap list closed |
 | 5. Deliver | `aep:deliver` | Summary with evidence delivered; commits atomic; §P memory updated if durable knowledge emerged |
 
+## A phase boundary is not a stopping point
+
+Announcing a phase result and yielding the turn is not progress. Measured: four
+small-model sessions ended cleanly — no error, no turn limit — right after
+writing "proceeding to Phase 3: Implement", having produced no code at all, and
+the gate allowed it because an untouched repo is green.
+
+State the phase result and **keep going in the same turn**. The only legitimate
+places to stop are: the Plan approval gate on a high-risk change, an escalation
+trigger, or a completed Deliver. Anywhere else, "ready to proceed" is a sentence
+you write on your way into the next phase, not the end of your reply.
+
 ## A green baseline cannot prove completion
 
 When the suite is already green before you start — feature work, most refactors —
