@@ -95,11 +95,22 @@ agentic-engineering-protocol/
 
 ## Validation
 
-AEP is measured on real tasks and the failures are published next to the wins —
-see [docs/validation-log.md](docs/validation-log.md). Three measured rounds so far: two fixes confirmed by
-0/2 → 2/2 flips (spec persistence, reviewer provenance) and one rule refuted by
-its shape — which produced a reusable design rule: **unconditional positives are
-followed where conditional negatives are dropped.**
+AEP is measured on real tasks, and the failures are published next to the wins —
+eight rounds so far in [docs/validation-log.md](docs/validation-log.md), including
+the ones that went against the project:
+
+- Two rules confirmed by targeted 0/2 → 2/2 flips (spec persistence, reviewer provenance).
+- Two rules **withdrawn or rewritten** after the evidence refuted them.
+- Three controlled A/Bs of the gate itself, in which **it never blocked** — capable
+  models running these instructions verify themselves, so the hook is insurance for
+  the tail case, not a performance multiplier.
+- One measured blind spot that changed the protocol: on a task whose baseline is
+  already green, two sessions produced *nothing* and were allowed to finish, because
+  a check that cannot fail is not a gate.
+
+Those rounds also produced something reusable beyond AEP:
+**[docs/design-rules.md](docs/design-rules.md) — seven findings on which rule shapes
+agents actually follow**, each with the measurement behind it.
 Task corpus and scorer: [bench/](bench/).
 
 ## Design principles (opinionated, evidence-based)
