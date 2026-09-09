@@ -96,10 +96,10 @@ agentic-engineering-protocol/
 ## Validation
 
 AEP is measured on real tasks, and the failures are published next to the wins —
-eight rounds so far in [docs/validation-log.md](docs/validation-log.md), including
+nine rounds so far in [docs/validation-log.md](docs/validation-log.md), including
 the ones that went against the project:
 
-- Two rules confirmed by targeted 0/2 → 2/2 flips (spec persistence, reviewer provenance).
+- Three rules confirmed by targeted flips (spec persistence and reviewer provenance 0/2 → 2/2; one sentence about phase boundaries took a weak model from 0/4 sessions producing code to 2/2 delivering committed, tested work).
 - Two rules **withdrawn or rewritten** after the evidence refuted them.
 - Three controlled A/Bs of the gate itself, in which **it never blocked** — capable
   models running these instructions verify themselves, so the hook is insurance for

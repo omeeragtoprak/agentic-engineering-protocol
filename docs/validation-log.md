@@ -265,6 +265,44 @@ result and continue in the same turn, with a closed list of legitimate stops
 (Plan approval gate, escalation trigger, completed Deliver). Same
 unconditional-positive shape as the two rules that flipped 0/2 → 2/2.
 
+## Round 9 — the phase-boundary fix, measured (n=2, same weak model, same task)
+
+Rounds 7–8 produced four small-model sessions that wrote no code, each ending at
+a phase boundary. v1.6.1 added one rule: *a phase boundary is not a stopping
+point*. Round 9 re-ran the identical setup — same Haiku model, same
+`bench/wider-check` task, same 40-turn cap, same gated arms.
+
+**Confirmed, 0/4 → 2/2.** Both sessions reached Deliver with committed work:
+
+| | commits | tests | lint | tamper check |
+|---|---|---|---|---|
+| run A | 2 | 3 → **35** | clean | `lint.py`, `Makefile` untouched |
+| run B | 2 | 3 → **35** | clean | `lint.py`, `Makefile` untouched |
+
+Behavioral probe against both implementations: **7/7 each** (coercion, range
+rejection, negative rejection, bool spellings, pass-through unchanged). Run B
+even shipped a self-caught edge case as its own commit —
+*"fix: reject infinity and NaN in timeout validator"*.
+
+**Red-first held too — in substance rather than in form.** Neither session wrote
+a separate `spec_check.py`; both wrote the acceptance criteria **as tests, before
+implementing**, inside the suite the gate already runs. Proven, not inferred: run
+A's new tests fail **32 times** against the pristine module, run B's fail **29**.
+That is exactly the shape this log's own rule 5 predicts — agents reproduce
+substance, not format — and it satisfies v1.6.0's requirement that the check be
+made red before the implementation exists.
+
+**Still not the gate's win.** Three gate invocations across the round, all
+`exit=0`. Nine rounds in, the hook has never blocked a session. What changed the
+outcome here was a single sentence in the orchestrator, not the enforcement
+mechanism.
+
+**One inconsistency worth naming:** run B persisted its spec to
+`.claude/specs/validate-settings.md`; run A did not persist one at all (it wrote
+project facts into `AGENTS.md` §P instead). Spec persistence is therefore 1/2 in
+this round, against 2/2 in Round 2 — the rule holds with capable models and is
+inconsistent with weak ones.
+
 ## Standing caveats
 
 - n=2 per round is a signal, not statistics. A 0/2 → 2/2 flip after a targeted

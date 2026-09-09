@@ -7,6 +7,14 @@ installed copies only update when this version changes.
 
 ## [1.6.1] - 2026-08-26
 
+### Confirmed by Round 9 (2026-09-09)
+- The phase-boundary sentence took the same model, task and budget from **0 of 4**
+  sessions producing any code to **2 of 2** delivering committed, tested,
+  lint-clean work (3 → 35 tests each, behavioral probe 7/7 on both). v1.6.0's
+  red-first rule held in the same round *in substance*: both wrote the acceptance
+  criteria as tests before implementing — proven, not inferred, by running those
+  tests against the pristine module (32 and 29 failures).
+
 ### Fixed
 - **A phase boundary is not a stopping point.** Measured across Rounds 7–8: four
   small-model sessions ended cleanly — no error, no turn-limit hit — right after

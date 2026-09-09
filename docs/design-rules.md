@@ -1,6 +1,6 @@
 # Writing rules an agent will actually follow
 
-Eight measured rounds of running AEP against real tasks produced something more
+Nine measured rounds of running AEP against real tasks produced something more
 reusable than the protocol itself: evidence about **which rule shapes get
 followed and which get quietly dropped**. Same model, same layer, same wording
 budget — opposite adherence, decided by shape alone.
@@ -94,6 +94,10 @@ invite this: the phase report *is* a complete-looking reply.
 point, and give a closed list of the places where stopping is legitimate.
 Structure that organizes work also creates places to stop; name them before the
 model picks its own.
+
+**Confirmed.** Adding that one sentence took the same model, task and budget from
+0 of 4 sessions producing code to 2 of 2 delivering committed, tested,
+lint-clean work.
 
 ## 7. Never score agent behavior by string matching.
 
