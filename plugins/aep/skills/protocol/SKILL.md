@@ -14,10 +14,10 @@ Run the phases in order. Each phase has an explicit **exit gate**; do not enter 
 | Phase | Playbook | Exit gate |
 |---|---|---|
 | 1. Explore | `aep:explore` | Gap analysis written (As-Is → To-Be → gaps); baseline status known; premise questioned; zero production code written |
-| 2. Plan | `aep:plan` | One approach selected from a generate→critique→refine loop; spec written **with a numbered Acceptance list**, and persisted to `.claude/specs/<task-slug>.md` for non-trivial work; high-risk changes approved by the user; **on a green baseline, the acceptance criteria are wired into the project check before implementing, so an untouched repo fails it** |
+| 2. Plan | `aep:plan` | One approach selected from a generate→critique→refine loop; spec written **with a numbered Acceptance list**, and persisted to `.claude/specs/<task-slug>.md` for non-trivial work; high-risk changes approved by the user; each acceptance criterion carries a requirement ID recorded in `.claude/requirements.md` (status `open`); **on a green baseline, the acceptance criteria are wired into the project check before implementing, so an untouched repo fails it** |
 | 3. Implement | `aep:implement` | Code complete, atomic in scope, matching repo conventions |
 | 4. Verify | `aep:verify` | All checks green with evidence; regression tests in place; adversarial review run **and its reviewer named** — every delivery states who graded the diff (`fresh-context subagent` / `separate session` / `authoring context — weaker`), unconditionally; acceptance list proven item by item; gap list closed |
-| 5. Deliver | `aep:deliver` | Summary with evidence delivered; commits atomic; §P memory updated if durable knowledge emerged |
+| 5. Deliver | `aep:deliver` | Summary with evidence delivered; commits atomic; **every requirement touched is closed in the ledger — `done` with a named proof, or `deferred`/`dropped` with a date and a reason**; §P memory updated if durable knowledge emerged |
 
 ## A phase boundary is not a stopping point
 
@@ -42,6 +42,24 @@ So on a green baseline, make the check red *before* implementing: turn the spec'
 acceptance criteria into executable checks (`templates/spec_check.py.example`),
 wire them into `.claude/aep-check.sh`, and confirm the check now **fails**. Only
 then implement. A gate that cannot fail is not a gate.
+
+## Requirements outlive sessions
+
+A spec answers "what are we building now"; the **requirements ledger**
+(`.claude/requirements.md`) answers "what has this project committed to, and what
+proves it" — for a session that has never seen the repo. One row per requirement:
+id, one verifiable sentence, status, proof, source spec.
+
+Two rules make it worth having rather than another file to rot:
+
+- **`done` requires a named, checkable proof** — a test that exists, or a command
+  that exits 0. A proof that disappears is a failure, not a tidy-up: run
+  `.claude/trace.py` and it says so.
+- **Deferrals are rows, not prose.** "Explicitly deferred with a reason" in a
+  summary is read once and lost. The same sentence in the ledger, dated, is still
+  there next quarter when someone asks why.
+
+If the repository has no ledger, offer one; do not invent a parallel tracker.
 
 ## Artifacts are load-bearing
 

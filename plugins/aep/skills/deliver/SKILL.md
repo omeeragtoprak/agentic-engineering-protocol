@@ -11,6 +11,7 @@ description: Delivery discipline — evidence-backed summary, atomic commit etiq
 ## Delivered: <task>
 What & why:  <1–3 sentences — the change and its rationale>
 Evidence:    <reference the Verification Evidence block>
+Requirements:<IDs closed with their proofs; IDs deferred/dropped with date + reason>
 Reviewed by: <fresh-context subagent | separate session | authoring context (weaker)>
 Trade-offs:  <what was consciously sacrificed and why>
 Risks left:  <known residual risks + suggested mitigations>
@@ -27,7 +28,22 @@ Lead with the result. No filler, no self-congratulation — the evidence speaks.
 - **Never:** commit a red build · commit secrets, generated artifacts (unless repo convention), or debug leftovers · force-push shared branches · rewrite published history.
 - Run `git status` and read the full staged diff before committing — staging surprises are how unrelated files leak in.
 
-## 3. Persistent memory update (§P)
+## 3. Close the requirements ledger
+
+Every requirement this task touched leaves the session in a terminal state — no
+row is left `open` because the session ended:
+
+| Outcome | Row becomes |
+|---|---|
+| Built and proven | `done`, with the test name or `cmd:` that proves it |
+| Not now, on purpose | `deferred YYYY-MM-DD — <the reason, in one sentence>` |
+| Decided against | `dropped YYYY-MM-DD — <why, so it is not re-proposed>` |
+
+Then run `.claude/trace.py` if the repo has it, and report what it said. A
+deferral that lives only in this summary is read once and gone; the same sentence
+as a dated row is still answerable next quarter.
+
+## 4. Persistent memory update (§P)
 
 Ask after every task: *did this produce durable knowledge?* Update §P when yes:
 
@@ -43,4 +59,4 @@ Ask after every task: *did this produce durable knowledge?* Update §P when yes:
 
 ## Exit gate
 
-Summary delivered with evidence · commits atomic and green · §P updated (or "no durable knowledge" stated). The task is now — and only now — complete.
+Summary delivered with evidence · commits atomic and green · ledger closed (no row left `open` by accident) · §P updated (or "no durable knowledge" stated). The task is now — and only now — complete.

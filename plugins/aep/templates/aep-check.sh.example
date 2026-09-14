@@ -9,5 +9,13 @@
 #   pytest -q && ruff check .
 #   go vet ./... && go test ./...
 
+# Replace this stub with your real command. Until you do, the gate is green and
+# proves nothing - a check that cannot fail is not a check.
 echo "AEP check stub: no project check configured yet (always green)."
+
+# Requirements traceability: fails when a `done` row's proof has left the tree,
+# when a deferral has no date and reason, or when a `cmd:` proof stops exiting 0.
+# Delete these two lines if this project does not keep a requirements ledger.
+[ -f .claude/trace.py ] && { python3 .claude/trace.py || exit 1; }
+
 exit 0

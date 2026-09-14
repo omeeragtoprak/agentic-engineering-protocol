@@ -13,10 +13,15 @@ Bootstrap AEP into this repository. Execute these steps in order and report what
    - Copy `${CLAUDE_PLUGIN_ROOT}/templates/aep-check.sh.example` to `.claude/aep-check.sh`, make it executable, and edit it to run this project's REAL build+test command (discover it from the repo: package.json scripts, csproj/sln, Makefile, CI config). If you cannot determine the command with confidence, leave the stub as a no-op and tell the user exactly what to put in it. For tasks with machine-checkable acceptance criteria, `${CLAUDE_PLUGIN_ROOT}/templates/spec_check.py.example` shows how to chain an executable spec checker into the same gate.
    - Explain in one line: while this script exists and fails, the Stop hook blocks task completion.
 
-3. **Populate §P (bootstrap rule).**
+3. **Start the requirements ledger.**
+   - Copy `${CLAUDE_PLUGIN_ROOT}/templates/requirements.md` to `.claude/requirements.md` if it does not exist.
+   - Seed it from what the repository already proves, not from wishes: scan the test suite and README for the behaviours this project has clearly committed to, and record a handful as `done` rows with the test that proves each. Anything you cannot point a proof at goes in as `open`, or not at all.
+   - Copy `${CLAUDE_PLUGIN_ROOT}/templates/trace.py.example` to `.claude/trace.py` and chain it into `.claude/aep-check.sh` so a stale ledger fails the gate. Run it once and report the result.
+
+4. **Populate §P (bootstrap rule).**
    - Run `aep:explore` in lightweight mode: identify purpose, stack + runtime versions, entry points, and the verified build/test/lint/run commands (actually run them read-safely where possible to verify).
    - Fill §P.1 and §P.2 in `AGENTS.md` with what you verified. Mark anything unverified as `(unverified)` rather than guessing.
 
-4. **Report.** Output: files created/modified, the verified commands with their status, anything left `(unverified)`, and the one-line usage reminder: *"Run `/aep:protocol <task>` for disciplined execution; phase skills are `aep:explore|plan|implement|verify|deliver`; `aep:standards` is the reference."*
+5. **Report.** Output: files created/modified, the verified commands with their status, anything left `(unverified)`, and the one-line usage reminder: *"Run `/aep:protocol <task>` for disciplined execution; `/aep:status` to see where the project stands; phase skills are `aep:explore|plan|implement|verify|deliver`; `aep:standards` is the reference."*
 
 Never write secrets into any of these files. Never overwrite user content without approval.

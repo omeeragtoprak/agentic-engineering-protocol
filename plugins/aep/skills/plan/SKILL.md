@@ -31,7 +31,8 @@ Files:      <files to create/modify>
 Data/API:   <schema, contract, or endpoint changes; "none" if none>
 Migration:  <forward path + rollback path; "n/a" if none>
 Test plan:  <which tests prove which gaps closed — map to Gap Analysis numbers>
-Acceptance: <numbered, independently checkable criteria — the contract Phase 4 walks one by one>
+Acceptance: <numbered, independently checkable criteria — the contract Phase 4 walks one by one;
+             give each one a requirement ID (R7, R8, …) and add it to `.claude/requirements.md` as `open`>
 Risks:      <what could still go wrong + mitigation>
 Out of scope:<what you are deliberately NOT touching>
 ```

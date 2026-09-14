@@ -1,0 +1,51 @@
+name: release
+
+# Cutting a tag publishes the release notes straight from CHANGELOG.md, so the
+# tag, the manifests and the published notes cannot drift apart by hand.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tag must match the shipped version
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          python3 - "$TAG" <<'PY'
+          import json, sys
+          tag = sys.argv[1]
+          plugin = json.load(open("plugins/aep/.claude-plugin/plugin.json"))["version"]
+          market = json.load(open(".claude-plugin/marketplace.json"))["plugins"][0]["version"]
+          if not (tag == plugin == market):
+              sys.exit(f"tag {tag} != plugin.json {plugin} != marketplace.json {market}")
+          print("tag matches both manifests:", tag)
+          PY
+
+      - name: Extract this version's changelog section
+        run: |
+          python3 - "${GITHUB_REF_NAME#v}" <<'PY'
+          import re, sys
+          version = sys.argv[1]
+          text = open("CHANGELOG.md").read()
+          m = re.search(rf"^## \[{re.escape(version)}\].*?$(.*?)(?=^## \[|\Z)",
+                        text, re.S | re.M)
+          if not m or not m.group(1).strip():
+              sys.exit(f"no CHANGELOG section for {version}")
+          open("RELEASE_NOTES.md", "w").write(m.group(1).strip() + "\n")
+          print(m.group(1).strip()[:400])
+          PY
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "AEP $GITHUB_REF_NAME" \
+            --notes-file RELEASE_NOTES.md

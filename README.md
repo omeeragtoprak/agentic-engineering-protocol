@@ -25,6 +25,7 @@ Monolithic instruction files degrade: the longer the always-loaded file, the mor
 | Fresh-context review | 4 subagents | On delegation, isolated context | Adversarial review, gap audit, security & performance audits — the author never grades its own work |
 | Hard enforcement | Stop hook (`verify-gate.sh`) | Deterministic, outside the model | Blocks "task complete" while the project's check fails |
 | Bootstrap | `/aep:init` command | Manual | Installs the core + gate into any repository, populates project facts |
+| Project memory across tasks | `.claude/requirements.md` + `trace.py` | Read by the gate and by `/aep:status` | What the project has committed to and what proves it — survives the session that agreed to it |
 
 ## Quick start — Claude Code
 
@@ -45,9 +46,24 @@ Then run disciplined tasks:
 /aep:protocol implement rate limiting on the upload endpoint
 ```
 
+Ask where things stand at any point:
+
+```
+/aep:status
+```
+
 Or invoke phases directly: `/aep:explore`, `/aep:plan`, `/aep:verify`, … The skills also auto-match — asking for "a production-grade fix" or "analyze before changing" triggers the right phase without the slash.
 
 **What the gate is, measured:** in controlled A/B rounds (same task, same model, one file different) the gate has **not blocked once** — capable models running these instructions verify themselves, and the hook found nothing to catch. Treat it as insurance for the tail case (an agent that *would* stop red), not as a performance multiplier; the numbers are in [docs/validation-log.md](docs/validation-log.md).
+
+**Requirements outlive the session that agreed to them.** A spec answers *what are we
+building now*; after twenty tasks you have twenty orphan spec files and no answer to
+*what has this project committed to, and what proves it*. `/aep:init` starts
+`.claude/requirements.md` — one row per requirement: id, one verifiable sentence,
+status, **proof**, source spec — and `.claude/trace.py`, which fails the check when a
+`done` row's proof no longer exists, when a deferral has no date and reason, or when a
+`cmd:` proof stops exiting 0. A ledger that cannot fail is decoration.
+See [docs/requirements.md](docs/requirements.md).
 
 **The verify gate:** `/aep:init` creates `.claude/aep-check.sh`. Point it at your real build+test command. While it exists and fails, a Stop hook blocks the agent from declaring the task complete (with a built-in safety override after repeated blocks, so a broken check can't dead-lock a session).
 
@@ -61,11 +77,11 @@ Skills follow the **Agent Skills open standard** (a directory with a `SKILL.md`:
 ./install.sh agents-md       # AGENTS.md core only (any AGENTS.md-reading tool)
 ```
 
-Then install the always-on core into the repository root:
-
-```bash
-cp plugins/aep/templates/AGENTS.md ./AGENTS.md
-```
+Each of those also installs the always-on core (`./AGENTS.md`) and the project
+scaffold the protocol refers to by name — `.claude/requirements.md` (the ledger),
+`.claude/trace.py` (its checker) and `.claude/aep-check.sh` (your build+test
+command). Existing files are never overwritten. Without the scaffold, "close the
+ledger" and "run the check" are instructions pointing at nothing.
 
 Codex reads `AGENTS.md` natively; Claude Code reads it through the `CLAUDE.md` adapter (`@AGENTS.md` import). One canonical core, every tool. Hooks and subagents are Claude Code enhancements — on other tools, the skills themselves instruct the agent to run the equivalent steps (fresh-context review, evidence blocks) manually.
 
@@ -73,12 +89,15 @@ Codex reads `AGENTS.md` natively; Claude Code reads it through the `CLAUDE.md` a
 
 ```
 agentic-engineering-protocol/
+├── .claude/                             # AEP running its own protocol on itself:
+│                                        #   requirements.md ledger, trace.py, aep-check.sh
 ├── .claude-plugin/marketplace.json      # marketplace catalog
 ├── bench/                               # AEP-Bench: seeded-bug tasks + scorer (tamper audit included)
 ├── install.sh                           # installer for Codex & other AGENTS.md/Agent Skills tools
 └── plugins/aep/
     ├── .claude-plugin/plugin.json       # plugin manifest (slug: aep, immutable)
     ├── commands/init.md                 # /aep:init — bootstrap a repository
+    ├── commands/status.md               # /aep:status — where the project stands, from evidence
     ├── skills/
     │   ├── protocol/    # full-loop orchestrator with phase exit gates
     │   ├── explore/     # read-only ingestion + As-Is/To-Be gap analysis + premise check
@@ -95,7 +114,8 @@ agentic-engineering-protocol/
     │   ├── security-auditor.md          # attacker-mindset audit: OWASP, boundaries, secrets
     │   └── performance-auditor.md       # scale hazards: hot paths, N+1, allocations
     ├── hooks/hooks.json + scripts/verify-gate.sh   # deterministic completion gate
-    └── templates/                       # AGENTS.md core, CLAUDE.md adapter, aep-check.sh.example, spec_check.py.example
+    └── templates/                       # AGENTS.md core, CLAUDE.md adapter, aep-check.sh.example,
+                                        # spec_check.py.example, requirements.md ledger + trace.py.example
 ```
 
 ## Validation
@@ -113,8 +133,15 @@ the ones that went against the project:
   already green, two sessions produced *nothing* and were allowed to finish, because
   a check that cannot fail is not a gate.
 
+**AEP runs its own protocol on itself.** This repository keeps
+[`.claude/requirements.md`](.claude/requirements.md) — eleven of its own commitments,
+including one `open`, one dated `deferred` and one `dropped` — and its check runs the
+full CI suite plus `trace.py` on every gate. Renaming the Stop hook's tamper message
+in a scratch copy turns AEP's own ledger red; that is the property being claimed, and
+it was tested by breaking it.
+
 Those rounds also produced something reusable beyond AEP:
-**[docs/design-rules.md](docs/design-rules.md) — seven findings on which rule shapes
+**[docs/design-rules.md](docs/design-rules.md) — eight findings on which rule shapes
 agents actually follow**, each with the measurement behind it.
 Task corpus and scorer: [bench/](bench/).
 
@@ -124,7 +151,8 @@ Task corpus and scorer: [bench/](bench/).
 |---|---|
 | [docs/worked-example.md](docs/worked-example.md) | What AEP actually produces — the spec, evidence block and delivery summary from one measured session, verbatim |
 | [docs/validation-log.md](docs/validation-log.md) | Every measured round, with the rounds that went against the project |
-| [docs/design-rules.md](docs/design-rules.md) | Which rule shapes agents follow, and which they drop — seven findings with their measurements |
+| [docs/design-rules.md](docs/design-rules.md) | Which rule shapes agents follow, and which they drop — eight findings with their measurements |
+| [docs/requirements.md](docs/requirements.md) | How a project's commitments are tracked across sessions — the ledger, what the checker enforces, and what it deliberately is not |
 | [docs/ecosystem.md](docs/ecosystem.md) | What AEP is *not*, which neighbours overlap, how to compose them safely, and how to vet any agent plugin |
 | [bench/](bench/) | The task corpus and scorer behind the numbers |
 

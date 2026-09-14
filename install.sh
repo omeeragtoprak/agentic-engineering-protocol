@@ -5,10 +5,14 @@
 #   /plugin install aep@agentic-engineering)
 #
 # Usage:
-#   ./install.sh codex-project   # skills -> ./.agents/skills, core -> ./AGENTS.md
-#   ./install.sh codex-global    # skills -> ~/.codex/skills,  core -> ./AGENTS.md
-#   ./install.sh agents-md       # core -> ./AGENTS.md only (any AGENTS.md-reading tool)
+#   ./install.sh codex-project   # skills -> ./.agents/skills, core + project scaffold
+#   ./install.sh codex-global    # skills -> ~/.codex/skills,  core + project scaffold
+#   ./install.sh agents-md       # core -> ./AGENTS.md + project scaffold (any AGENTS.md tool)
 #   ./install.sh skills DIR      # skills -> DIR (any Agent Skills-standard tool)
+#
+# Project scaffold = ./.claude/{requirements.md, trace.py, aep-check.sh}: the
+# requirements ledger, its traceability checker, and the project check the
+# protocol refers to. Existing files are never overwritten.
 #
 # Run from the repository you want to install AEP into, with this repo cloned
 # somewhere reachable; or run from inside this repo to install into it.
@@ -28,6 +32,28 @@ copy_core() {
   fi
 }
 
+# The protocol references three project-local files by canonical path. Without
+# them, "close the ledger" and "run the check" are instructions pointing at
+# nothing — so install them here rather than leaving the agent to invent a
+# parallel tracker.
+copy_project_scaffold() {
+  mkdir -p .claude
+  for pair in "requirements.md:requirements.md" \
+              "trace.py.example:trace.py" \
+              "aep-check.sh.example:aep-check.sh"; do
+    src=${pair%%:*}; dst=${pair#*:}
+    if [ -e "./.claude/$dst" ]; then
+      echo "./.claude/$dst already exists - not overwriting"
+    else
+      cp "$SRC/templates/$src" "./.claude/$dst"
+      case "$dst" in *.sh|*.py) chmod +x "./.claude/$dst" ;; esac
+      echo "installed ./.claude/$dst"
+    fi
+  done
+  echo "  -> .claude/aep-check.sh already runs .claude/trace.py, so a stale ledger"
+  echo "     fails the check; replace its stub with your real build+test command."
+}
+
 copy_skills() {
   DEST="$1"
   mkdir -p "$DEST"
@@ -39,13 +65,16 @@ case "$TARGET" in
   codex-project)
     copy_skills ./.agents/skills
     copy_core
+    copy_project_scaffold
     ;;
   codex-global)
     copy_skills "$HOME/.codex/skills"
     copy_core
+    copy_project_scaffold
     ;;
   agents-md)
     copy_core
+    copy_project_scaffold
     ;;
   skills)
     [ -n "$2" ] || { echo "usage: ./install.sh skills DIR" >&2; exit 1; }

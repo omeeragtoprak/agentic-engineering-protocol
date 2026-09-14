@@ -59,6 +59,7 @@ Build:      <command> → <exit status / summary>
 Lint/Types: <command> → <result>
 Tests:      <command> → <X passed / Y failed / each skipped-or-xfail test named + why>
 Spec:       <n/n acceptance criteria proven (checker or named probe)>
+Reqs:       <requirement IDs closed, each with the proof that closes it>
 Regression: <test name> → fails on <pre-fix ref>, passes on HEAD
 Review:     <reviewer: fresh-context subagent | separate session | authoring context (weaker)> → <findings count → resolved/rejected-with-reason>
 Gaps:       <n/n closed; deferred: ...>

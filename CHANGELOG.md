@@ -5,6 +5,90 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.7.0] - 2026-09-14
+
+Project-level requirements management. AEP managed one task well and forgot what
+the project had committed to; twenty tasks produced twenty orphan specs.
+
+### Added
+- **Requirements ledger** (`templates/requirements.md` → `.claude/requirements.md`).
+  One row per requirement: id, one verifiable sentence, status, **proof**, source
+  spec. Four statuses, each load-bearing: `open` (agreed, not built) · `done`
+  (proof named and checkable) · `deferred` (needs a date *and* a reason) ·
+  `dropped` (the row stays, so the decision is not re-litigated quarterly).
+- **`templates/trace.py.example`** — the checker that makes the ledger fail when it
+  stops being true: a `done` row whose proof left the tree, a `cmd:` proof that no
+  longer exits 0, an unauditable deferral, a duplicate id, an unknown status, a
+  missing source spec, a missing ledger. It chains into `.claude/aep-check.sh`, so
+  the Stop hook that already guarded the tests now guards the ledger too. Eleven
+  scenarios are pinned in CI, and two mutations of the checker were confirmed to
+  turn that CI step red — a check that cannot fail is not a check.
+- **`/aep:status`** — where the project stands, read from evidence rather than from
+  session memory: check state, ledger counts + traceability, git working state,
+  open decisions with their age, and one highest-value next action. Anything it
+  could not determine is reported as unknown.
+- **[docs/requirements.md](docs/requirements.md)** — the three things lost at the
+  task boundary (deferrals, decayed proofs, re-litigation), what the checker
+  enforces, and what this deliberately is not (no assignees, estimates or sprints —
+  duplicating an issue tracker produces two sources of truth).
+
+### Changed
+- **The verify gate now watches its own inputs (v3).** A probe found the hole: given
+  a check that exited 1, an agent edited the check to exit 0 and stopped, reporting
+  that it had "fixed the verification gate issue". A hook cannot be deterministic
+  about a script the agent may rewrite, so the gate now reports uncommitted changes
+  to `.claude/aep-check.sh`, `.claude/trace.py` and `.claude/requirements.md` exactly
+  as it already reported uncommitted test-file changes — visibility instead of a
+  prohibition. Written up as design rule 8: *any enforcement an agent can edit is a
+  convention, not a control.*
+- `aep:plan` assigns a requirement ID to each acceptance criterion and records it
+  as `open`; `aep:verify`'s evidence block gains a `Reqs:` line naming each ID
+  closed and the proof that closes it; `aep:deliver` leaves no row `open` merely
+  because the session ended, and the delivery summary carries a `Requirements:`
+  line; `aep:protocol`'s Plan and Deliver exit gates enforce both ends.
+- The always-on core (`AGENTS.md`) carries one sentence about closing the ledger —
+  a deferral that lives only in a delivery summary is read once and lost, and that
+  is the layer that is always visible.
+- `/aep:init` starts the ledger from what the repository already proves (tests that
+  exist), not from wishes, and wires `trace.py` into the check.
+
+### Refuted before release
+A fresh-context adversarial review of this release's own diff — the same pass AEP
+asks of every significant change — refuted six of nine acceptance claims. All are
+fixed and pinned by CI scenarios:
+
+- The deferral rule searched the status cell **and the requirement text**, so the
+  "reason" clause never fired: every deferral with a date anywhere passed, and a
+  date living only in the requirement text satisfied a row with no date at all.
+- A row that was not five cells was skipped as noise, so a single missing column
+  hid a stale `done` proof and a duplicate ID from the count, silently.
+- `done` with an empty `cmd:` proof passed, because `subprocess.run("")` exits 0.
+- `.claude/ci.py` ran CI steps without `errexit` (GitHub uses `bash -e`), so two of
+  seven steps could not fail locally — the opposite of what that file claims to do.
+  It also imported PyYAML, an undeclared dependency that would have blocked every
+  session on a fresh clone; it now parses the workflow with no dependencies.
+- Five of AEP's own `done` rows were proven by naming a CI **step name**, so gutting
+  a step's body kept the ledger green while the requirement was false. Each row now
+  names a script in `.claude/proofs/` that exercises the behavior.
+- The installer's scaffolded check only *recommended* chaining `trace.py`; it now
+  runs it.
+
+Two further defects were found while fixing those: a `cmd:` proof containing a `|`
+was truncated at the pipe and misreported as a bad Source (pipes must now be escaped,
+and an over-wide row is an error), and a proof could be satisfied by `trace.py`'s own
+docstring mentioning it (the checker now excludes itself from the corpus).
+
+### Security
+- A `cmd:` proof is executed with the shell, so the ledger is trusted input at the
+  same level as `.claude/aep-check.sh`. `AEP_TRACE_NO_CMD=1` (for CI running
+  untrusted pull requests) skips command proofs and **names each one as
+  unverified** rather than silently counting it as passing.
+
+### Not yet measured
+- Whether agents actually maintain the ledger across tasks, or whether it decays
+  like every other hand-maintained project file. The checker's behavior is proven;
+  the human-in-the-loop half is not. Round 10 in `docs/validation-log.md`.
+
 ## [1.6.1] - 2026-08-26
 
 ### Confirmed by Round 9 (2026-09-09)

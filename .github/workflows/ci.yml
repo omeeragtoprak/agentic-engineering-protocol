@@ -72,8 +72,129 @@ jobs:
           echo "$OUT" | grep -q "suppressed tests"
           # clean green suite -> no notice at all
           printf '#!/bin/sh\necho "OK"\n' > .claude/aep-check.sh
+          git add -A && git -c user.email=a@b -c user.name=a commit -qm base
           OUT=$(sh gate.sh); test -z "$OUT"
+          # the gate's own inputs are watched too: an uncommitted edit to the check
+          # script is surfaced, so making the gate pass by editing what it checks
+          # cannot happen silently
+          printf '#!/bin/sh\necho "OK" # tweaked\n' > .claude/aep-check.sh
+          OUT=$(sh gate.sh); test $? -eq 0
+          echo "$OUT" | grep -q "aep-check.sh"
+          # and when the check also fails, the integrity note goes to stderr
+          printf '#!/bin/sh\nexit 1\n' > .claude/aep-check.sh
+          set +e; sh gate.sh 2>err.txt; RC=$?; set -e; test $RC -eq 2
+          grep -q "gate own inputs" err.txt
           echo "gate behavior ok"
+
+      - name: Traceability checker behavior
+        run: |
+          set -e
+          REPO="$PWD"
+          T=$(mktemp -d); cd "$T"
+          mkdir -p .claude/specs src
+          cp "$REPO/plugins/aep/templates/trace.py.example" .claude/trace.py
+          echo "def upload_guard(): pass  # test_upload_rejects_oversize" > src/app.py
+          echo "spec" > .claude/specs/upload.md
+          L=.claude/requirements.md
+          hdr() { printf '| ID | Requirement | Status | Proof | Source |\n|----|----|----|----|----|\n' > $L; }
+          run() { set +e; python3 .claude/trace.py > out.txt 2>&1; RC=$?; set -e; }
+
+          # missing ledger -> fail
+          run; test $RC -eq 1; grep -q "no requirements ledger" out.txt
+
+          # healthy ledger (done+open+deferred+dropped) -> pass
+          hdr
+          printf '| R1 | Oversize uploads rejected | done | test_upload_rejects_oversize | .claude/specs/upload.md |\n' >> $L
+          printf '| R2 | Tenant limits | open | - | - |\n' >> $L
+          printf '| R3 | Backoff | deferred 2026-09-14 - single tenant until the pilot closes | - | - |\n' >> $L
+          printf '| R4 | XML export | dropped 2026-09-14 - no consumer asked twice | - | - |\n' >> $L
+          run; test $RC -eq 0; grep -q "traceability OK" out.txt
+
+          # a done row whose proof left the tree -> fail
+          hdr; printf '| R1 | Oversize uploads rejected | done | test_that_was_deleted | .claude/specs/upload.md |\n' >> $L
+          run; test $RC -eq 1; grep -q "gone stale" out.txt
+
+          # a deferral with no date and no reason -> fail
+          hdr; printf '| R1 | Tenant limits | deferred | - | - |\n' >> $L
+          run; test $RC -eq 1; grep -q "deferred without a date and a reason" out.txt
+
+          # a date with no reason -> fail (the reason must be in the status cell)
+          hdr; printf '| R1 | Tenant limits | deferred 2026-09-14 | - | - |\n' >> $L
+          run; test $RC -eq 1; grep -q "deferred without a date and a reason" out.txt
+
+          # a date that only appears in the requirement text -> fail
+          hdr; printf '| R1 | Ship by 2026-09-14 hopefully | deferred | - | - |\n' >> $L
+          run; test $RC -eq 1; grep -q "deferred without a date and a reason" out.txt
+
+          # proof matching is word-bounded: a renamed symbol must not satisfy the row
+          echo "GATE_SENTINEL_RENAMED = 1" > src/renamed.py
+          hdr; printf '| R1 | Tamper visibility | done | GATE_SENTINEL | - |\n' >> $L
+          run; test $RC -eq 1; grep -q "gone stale" out.txt
+          echo "GATE_SENTINEL = 1" >> src/renamed.py
+          run; test $RC -eq 0
+
+          # a row that is not five cells is a failure, not silently skipped
+          hdr; printf '| R1 | A | open | - | - |\n| R2 | B | done | test_that_never_existed |\n' >> $L
+          run; test $RC -eq 1; grep -q "malformed row" out.txt
+
+          # an escaped pipe stays inside its cell
+          hdr; printf '| R1 | A | done | cmd: echo ok \\| grep -q ok | - |\n' >> $L
+          run; test $RC -eq 0
+
+          # command proofs: failing -> fail, passing -> pass
+          hdr; printf '| R1 | Budget respected | done | cmd: exit 3 | - |\n' >> $L
+          run; test $RC -eq 1; grep -q "proof command failed (exit 3)" out.txt
+          hdr; printf '| R1 | Budget respected | done | cmd: true | - |\n' >> $L
+          run; test $RC -eq 0
+
+          # AEP_TRACE_NO_CMD=1 -> command proofs skipped, but named as unverified
+          hdr; printf '| R1 | Budget respected | done | cmd: exit 3 | - |\n' >> $L
+          set +e; AEP_TRACE_NO_CMD=1 python3 .claude/trace.py > out.txt 2>&1; RC=$?; set -e
+          test $RC -eq 0; grep -q "UNVERIFIED" out.txt; grep -q "NOT executed" out.txt
+
+          # table integrity: duplicate id, unknown status, missing source, done without proof
+          hdr; printf '| R1 | A | open | - | - |\n| R1 | B | open | - | - |\n' >> $L
+          run; test $RC -eq 1; grep -q "duplicate ID" out.txt
+          hdr; printf '| R1 | A | maybe | - | - |\n' >> $L
+          run; test $RC -eq 1; grep -q "unknown status" out.txt
+          hdr; printf '| R1 | A | open | - | .claude/specs/nope.md |\n' >> $L
+          run; test $RC -eq 1; grep -q "source not found" out.txt
+          hdr; printf '| R1 | A | done | - | - |\n' >> $L
+          run; test $RC -eq 1; grep -q "done without a proof" out.txt
+          hdr; printf '| R1 | A | done | cmd: | - |\n' >> $L
+          run; test $RC -eq 1; grep -q "empty cmd" out.txt
+
+          echo "traceability checker behavior ok (18 scenarios)"
+
+      - name: Installer behavior
+        run: |
+          set -e
+          REPO="$PWD"
+          T=$(mktemp -d); cd "$T"
+          sh "$REPO/install.sh" agents-md > first.log
+          test -f AGENTS.md
+          test -f .claude/requirements.md
+          test -f .claude/trace.py
+          test -f .claude/aep-check.sh
+          # the scaffold works out of the box, and the check it installs really
+          # runs the traceability checker rather than only recommending it
+          python3 .claude/trace.py | grep -q "traceability OK"
+          sh -n .claude/aep-check.sh
+          sh .claude/aep-check.sh > /dev/null
+          printf '| R2 | X | done | proof_that_does_not_exist | - |\n' >> .claude/requirements.md
+          set +e; sh .claude/aep-check.sh > /dev/null 2>&1; RC=$?; set -e
+          test $RC -eq 1
+          git checkout -- .claude/requirements.md 2>/dev/null || sed -i.bak '$d' .claude/requirements.md
+          # a second run overwrites nothing
+          echo "local edit" >> .claude/requirements.md
+          sh "$REPO/install.sh" agents-md > second.log
+          grep -q "not overwriting" second.log
+          grep -q "local edit" .claude/requirements.md
+          # skills install for Agent Skills-standard tools
+          sh "$REPO/install.sh" skills ./skills-out > /dev/null
+          test -f ./skills-out/protocol/SKILL.md
+          test -f ./skills-out/verify/SKILL.md
+          echo "installer behavior ok"
 
       - name: Claude plugin validate
         run: |

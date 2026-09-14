@@ -5,6 +5,10 @@
 # no-op unless .claude/aep-check.sh exists and is executable.
 # v2 adds tamper visibility: uncommitted changes to test files are reported,
 # so passing the gate by weakening tests cannot happen silently.
+# v3 also watches the gate's own inputs. Observed in a probe: given a check that
+# exits 1, an agent edited the check to exit 0 and stopped. The check script, the
+# traceability checker and the requirements ledger are therefore reported the same
+# way tests are - the gate cannot stop that edit, but it can refuse to hide it.
 # Safety: Claude Code overrides a Stop hook after 8 consecutive blocks,
 # so a broken check cannot dead-lock a session forever.
 
@@ -12,11 +16,12 @@ CHECK="./.claude/aep-check.sh"
 
 [ -x "$CHECK" ] || exit 0   # no project check configured -> allow stop
 
-# Uncommitted changes to test-looking files (empty outside git repos).
+# Uncommitted changes to test-looking files, or to the gate's own inputs
+# (empty outside git repos).
 TAMPER=""
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   TAMPER=$(git status --porcelain 2>/dev/null | cut -c4- \
-    | grep -Ei '(^|/)(tests?|specs?)(/|$)|(^|/)test_[^/]*$|(^|/)conftest\.py$|[^/]*(_test|\.test|\.spec)\.[A-Za-z0-9]+$' \
+    | grep -Ei '(^|/)(tests?|specs?)(/|$)|(^|/)test_[^/]*$|(^|/)conftest\.py$|[^/]*(_test|\.test|\.spec)\.[A-Za-z0-9]+$|(^|/)\.claude/(aep-check\.sh|trace\.py|requirements\.md)$' \
     | head -5)
 fi
 
@@ -27,7 +32,7 @@ if [ $STATUS -ne 0 ]; then
   TAIL=$(printf '%s\n' "$OUTPUT" | tail -n 15)
   printf 'AEP VERIFY GATE: project check failed (exit %s). Fix the root cause before completing - do not suppress the check.\n--- last output ---\n%s\n' "$STATUS" "$TAIL" >&2
   if [ -n "$TAMPER" ]; then
-    printf 'TEST-INTEGRITY NOTE: uncommitted changes to test files detected. Weakening or deleting tests to satisfy the gate is a protocol violation; justify any test change in the delivery summary.\n%s\n' "$TAMPER" >&2
+    printf 'TEST-INTEGRITY NOTE: uncommitted changes to test files or to the gate own inputs (check script, trace.py, requirements ledger) detected. Making the gate pass by editing what it checks is a protocol violation; justify any such change in the delivery summary.\n%s\n' "$TAMPER" >&2
   fi
   exit 2                    # exit 2 = block stop, stderr is fed back to the agent
 fi
@@ -45,7 +50,7 @@ if [ -n "$TAMPER" ] || [ -n "$SUPPRESSED" ]; then
   if [ -n "$TAMPER" ] && [ -n "$SUPPRESSED" ]; then
     printf '{"systemMessage":"AEP gate green, with two things to confirm: test files have uncommitted changes (%s), and the suite reports suppressed tests (%s). Name both in the delivery summary - a green exit code does not mean every assertion ran."}\n' "$ESC" "$SUP"
   elif [ -n "$TAMPER" ]; then
-    printf '{"systemMessage":"AEP gate green, but test files have uncommitted changes (%s). Confirm tests were strengthened, not weakened - see the delivery summary."}\n' "$ESC"
+    printf '{"systemMessage":"AEP gate green, but test files or the gate own inputs have uncommitted changes (%s). Confirm they were strengthened, not weakened - see the delivery summary."}\n' "$ESC"
   else
     printf '{"systemMessage":"AEP gate green, but the suite reports suppressed tests (%s). Skips and expected-failures satisfy the exit code while a real assertion is not being enforced - name each one and why in the delivery summary."}\n' "$SUP"
   fi
