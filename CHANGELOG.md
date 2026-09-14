@@ -5,6 +5,29 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.8.1] - 2026-09-14
+
+### Measured
+- **Round 14: the ledger rule works through the hook, not through the prose.** Run
+  under the official harness with no shell — so the Stop hook never fires — the dated
+  deferral row was written in **0 of 6** runs, by both arms. The same words with the
+  hook participating produced it in 2 of 3 (Round 11). Not a controlled pair, but it
+  points where design principle 1 always said it would. AEP holds an explicitly
+  out-of-scope item 3/3 against the bare model's 2/3, and that is all the prose does
+  on its own here.
+
+### Added
+- **Design rule 9 — a rule that must fire at a moment needs a mechanism at that
+  moment**, with the corollary that bounds the rest of that document: wording is what
+  you tune when a rule fires at no particular time.
+- `docs/ecosystem.md`: cross-component interference
+  ([arXiv:2605.05716](https://arxiv.org/abs/2605.05716)) — a single-tool agent beating
+  an all-components one by 32%, and 56.3% of component subsets violating
+  submodularity. AEP is itself a stack of components, which is why its eval suite
+  reports each case with and without the plugin instead of reporting a total.
+- The eval suite README now says which cases need a shell, and why a no-shell run
+  measures the instruction layer alone.
+
 ## [1.8.0] - 2026-09-14
 
 Claude Code shipped `claude plugin eval` three days before this release. Every round

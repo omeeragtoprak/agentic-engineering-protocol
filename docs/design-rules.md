@@ -143,6 +143,32 @@ The general form: **any enforcement an agent can edit is a convention, not a
 control.** Put controls outside the agent's write scope, and instrument everything
 inside it.
 
+## 9. A rule that must fire at a moment needs a mechanism at that moment.
+
+> The same sentence, unchanged, produced the behaviour in 2 of 3 sessions with a hook
+> firing at the Stop, and in 0 of 6 without one.
+
+**Evidence.** AEP's requirements ledger asks for one thing at the end of a task: a row
+for what the task committed to. As prose in the always-on core it produced 2 rows in
+12 task-sessions, and **zero** dated deferrals. The fix was not better wording — the
+wording had already been made unconditional and creation-first. It was a Stop hook
+that, on a green check, says *the ledger has no row for this change* at the moment the
+agent is about to finish. Dated deferrals went to 2 of 3. Re-measured later under the
+official eval harness with no shell — and therefore no hook — the same prose produced
+0 of 6 again.
+
+**How to write it.** Ask when the rule has to fire. If the answer is "at a specific
+moment" — before finishing, before committing, after a check goes green — prose in a
+file read at session start is the wrong instrument, however well phrased, because the
+agent has to remember it unprompted across everything else it is doing. Put the
+reminder where the moment is: a Stop hook, a pre-commit hook, a CI step. Keep the
+prose too, for the sessions where the mechanism is absent, but do not expect it to
+carry the rule alone.
+
+The corollary bounds this document: several findings here are about wording, and
+wording is what you tune when a rule fires at no particular time. For the rest,
+**wording is not the variable that matters**.
+
 ## What this evidence is and is not
 
 Rounds are `n=1` or `n=2` per arm — signals, not statistics. A finding is

@@ -26,6 +26,17 @@ made it pass — which is exactly what you want to know before installing a prot
 | `ledger-row` | A repository keeping `.claude/requirements.md` leaves the task recorded in it | Rounds 10–11 — **the weakest case in the suite: 0/3 on bug-fix tickets** |
 | `deferral-recorded` | An explicitly out-of-scope item becomes a dated `deferred` row, not a sentence in a summary | Rounds 10–11: 0/12 → 2/3 |
 
+**Which cases need a shell.** `reviewer-named`, `evidence-not-assurance` and
+`ledger-row` grade work that involves running the project's tests, so they need
+`--allow-tools Bash`. `plan-before-code`, `plan-skill-fires` and `deferral-recorded`
+run with `--allow-tools Write Edit` or nothing at all.
+
+This distinction is not only about convenience. **Without `Bash`, the Stop hook's
+check never runs**, so the gate — and the ledger notice v1.7.1 added to it — take no
+part in the result. A no-shell run measures the instruction layer alone, which is the
+condition under which Round 10 measured 0/12. Read a no-shell score as "what the
+prose achieves by itself".
+
 `ledger-row` is expected to fail. It is in the suite because the gap is real and
 published, and a suite that only contains what already works measures nothing.
 

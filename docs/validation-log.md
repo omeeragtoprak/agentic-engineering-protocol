@@ -495,6 +495,34 @@ clean-looking number first:
   out of nothing. The suite now leaves it as an indicator, which is the default for
   exactly this reason.
 
+## Round 14 — the ledger rule works through the hook, not through the prose (official harness, n=3 per arm)
+
+The `deferral-recorded` case, run with `--allow-tools Write Edit` and **no shell**.
+That matters: without `Bash` the project's check never runs, so the Stop hook — and
+the ledger notice v1.7.1 added to it — take no part in the result. This measures what
+the instructions achieve on their own.
+
+| | score | out-of-scope item held | dated `deferred` row written | turns |
+|---|---|---|---|---|
+| with AEP | 0.50 | **3/3** | **0/3** | 11, 13, 10 |
+| without | 0.33 | 2/3 | 0/3 | 14, 11, 9 |
+
+**Δ +0.17, and the interesting number is the zero.** In six runs the dated deferral
+row was written **never** — by either arm. The same rule, in the same words, with the
+Stop-hook notice participating, produced it in 2 of 3 sessions in Round 11.
+
+The two are not a controlled pair: different harness, different n, and Round 11's runs
+had a shell. Read it as pointing the same way as this project's first design
+principle rather than as proof — *instruction files are advisory; hooks are
+deterministic*. What the prose does on its own here is hold scope (3/3 against 2/3),
+which is a weak signal, and nothing else.
+
+The controlled version — the identical case with `Bash` granted, hook live — could not
+run on the machine these rounds were measured on: `claude plugin eval` refuses a
+Bash-granting run when the Docker credential store contains a symbolic link anywhere
+inside it, which Docker Desktop's `cli-plugins/` normally does. The case ships; anyone
+whose machine allows it can close this gap, and the number will be published either way.
+
 ## Standing caveats
 
 - n=2 per round is a signal, not statistics. A 0/2 → 2/2 flip after a targeted

@@ -52,6 +52,19 @@ of them cut against the instinct to write more rules.
   length. Its own prompt-compilation remedy is **capability-graded** (+11 points for
   weaker models, no measurable change for stronger ones), which matches what this
   project keeps measuring — the rules that help most are the ones weak models drop.
+- **Stacking scaffolding components can make an agent worse.** *More Is Not Always
+  Better* ([arXiv:2605.05716](https://arxiv.org/abs/2605.05716)) measures cross-component
+  interference across planning, tools, memory, self-reflection and retrieval: a
+  single-tool agent beat the all-components system by 32% on HotpotQA (F1 0.233 vs
+  0.177), an optimal three-component subset beat all-components by 79% on GSM8K, and
+  **56.3% of the 325 subsets violated submodularity** — so adding a component that
+  helps on its own can still hurt in combination, and greedy "add another skill"
+  selection is unreliable. At 70B, combinations that hurt at 8B became beneficial,
+  yet all-components still lost to the best subset at both scales. AEP is itself a
+  stack — core, nine skills, four subagents, a hook, a ledger — so this is a warning
+  it has to take about itself, and the reason the [eval suite](../plugins/aep/evals/README.md)
+  reports each case with and without the plugin rather than reporting a total.
+
 - **Process frameworks converge, and none covers everything.** A 2026 taxonomy of
   agent development frameworks ([arXiv:2606.04967](https://arxiv.org/abs/2606.04967))
   compares Spec Kit, OpenSpec, BMAD, GSD, Spec Kitty and Reversa across six

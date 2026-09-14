@@ -129,7 +129,7 @@ agentic-engineering-protocol/
 ## Validation
 
 AEP is measured on real tasks, and the failures are published next to the wins —
-thirteen rounds so far in [docs/validation-log.md](docs/validation-log.md), including
+fourteen rounds so far in [docs/validation-log.md](docs/validation-log.md), including
 the ones that went against the project:
 
 - Three rules confirmed by targeted flips (spec persistence and reviewer provenance 0/2 → 2/2; one sentence about phase boundaries took a weak model from 0/4 sessions producing code to 2/2 delivering committed, tested work).
@@ -159,7 +159,7 @@ in a scratch copy turns AEP's own ledger red; that is the property being claimed
 it was tested by breaking it.
 
 Those rounds also produced something reusable beyond AEP:
-**[docs/design-rules.md](docs/design-rules.md) — eight findings on which rule shapes
+**[docs/design-rules.md](docs/design-rules.md) — nine findings on which rule shapes
 agents actually follow**, each with the measurement behind it.
 Task corpus and scorer: [bench/](bench/).
 
@@ -183,7 +183,7 @@ easy to hit.
 |---|---|
 | [docs/worked-example.md](docs/worked-example.md) | What AEP actually produces — the spec, evidence block and delivery summary from one measured session, verbatim |
 | [docs/validation-log.md](docs/validation-log.md) | Every measured round, with the rounds that went against the project |
-| [docs/design-rules.md](docs/design-rules.md) | Which rule shapes agents follow, and which they drop — eight findings with their measurements |
+| [docs/design-rules.md](docs/design-rules.md) | Which rule shapes agents follow, and which they drop — nine findings with their measurements |
 | [docs/requirements.md](docs/requirements.md) | How a project's commitments are tracked across sessions — the ledger, what the checker enforces, and what it deliberately is not |
 | [docs/ecosystem.md](docs/ecosystem.md) | What AEP is *not*, which neighbours overlap, how to compose them safely, and how to vet any agent plugin |
 | [bench/](bench/) | The task corpus and scorer behind the numbers |
