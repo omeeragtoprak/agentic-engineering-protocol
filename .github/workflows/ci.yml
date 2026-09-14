@@ -14,6 +14,7 @@ jobs:
       - name: Shell syntax
         run: |
           sh -n plugins/aep/scripts/verify-gate.sh
+          sh -n plugins/aep/scripts/session-brief.sh
           sh -n plugins/aep/templates/aep-check.sh.example
           sh -n install.sh
           sh -n bench/score.sh
@@ -99,6 +100,26 @@ jobs:
           printf '| R2 | y | open | - | - |\n' >> .claude/requirements.md
           OUT=$(sh gate.sh); echo "$OUT" | grep -q "requirements ledger has no row" && exit 1
           echo "gate behavior ok"
+
+      - name: Session brief behavior
+        run: |
+          set -e
+          REPO="$PWD"
+          T=$(mktemp -d); cd "$T"; git init -q -b main; echo x > a.txt
+          B="$REPO/plugins/aep/scripts/session-brief.sh"
+          # silent where there is no AEP state
+          OUT=$(sh "$B"); test -z "$OUT"
+          # speaks, as valid SessionStart JSON, where there is
+          mkdir .claude
+          printf '| ID | R | Status | Proof | Source |\n|--|--|--|--|--|\n| R1 | a | open | - | - |\n| R2 | b | done | t | - |\n' > .claude/requirements.md
+          OUT=$(sh "$B")
+          echo "$OUT" | grep -q '"hookEventName":"SessionStart"'
+          echo "$OUT" | grep -q '1 done, 1 open'
+          echo "$OUT" | python3 -c 'import json,sys; json.load(sys.stdin)'
+          # never blocks: exit 0 even on a malformed ledger
+          printf 'not a table at all\n' > .claude/requirements.md
+          sh "$B" > /dev/null; test $? -eq 0
+          echo "session brief behavior ok"
 
       - name: Traceability checker behavior
         run: |

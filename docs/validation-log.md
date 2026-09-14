@@ -523,6 +523,37 @@ Bash-granting run when the Docker credential store contains a symbolic link anyw
 inside it, which Docker Desktop's `cli-plugins/` normally does. The case ships; anyone
 whose machine allows it can close this gap, and the number will be published either way.
 
+## Round 15 — a feature this project built, measured, and did not ship (n=3 per arm)
+
+Design rule 9 came out of Round 14: a rule that must fire at a moment needs a
+mechanism at that moment. The obvious next move was to apply it to AEP's other
+moment-shaped rule — §5.1, *re-anchor on the project's state at session start* — with
+a `SessionStart` hook that reports tree state, the check, and the open and deferred
+requirement rows.
+
+It was built, its behaviour pinned by CI and two mutation tests, and then run against
+the case it exists to move. The hook was verified to fire in exactly the three
+with-plugin runs and in none of the baseline runs:
+
+| | dated `deferred` row written | out-of-scope item held | turns |
+|---|---|---|---|
+| with the brief | **0/3** | 2/3 | 10, 11, 10 |
+| without it | **0/3** | 3/3 | 11, 9, 10 |
+
+**It did not move the number.** The score went from 0.50 to 0.33 between the run
+before the brief and the run with it, but that is one binary grader flipping in one
+run of three, and across all twelve runs of this case the only stable figure is the
+ledger row: **0 out of 12 without a Stop-hook check**.
+
+So the brief ships as a script and not as a default hook. The reasoning behind it is
+still sound; what it lacks is evidence, and a component that is merely plausible is
+how a scaffold gets quietly worse — measured elsewhere as a single-tool agent beating
+an all-components one by 32% ([arXiv:2605.05716](https://arxiv.org/abs/2605.05716)).
+
+This is the fourth rule or feature this log has withdrawn or refused to ship after
+measuring it. Anyone who wants it can enable it in four lines, and the case that
+measures it is in the suite.
+
 ## Standing caveats
 
 - n=2 per round is a signal, not statistics. A 0/2 → 2/2 flip after a targeted

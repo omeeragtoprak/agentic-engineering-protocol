@@ -5,6 +5,25 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.8.2] - 2026-09-14
+
+### Added, but deliberately not enabled
+- **`scripts/session-brief.sh`** — a `SessionStart` hook that reports tree state, the
+  project check and the open and deferred requirement rows, and stays silent in
+  repositories with no AEP state. It follows directly from design rule 9, its
+  behaviour is pinned by CI and two mutation tests, and it is **off by default**
+  because the measurement did not support turning it on: on the case it exists to
+  move, the dated deferral row was written 0/3 with it and 0/3 without it (Round 15;
+  the hook was verified to fire in exactly the three with-plugin runs). Enabling it is
+  four lines in `.claude/settings.json`, documented with the numbers in
+  `plugins/aep/scripts/README.md`.
+
+### Measured
+- Round 15 is the fourth rule or feature this project has withdrawn or refused to ship
+  after measuring it. A component that is merely plausible is how a scaffold gets
+  quietly worse — the cross-component interference paper puts that at a single-tool
+  agent beating an all-components one by 32%.
+
 ## [1.8.1] - 2026-09-14
 
 ### Measured

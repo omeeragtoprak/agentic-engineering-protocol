@@ -24,6 +24,7 @@ Monolithic instruction files degrade: the longer the always-loaded file, the mor
 | Playbooks | 9 skills (`aep:*`) | On demand (name+description always visible; body loads when invoked/matched) | Deep procedural detail: 5 phases + standards + triangulated research + orchestration |
 | Fresh-context review | 4 subagents | On delegation, isolated context | Adversarial review, gap audit, security & performance audits — the author never grades its own work |
 | Hard enforcement | Stop hook (`verify-gate.sh`) | Deterministic, outside the model | Blocks "task complete" while the project's check fails |
+| State at the right moment | SessionStart hook (`session-brief.sh`) | **Opt-in, off by default** | Reports tree state, check presence and open/deferred requirements. Built, measured, and left off because the measurement did not support turning it on — [why](plugins/aep/scripts/README.md) |
 | Bootstrap | `/aep:init` command | Manual | Installs the core + gate into any repository, populates project facts |
 | Project memory across tasks | `.claude/requirements.md` + `trace.py` | Read by the gate and by `/aep:status` | What the project has committed to and what proves it — survives the session that agreed to it |
 
@@ -121,7 +122,10 @@ agentic-engineering-protocol/
     │   ├── gap-auditor.md               # certifies every gap closed/deferred/open, with evidence
     │   ├── security-auditor.md          # attacker-mindset audit: OWASP, boundaries, secrets
     │   └── performance-auditor.md       # scale hazards: hot paths, N+1, allocations
-    ├── hooks/hooks.json + scripts/verify-gate.sh   # deterministic completion gate
+    ├── hooks/hooks.json                 # Stop + SessionStart
+    ├── scripts/verify-gate.sh           # deterministic completion gate
+    ├── scripts/session-brief.sh         # session-start state brief (opt-in, see scripts/README.md)
+    ├── evals/                           # the claims as runnable eval cases
     └── templates/                       # AGENTS.md core, CLAUDE.md adapter, aep-check.sh.example,
                                         # spec_check.py.example, requirements.md ledger + trace.py.example
 ```
@@ -129,7 +133,7 @@ agentic-engineering-protocol/
 ## Validation
 
 AEP is measured on real tasks, and the failures are published next to the wins —
-fourteen rounds so far in [docs/validation-log.md](docs/validation-log.md), including
+fifteen rounds so far in [docs/validation-log.md](docs/validation-log.md), including
 the ones that went against the project:
 
 - Three rules confirmed by targeted flips (spec persistence and reviewer provenance 0/2 → 2/2; one sentence about phase boundaries took a weak model from 0/4 sessions producing code to 2/2 delivering committed, tested work).
