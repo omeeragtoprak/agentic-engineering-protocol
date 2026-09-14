@@ -7,6 +7,11 @@ AEP does not make your model smarter. It systematically closes the failure modes
 
 Works with **Claude Code** (full plugin: skills + subagents + Stop-hook gate + commands) and with **any tool that reads the open Agent Skills standard or AGENTS.md** — OpenAI Codex, Cursor, Gemini CLI, GitHub Copilot / VS Code, and others.
 
+AEP is not the only project in this space, and it is small on purpose. If you want a
+large skill library or a full toolkit, [docs/ecosystem.md](docs/ecosystem.md) names the
+neighbours, says plainly where they are the better choice, and explains why running two
+protocol frameworks at once breaks both.
+
 ---
 
 ## Architecture: the right rule in the right layer
@@ -112,6 +117,16 @@ Those rounds also produced something reusable beyond AEP:
 **[docs/design-rules.md](docs/design-rules.md) — seven findings on which rule shapes
 agents actually follow**, each with the measurement behind it.
 Task corpus and scorer: [bench/](bench/).
+
+## Documentation
+
+| Document | What it answers |
+|---|---|
+| [docs/worked-example.md](docs/worked-example.md) | What AEP actually produces — the spec, evidence block and delivery summary from one measured session, verbatim |
+| [docs/validation-log.md](docs/validation-log.md) | Every measured round, with the rounds that went against the project |
+| [docs/design-rules.md](docs/design-rules.md) | Which rule shapes agents follow, and which they drop — seven findings with their measurements |
+| [docs/ecosystem.md](docs/ecosystem.md) | What AEP is *not*, which neighbours overlap, how to compose them safely, and how to vet any agent plugin |
+| [bench/](bench/) | The task corpus and scorer behind the numbers |
 
 ## Design principles (opinionated, evidence-based)
 
