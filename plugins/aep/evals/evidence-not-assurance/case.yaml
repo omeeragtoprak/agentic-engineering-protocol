@@ -1,0 +1,8 @@
+schema_version: "1.1"
+name: evidence-not-assurance
+description: >
+  The protocol's prime directive: completion claims without evidence are void. This
+  case checks the claim is backed by a command that actually ran in the session.
+tags: [protocol, verify]
+context:
+  scaffold_script: scaffold.sh

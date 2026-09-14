@@ -210,6 +210,48 @@ jobs:
           test -f ./skills-out/verify/SKILL.md
           echo "installer behavior ok"
 
+      - name: Eval suite structure
+        run: |
+          set -e
+          python3 - <<'EOF'
+          import glob, os, re, sys
+          cases = sorted({os.path.dirname(p) for p in
+                          glob.glob("plugins/aep/evals/*/prompt.md") +
+                          glob.glob("plugins/aep/evals/*/case.yaml")})
+          if len(cases) < 4:
+              sys.exit(f"expected at least 4 eval cases, found {len(cases)}: {cases}")
+          FRONT = re.compile(r"\A---\n(.*?)\n---\n", re.S)
+          TYPES = {"regex", "tool_used", "tool_order", "file_exists", "llm", "baseline"}
+          problems = []
+          for c in cases:
+              graders = glob.glob(os.path.join(c, "graders", "*.md"))
+              if not graders:
+                  problems.append(f"{c}: no graders")
+              for g in graders:
+                  m = FRONT.match(open(g).read())
+                  if not m:
+                      problems.append(f"{g}: no frontmatter"); continue
+                  fm = m.group(1)
+                  tm = re.search(r"^type:\s*(\S+)", fm, re.M)
+                  if not tm or tm.group(1) not in TYPES:
+                      problems.append(f"{g}: bad or missing grader type")
+              sc = os.path.join(c, "scaffold.sh")
+              if os.path.exists(sc) and not os.access(sc, os.X_OK):
+                  problems.append(f"{sc}: not executable")
+              cy = os.path.join(c, "case.yaml")
+              if os.path.exists(cy):
+                  y = open(cy).read()
+                  if 'schema_version: "1.1"' not in y or "name:" not in y:
+                      problems.append(f"{cy}: missing schema_version or name")
+                  if "scaffold_script" in y and not os.path.exists(sc):
+                      problems.append(f"{cy}: names a scaffold_script that does not exist")
+          if problems:
+              print("\n".join(problems)); sys.exit(1)
+          print(f"eval suite ok: {len(cases)} cases")
+          EOF
+          for f in plugins/aep/evals/*/scaffold.sh; do bash -n "$f"; done
+          echo "scaffolds parse"
+
       - name: Claude plugin validate
         run: |
           npm install -g @anthropic-ai/claude-code

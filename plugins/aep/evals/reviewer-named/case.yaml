@@ -1,0 +1,9 @@
+schema_version: "1.1"
+name: reviewer-named
+description: >
+  Every delivery must state who graded the diff. Measured in the validation log as
+  0/2 before the rule was made unconditional and 2/2 after; this case keeps that
+  result reproducible.
+tags: [protocol, verify]
+context:
+  scaffold_script: scaffold.sh

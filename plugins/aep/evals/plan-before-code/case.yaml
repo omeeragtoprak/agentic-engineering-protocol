@@ -1,0 +1,9 @@
+schema_version: "1.1"
+name: plan-before-code
+description: >
+  The plan phase's contract: distinct approaches weighed against each other, one
+  selected with a reason, and a numbered acceptance list a later phase can verify
+  item by item. This case needs no shell, so it runs anywhere.
+tags: [protocol, plan, no-shell]
+context:
+  scaffold_script: scaffold.sh

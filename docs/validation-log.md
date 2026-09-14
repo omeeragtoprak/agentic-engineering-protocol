@@ -420,6 +420,81 @@ is not that the message failed to arrive.
 `Agent` call) and said so. Every previous headless round in this log has had to
 record fresh-context review as structurally unavailable; this one did it unprompted.
 
+## Round 12 — a conflict audit that measured nothing (n=2 per arm, inconclusive)
+
+*Instruction Stacking Collapse* ([arXiv:2608.02639](https://arxiv.org/abs/2608.02639))
+reports follow rates falling from ~96% to 20% as constraints accumulate, driven by
+*pairwise conflicts* rather than length. Reading AEP's core with that lens turned up a
+candidate: §0 tells the agent "instruction files are advisory by design" — a sentence
+aimed at whoever writes the file, which the agent reads as standing permission to
+treat every rule below it as optional.
+
+The arms were the current core against one where that line is reframed
+("Every rule below is binding on you. Separately, anything that must hold even when no
+agent is reading this file also belongs in hooks or CI"). The metric was ledger rows
+written on a bug-fix ticket.
+
+**Inconclusive, because the metric was already at the floor.** Both arms wrote zero
+rows in every completed run — the same 0/3 Round 11 reported for bug fixes. A
+measurement whose control is already at zero cannot show a fix; this one was designed
+badly and is recorded rather than quietly dropped. The reframed line is a reasonable
+change on its own reading, and it stays unshipped until a metric that can move
+measures it.
+
+## Round 13 — the official harness, and a result that goes against the project
+
+Claude Code shipped `claude plugin eval` (v2.1.269, 2026-09-11): a plugin's own eval
+suite, run with the plugin loaded and again **without** it, graded case by case. Every
+round before this one was a harness this project wrote about itself. This one is not,
+and the suite ships in the repository: [`plugins/aep/evals/`](../plugins/aep/evals/README.md).
+
+**Finding 1 — skills fire on intent, not on tasks.** Same planning task, same model
+(Sonnet 5), same workspace, one difference in phrasing:
+
+| Prompt | A phase skill fired |
+|---|---|
+| *"We need retry-with-backoff in our HTTP client… answer with the plan"* | **0 of 3** |
+| *"I want a production-grade plan before any code is written… analyse the options first"* | **3 of 3** |
+
+The README's auto-match claim is true, and narrower than it sounded: it is the
+phrasing that triggers it, not the shape of the work. That is now what the README says.
+
+**Finding 2 — on plan quality with a frontier model, AEP added nothing measurable.**
+The `plan-skill-fires` case grades three things on a real scaffolded codebase: are the
+acceptance criteria individually checkable, is the plan grounded in *these* files, and
+does it catch that `submit_payment` is a non-idempotent POST that must not be retried
+blindly. Three runs per arm, judged by Sonnet, three votes per grader:
+
+| | score | acceptance criteria | grounded in the repo | idempotency hazard caught | turns | cost |
+|---|---|---|---|---|---|---|
+| with AEP | **1.00** | 3/3 | 3/3 | 3/3 | 10, 12, 9 | $0.26, $0.34, $0.25 |
+| without | **1.00** | 3/3 | 3/3 | 3/3 | 4, 4, 5 | $0.24, $0.23, $0.20 |
+
+**Δ 0.00.** The plugin fired, did 2.4× the turns and about 20% more cost, and produced
+plans the graders could not tell apart from the bare model's. On a well-phrased
+planning request to a capable model, AEP buys process, not plan quality. Where this
+log has found AEP changing outcomes — evidence blocks, reviewer provenance, phase
+boundaries, dated deferrals — the subject was completion discipline, usually with a
+weaker model. Planning with a frontier model is not that.
+
+**Finding 3 — with plain phrasing, neither arm plans.** The `plan-before-code` case
+scored **0.00 in both arms** across six runs: no weighed alternatives, no checkable
+acceptance list, skill never fired. The bare model answers a plain feature request
+with a plan-shaped paragraph, and so does AEP when nothing triggers it.
+
+**Three measurement errors caught inside this round**, each of which produced a
+clean-looking number first:
+
+- The first version of `plan-before-code` ran in an empty workspace. It scored 0, and
+  reading one trace showed the model doing the right thing — asking which stack it was
+  planning for. The case was wrong, not the model.
+- A small judge model passed thin answers that a Sonnet judge failed; the same case
+  moved from `Δ +0.17` to `Δ 0.00` on judge alone. Judge choice is part of the result.
+- A `tool_used: Skill` grader was marked `arm: both`, which forces it to be scored in
+  the no-plugin arm where it can never pass. That single flag manufactured `Δ +0.50`
+  out of nothing. The suite now leaves it as an indicator, which is the default for
+  exactly this reason.
+
 ## Standing caveats
 
 - n=2 per round is a signal, not statistics. A 0/2 → 2/2 flip after a targeted

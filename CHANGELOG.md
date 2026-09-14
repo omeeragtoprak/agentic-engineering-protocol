@@ -5,6 +5,50 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.8.0] - 2026-09-14
+
+Claude Code shipped `claude plugin eval` three days before this release. Every round
+in this project's log until now was a harness it wrote about itself; this release
+moves the claims into the official one and publishes what came back, including the
+part that goes against the project.
+
+### Added
+- **An eval suite you can run** (`plugins/aep/evals/`, six cases). Each case is a rule
+  this project measured, run with the plugin and again without it:
+  `plan-before-code`, `plan-skill-fires`, `reviewer-named`, `evidence-not-assurance`,
+  `ledger-row`, `deferral-recorded`. `ledger-row` is expected to fail — the gap is
+  real and published, and a suite containing only what already works measures nothing.
+  Its README carries the cost, the reading guide, and one environment prerequisite
+  that is easy to hit (a Docker credential store containing symlinks blocks
+  Bash-granting runs on macOS).
+- A CI step that checks the suite's structure — cases present, graders typed,
+  scaffolds executable and parsing — without spending a model call. Mutation-tested.
+- **A density budget for the always-on core**, enforced by `.claude/proofs/r12_core_density.sh`
+  and recorded as R12: 98 lines and 49 imperative bullets today, capped at 120/60,
+  with §1 required to stay in the first third of the file. IFScale
+  ([arXiv:2507.11538](https://arxiv.org/abs/2507.11538)) measures instruction-following
+  at 68% for the best frontier models at 500 simultaneous instructions, with a bias
+  toward earlier ones; a published number that nothing checks is a number that drifts.
+- `docs/ecosystem.md` gains OpenSpec and Spec Kit — the two closest spec-driven
+  neighbours — and a **What the research says about this design** section with three
+  primary sources, including the finding that compliance collapses through *pairwise
+  conflicts* rather than length ([arXiv:2608.02639](https://arxiv.org/abs/2608.02639)).
+
+### Changed
+- **The README's auto-match claim is now the measured one.** Same task, same model:
+  a request naming the intent ("a production-grade plan… analyse the options first")
+  fired a phase skill in 3 of 3 runs; the same task phrased flatly fired one in 0 of 3.
+  The claim was true and vaguer than the measurement.
+
+### Measured, and not in AEP's favour
+- On a well-phrased planning request to a frontier model, AEP scored **1.00 against
+  the bare model's 1.00 — Δ 0.00** — on three graders including whether the plan
+  catches a non-idempotent POST that must not be retried. It fired, took 2.4× the
+  turns and ~20% more cost, and produced plans the graders could not tell apart.
+  Round 13 in `docs/validation-log.md`, and the case ships so anyone can re-run it.
+- Round 12 attempted a conflict audit of §0 and measured nothing, because its metric
+  was already at zero in both arms. It is recorded as inconclusive rather than dropped.
+
 ## [1.7.1] - 2026-09-14
 
 Rounds 10-11 measured the v1.7.0 ledger and refuted the part that mattered.

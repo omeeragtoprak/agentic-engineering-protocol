@@ -52,7 +52,14 @@ Ask where things stand at any point:
 /aep:status
 ```
 
-Or invoke phases directly: `/aep:explore`, `/aep:plan`, `/aep:verify`, … The skills also auto-match — asking for "a production-grade fix" or "analyze before changing" triggers the right phase without the slash.
+Or invoke phases directly: `/aep:explore`, `/aep:plan`, `/aep:verify`, …
+
+**Auto-matching works, but it is the phrasing that does it.** Measured with the eval
+suite below, same task and model: a request that names the intent — *"I want a
+production-grade plan before any code is written… analyse the options first"* — fired
+a phase skill in **3 of 3** runs. The same task phrased flatly fired one in **0 of 3**.
+If you want the protocol and you are not typing the slash command, say what you want
+from it.
 
 **What the gate is, measured:** in controlled A/B rounds (same task, same model, one file different) the gate has **not blocked once** — capable models running these instructions verify themselves, and the hook found nothing to catch. Treat it as insurance for the tail case (an agent that *would* stop red), not as a performance multiplier; the numbers are in [docs/validation-log.md](docs/validation-log.md).
 
@@ -122,7 +129,7 @@ agentic-engineering-protocol/
 ## Validation
 
 AEP is measured on real tasks, and the failures are published next to the wins —
-eleven rounds so far in [docs/validation-log.md](docs/validation-log.md), including
+thirteen rounds so far in [docs/validation-log.md](docs/validation-log.md), including
 the ones that went against the project:
 
 - Three rules confirmed by targeted flips (spec persistence and reviewer provenance 0/2 → 2/2; one sentence about phase boundaries took a weak model from 0/4 sessions producing code to 2/2 delivering committed, tested work).
@@ -133,6 +140,11 @@ the ones that went against the project:
 - One measured blind spot that changed the protocol: on a task whose baseline is
   already green, two sessions produced *nothing* and were allowed to finish, because
   a check that cannot fail is not a gate.
+- On a well-phrased **planning** request to a frontier model, AEP measured **Δ 0.00**
+  against no plugin at all — same acceptance criteria, same grounding in the repo,
+  same catch of a non-idempotent retry hazard, for 2.4× the turns. Where AEP has
+  changed outcomes it has been completion discipline, usually with a weaker model.
+  That case ships in the eval suite so you can re-run it.
 - The requirements ledger shipped, was measured, and **failed**: 2 rows written in
   12 task-sessions and not one dated deferral. The rule was vacuous — "close every
   requirement you touched" is satisfied by an empty ledger. After moving it into the
@@ -150,6 +162,20 @@ Those rounds also produced something reusable beyond AEP:
 **[docs/design-rules.md](docs/design-rules.md) — eight findings on which rule shapes
 agents actually follow**, each with the measurement behind it.
 Task corpus and scorer: [bench/](bench/).
+
+**Run the evidence yourself.** The claims above are also an eval suite — six cases,
+each one a rule this project measured, run with the plugin and again without it:
+
+```bash
+claude plugin eval plugins/aep --scaffold --trust-plugin \
+  --allow-tools Write Edit Bash --model claude-sonnet-5 --judge-model claude-sonnet-5
+```
+
+A case that scores the same in both arms is a case where AEP is not what made it
+pass. One case in the suite — `ledger-row` — is expected to fail, because the gap it
+covers is real and published. See [plugins/aep/evals/README.md](plugins/aep/evals/README.md)
+for what each case encodes, the cost, and the one environment prerequisite that is
+easy to hit.
 
 ## Documentation
 

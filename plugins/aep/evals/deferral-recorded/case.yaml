@@ -1,0 +1,9 @@
+schema_version: "1.1"
+name: deferral-recorded
+description: >
+  An explicitly out-of-scope item belongs in the ledger as a dated deferral, not
+  only in a delivery summary that is read once. Measured 0/12 before the rule moved
+  into the always-on core, 2/3 after.
+tags: [protocol, requirements]
+context:
+  scaffold_script: scaffold.sh

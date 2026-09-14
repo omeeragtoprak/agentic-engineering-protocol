@@ -1,0 +1,9 @@
+schema_version: "1.1"
+name: ledger-row
+description: >
+  A repository that keeps .claude/requirements.md should leave this task recorded in
+  it. Rounds 10-11 measured 2/12 and then 2/3 on feature work, and 0/3 on bug fixes —
+  this case is the bug-fix half, and it is expected to be the weakest in the suite.
+tags: [protocol, requirements]
+context:
+  scaffold_script: scaffold.sh
