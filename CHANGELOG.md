@@ -5,6 +5,35 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.7.1] - 2026-09-14
+
+Rounds 10-11 measured the v1.7.0 ledger and refuted the part that mattered.
+
+### Fixed
+- **The ledger rule was vacuous.** The always-on core said *close every requirement
+  you touched*; with an empty ledger nothing is touched, so the sentence was
+  satisfied by doing nothing. Measured across twelve task-sessions: two rows
+  written, and **zero** dated deferrals — the one thing the ledger does that a
+  delivery summary cannot. The core now says *write this task into the ledger
+  before you finish*, unconditional and creation-first, with "this task committed
+  to nothing" as an explicitly allowed answer.
+- **The gate now names it at the Stop.** On a green check, if the working tree or
+  the last commit moved code and `.claude/requirements.md` did not, the hook emits
+  a non-blocking notice. Instructions could not reach the agent at the moment it
+  mattered; the hook fires exactly there, while a turn remains. Silent in
+  repositories that keep no ledger.
+- Measured after the change (n=3): dated deferrals went **0/12 → 2/3** on the task
+  that had one, and both sessions quoted the ledger in their own evidence blocks.
+  Bug-fix tickets are still **0/3** — the fix works on feature work and not yet on
+  bug fixes, and `docs/validation-log.md` says so.
+
+### Added
+- `.github/PULL_REQUEST_TEMPLATE.md` — asks contributors for what AEP asks agents
+  for: the command output, the reviewer's name, the requirement row.
+- `.github/workflows/release.yml` — a tag that disagrees with either manifest is
+  refused, and the release notes are published from the CHANGELOG section, so the
+  tag, the manifests and the published notes cannot drift apart by hand.
+
 ## [1.7.0] - 2026-09-14
 
 Project-level requirements management. AEP managed one task well and forgot what

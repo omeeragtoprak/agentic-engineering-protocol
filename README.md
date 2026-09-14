@@ -56,7 +56,8 @@ Or invoke phases directly: `/aep:explore`, `/aep:plan`, `/aep:verify`, … The s
 
 **What the gate is, measured:** in controlled A/B rounds (same task, same model, one file different) the gate has **not blocked once** — capable models running these instructions verify themselves, and the hook found nothing to catch. Treat it as insurance for the tail case (an agent that *would* stop red), not as a performance multiplier; the numbers are in [docs/validation-log.md](docs/validation-log.md).
 
-**Requirements outlive the session that agreed to them.** A spec answers *what are we
+**Requirements outlive the session that agreed to them** (measured: see the ledger
+entry under [Validation](#validation) before you trust it). A spec answers *what are we
 building now*; after twenty tasks you have twenty orphan spec files and no answer to
 *what has this project committed to, and what proves it*. `/aep:init` starts
 `.claude/requirements.md` — one row per requirement: id, one verifiable sentence,
@@ -121,7 +122,7 @@ agentic-engineering-protocol/
 ## Validation
 
 AEP is measured on real tasks, and the failures are published next to the wins —
-nine rounds so far in [docs/validation-log.md](docs/validation-log.md), including
+eleven rounds so far in [docs/validation-log.md](docs/validation-log.md), including
 the ones that went against the project:
 
 - Three rules confirmed by targeted flips (spec persistence and reviewer provenance 0/2 → 2/2; one sentence about phase boundaries took a weak model from 0/4 sessions producing code to 2/2 delivering committed, tested work).
@@ -132,6 +133,11 @@ the ones that went against the project:
 - One measured blind spot that changed the protocol: on a task whose baseline is
   already green, two sessions produced *nothing* and were allowed to finish, because
   a check that cannot fail is not a gate.
+- The requirements ledger shipped, was measured, and **failed**: 2 rows written in
+  12 task-sessions and not one dated deferral. The rule was vacuous — "close every
+  requirement you touched" is satisfied by an empty ledger. After moving it into the
+  always-on core as a creation rule and having the Stop hook name it, dated
+  deferrals went 0/12 → 2/3 on feature work, and remain 0/3 on bug fixes.
 
 **AEP runs its own protocol on itself.** This repository keeps
 [`.claude/requirements.md`](.claude/requirements.md) — eleven of its own commitments,

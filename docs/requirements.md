@@ -102,31 +102,33 @@ how it was decided and what was rejected. The `Source` column is the link betwee
 
 ## Honest status
 
-Wired in v1.7.0. The checker's behavior is pinned by eighteen scenarios in CI
-(`.github/workflows/ci.yml`, step *Traceability checker behavior*), and four
-deliberate mutations of the checker — naked-substring matching, skipping malformed
-rows, accepting an empty `cmd:`, accepting a bare date as a deferral — were each
-confirmed to turn that step red, so the test is a test.
+Wired in v1.7.0, measured in Rounds 10-11 of [validation-log.md](validation-log.md),
+and the measurement changed the design.
 
-Three of those scenarios exist because a fresh-context review of this very feature
-refuted it before release: the deferral rule read its reason out of the requirement
-text (so every deferral passed), a malformed row was skipped in silence, and `cmd:`
-with an empty command was counted as proven. The
-[worked example](worked-example.md) shows what that review pass looks like.
+**Round 10 (12 task-sessions):** agents wrote a ledger row in **2 of 12**, and
+recorded a dated deferral — the one thing the ledger does that a delivery summary
+cannot — in **0 of 12**. The v1.6.1 control wrote nothing at all, so the
+instructions were doing something; they were not doing enough. The diagnosis: the
+always-on rule said *close every requirement you touched*, which an empty ledger
+satisfies by doing nothing.
 
-AEP's own repository runs this on itself: [`.claude/requirements.md`](../.claude/requirements.md)
-tracks eleven of AEP's commitments, and `.claude/aep-check.sh` runs the CI suite plus
-`trace.py` on every gate check. Each `done` row's proof is a script in
-[`.claude/proofs/`](../.claude/proofs/) that exercises the behavior — the first
-version of that table named CI *step names* as proofs, and the same review showed
-that gutting a step's body left every row green while the requirement was false.
-Four targeted mutations (version drift, removing the gate's tamper watch, disabling
-suppressed-test detection, breaking a skill's frontmatter) each turn AEP's own ledger
-red.
+**The fix:** the core now says *write this task into the ledger before you finish*,
+and the Stop hook, on a green check, emits a non-blocking notice when the working
+tree or the last commit moved code and the ledger did not — at the moment there is
+still a turn left to act in.
 
-What is **not** yet measured is the part that matters more: whether agents running the
-protocol actually maintain the ledger across tasks, or whether it decays the way every
-other hand-maintained project file decays. That measurement is Round 10 in
-[validation-log.md](validation-log.md), and the result will be published there
-whichever way it goes — as the two withdrawn rules in
-[design-rules.md](design-rules.md) were.
+**Round 11 (n=3, same tasks):** on the ticket carrying an explicit out-of-scope
+item, **2 of 3** sessions wrote both the `done` row and the dated `deferred` row
+unprompted, and quoted the ledger counts in their own evidence blocks. On the
+bug-fix ticket, **0 of 3** wrote anything — and none took the rule's own escape
+hatch of saying the task committed to nothing. The notice reached every one of those
+sessions, so the remaining gap is not delivery.
+
+So: the ledger holds where a task makes a visible commitment, and does not yet hold
+for ordinary bug fixes. That is the state of it, published next to the rounds that
+went against it.
+
+**The checker itself** is pinned by eighteen CI scenarios and four mutation tests,
+and AEP's own repository runs it on itself — see
+[`.claude/requirements.md`](../.claude/requirements.md) and
+[`.claude/proofs/`](../.claude/proofs/).

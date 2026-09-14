@@ -30,8 +30,11 @@ Lead with the result. No filler, no self-congratulation — the evidence speaks.
 
 ## 3. Close the requirements ledger
 
-Every requirement this task touched leaves the session in a terminal state — no
-row is left `open` because the session ended:
+**Write this task into the ledger, then close it.** The common failure is not a
+row left open — it is a row never written: measured across twelve sessions with the
+ledger present and these instructions loaded, not one row was ever added. So the
+first question is *what did this task commit to*, and the answer becomes a row.
+Then every row this task touched leaves the session in a terminal state:
 
 | Outcome | Row becomes |
 |---|---|

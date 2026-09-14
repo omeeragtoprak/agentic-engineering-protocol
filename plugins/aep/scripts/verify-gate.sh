@@ -43,17 +43,35 @@ fi
 # a known-broken contract test.
 SUPPRESSED=$(printf '%s\n' "$OUTPUT" | grep -Eio '[0-9]+ (expected failures?|skipped|xfailed|xpassed)|OK \((expected failures|skipped)[^)]*\)' | head -3 | tr '\n' ' ')
 
-if [ -n "$TAMPER" ] || [ -n "$SUPPRESSED" ]; then
-  # Check is green but something deserves a look: surface it, non-blocking.
-  ESC=$(printf '%s' "$TAMPER" | tr '\n' ';' | tr -d '"\\')
-  SUP=$(printf '%s' "$SUPPRESSED" | tr -d '"\\')
-  if [ -n "$TAMPER" ] && [ -n "$SUPPRESSED" ]; then
-    printf '{"systemMessage":"AEP gate green, with two things to confirm: test files have uncommitted changes (%s), and the suite reports suppressed tests (%s). Name both in the delivery summary - a green exit code does not mean every assertion ran."}\n' "$ESC" "$SUP"
-  elif [ -n "$TAMPER" ]; then
-    printf '{"systemMessage":"AEP gate green, but test files or the gate own inputs have uncommitted changes (%s). Confirm they were strengthened, not weakened - see the delivery summary."}\n' "$ESC"
-  else
-    printf '{"systemMessage":"AEP gate green, but the suite reports suppressed tests (%s). Skips and expected-failures satisfy the exit code while a real assertion is not being enforced - name each one and why in the delivery summary."}\n' "$SUP"
+# The ledger is a project-level commitment record; code that lands without a row
+# is exactly how it rots. Measured in Round 10: across twelve task-sessions with
+# the ledger present and the instructions loaded, not one row was ever written.
+# Prose could not reach the agent at the moment it mattered; this can - it fires
+# at the Stop, while there is still a turn left to act in.
+STALE_LEDGER=""
+if [ -f ".claude/requirements.md" ] && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  DIRTY=$(git status --porcelain 2>/dev/null | cut -c4- | grep -v '^\.claude/requirements\.md$' | head -1)
+  LEDGER_DIRTY=$(git status --porcelain 2>/dev/null | cut -c4- | grep -c '^\.claude/requirements\.md$')
+  if [ -n "$DIRTY" ] && [ "$LEDGER_DIRTY" -eq 0 ]; then
+    STALE_LEDGER="uncommitted changes"
+  elif [ -z "$DIRTY" ]; then
+    HEADFILES=$(git show --name-only --format= HEAD 2>/dev/null)
+    if printf '%s\n' "$HEADFILES" | grep -qv '^\.claude/requirements\.md$' &&
+       ! printf '%s\n' "$HEADFILES" | grep -q '^\.claude/requirements\.md$'; then
+      STALE_LEDGER="the last commit"
+    fi
   fi
+fi
+
+NOTES=""
+add_note() { NOTES="$NOTES $1"; }
+[ -n "$TAMPER" ] && add_note "Test files or the gate own inputs have uncommitted changes ($(printf '%s' "$TAMPER" | tr '\n' ';' | tr -d '\"\\')) - confirm they were strengthened, not weakened."
+[ -n "$SUPPRESSED" ] && add_note "The suite reports suppressed tests ($(printf '%s' "$SUPPRESSED" | tr -d '\"\\')) - a green exit code does not mean every assertion ran; name each one and why."
+[ -n "$STALE_LEDGER" ] && add_note "The requirements ledger has no row for $STALE_LEDGER - if this task committed to something, record it in .claude/requirements.md (done with a proof, or deferred with a date and a reason); if it committed to nothing, say so in the delivery summary."
+
+if [ -n "$NOTES" ]; then
+  # Check is green but something deserves a look: surface it, non-blocking.
+  printf '{"systemMessage":"AEP gate green, with something to confirm:%s"}\n' "$NOTES"
 fi
 
 exit 0

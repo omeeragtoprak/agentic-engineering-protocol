@@ -84,6 +84,20 @@ jobs:
           printf '#!/bin/sh\nexit 1\n' > .claude/aep-check.sh
           set +e; sh gate.sh 2>err.txt; RC=$?; set -e; test $RC -eq 2
           grep -q "gate own inputs" err.txt
+          # a repository with a ledger gets one non-blocking nudge when code moved
+          # and the ledger did not; a repository without one stays silent
+          rm -f err.txt
+          git add -A && git -c user.email=a@b -c user.name=a commit -qm base2
+          mkdir -p src && echo "print(1)" > src/a.py
+          printf '#!/bin/sh\necho "OK"\n' > .claude/aep-check.sh
+          OUT=$(sh gate.sh); echo "$OUT" | grep -qv "requirements ledger" || exit 1
+          printf '| ID | R | Status | Proof | Source |\n|--|--|--|--|--|\n| R1 | x | open | - | - |\n' > .claude/requirements.md
+          git add -A && git -c user.email=a@b -c user.name=a commit -qm withledger
+          echo "print(2)" >> src/a.py
+          OUT=$(sh gate.sh); echo "$OUT" | grep -q "requirements ledger has no row"
+          # touching the ledger in the same change silences that note
+          printf '| R2 | y | open | - | - |\n' >> .claude/requirements.md
+          OUT=$(sh gate.sh); echo "$OUT" | grep -q "requirements ledger has no row" && exit 1
           echo "gate behavior ok"
 
       - name: Traceability checker behavior

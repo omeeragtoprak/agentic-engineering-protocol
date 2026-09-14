@@ -303,6 +303,123 @@ project facts into `AGENTS.md` §P instead). Spec persistence is therefore 1/2 i
 this round, against 2/2 in Round 2 — the rule holds with capable models and is
 inconsistent with weak ones.
 
+## Round 10 — does anyone actually keep the ledger? (3 conditions, n=2, two sequential tasks each)
+
+v1.7.0 shipped a requirements ledger wired into Plan, Verify, Deliver and the
+orchestrator's exit gates. The obvious question — *do agents maintain it, or does
+it rot like every other hand-maintained project file* — was published as unmeasured
+in the release. This round measures it.
+
+**Setup.** Sonnet-5, twelve task-sessions: three conditions × two runs × two
+sequential tasks in the same repository. T1 is a seeded-bug fix (baseline red), T2
+is a feature ticket carrying an explicit out-of-scope item ("per-tenant limits: the
+billing team has not decided how tenants map to users yet, so do not implement them
+now") — a deferral with nowhere to go except the ledger. Every repository got the
+identical scaffold: ledger file, `trace.py`, and a check script the Stop hook runs.
+The arms differ in one thing, the plugin version loaded for the session:
+
+| Condition | Plugin | Prompt |
+|---|---|---|
+| A | v1.7.0 (ledger instructions) | the bare ticket |
+| B | v1.6.1 (no ledger instructions) | the bare ticket |
+| C | v1.7.0 | the bare ticket, handed to the protocol explicitly |
+
+**Result: 2 of 12.** Two task-sessions wrote a ledger row — both under v1.7.0, both
+on T2, both `done` with a real test name that `trace.py` resolves:
+
+| | T1 rows | T2 rows | deferral as a dated row | protocol skills invoked |
+|---|---|---|---|---|
+| A-1 | 0 | **1** | no | 0 |
+| A-2 | 0 | 0 | no | 0 |
+| B-1 | 0 | 0 | no | 0 |
+| B-2 | 0 | 0 | no | 0 |
+| C-1 | 0 | **1** | no | 0 |
+| C-2 | 0 | 0 | no | 0 |
+
+v1.6.1 wrote nothing, so the instructions are doing *something* — 2/8 against 0/4
+is a signal, not a win. Three things are worth more than the headline:
+
+- **The deferral was never recorded: 0 of 12.** All four v1.7.0 sessions named the
+  out-of-scope item in prose ("per-tenant limits are out of scope"); none of them
+  put it in the ledger with a date. The one thing the ledger does that a delivery
+  summary cannot — outlive the session — is the thing agents did not use it for.
+- **No session invoked a phase skill, in any condition.** Twelve sessions, zero
+  `Skill` calls, no gap analysis, no persisted spec, no evidence block. On an
+  ordinary ticket a capable model reads the always-on core and then just fixes the
+  bug. Everything AEP keeps in the on-demand layer was inert for this work.
+- **The always-on rule was vacuous as written.** The core said *close every
+  requirement you touched*. With an empty ledger, nothing was touched, so the
+  sentence was satisfied by doing nothing — a conditional in positive clothing.
+  This log's own rule 1 predicts exactly that failure and it still shipped.
+
+All six repositories ended green, with `trace.py` passing — which is the honest
+shape of the problem: **an empty ledger passes every check there is.**
+
+**The fix, and what it is betting on.** Two changes, both aimed at the moment the
+rule has to fire rather than at the file it lives in:
+
+1. The core now says *write this task into the ledger before you finish* —
+   unconditional, creation-first, with "this task committed to nothing" as an
+   explicit allowed answer.
+2. The Stop hook, on a green check, names it: if the working tree or the last
+   commit moved code and the ledger did not, the gate emits a non-blocking notice.
+   Instructions could not reach the agent at the moment it mattered; the hook fires
+   exactly there, while a turn remains.
+
+**Two discarded setups, recorded because they nearly became data.** The first pair
+of runs left the user-level v1.6.1 plugin enabled, so both arms carried v1.6.1
+skills and hooks — the comparison was meaningless and was thrown away. The second
+attempt gave each arm its skills as project files and invoked them with
+`/aep:protocol <ticket>`; in headless `claude -p` that resolved to *"Unknown
+command"* and later to a silently stripped prefix, so condition C ran as a bare
+ticket twice while appearing to test explicit invocation. Only the third setup —
+`--plugin-dir` loading the real plugin per arm — measured what it claimed to. Each
+of these produced a clean-looking result table first.
+
+## Round 11 — the ledger fix, measured (n=3, same model, same two tasks)
+
+Round 10's diagnosis was that the rule never fired at the moment it had to. The fix
+was two lines and one hook change: the always-on core now says *write this task into
+the ledger before you finish* (unconditional, creation-first), and the Stop hook, on
+a green check, names it when code moved and the ledger did not.
+
+**The deferral, 0/12 → 2/3.** On T2 — the ticket carrying an explicit out-of-scope
+item — two of three sessions wrote both rows without being asked:
+
+```
+| R2 | A user may exceed the steady per-user limit by up to `burst` extra calls,
+       replenished at the steady rate, without breaking per-user isolation | done |
+       test_burst_replenishes_after_window | — |
+| R3 | Per-tenant (organization-level) limits | deferred 2026-09-14 — billing team
+       has not decided how tenants map to users yet | — | — |
+```
+
+That row is the whole point of the feature: in Round 10 the same sentence existed
+only in a delivery summary nobody will read again. Both sessions also ran
+`.claude/aep-check.sh` themselves and quoted the ledger counts in their evidence —
+the ledger became part of the evidence block rather than a file beside it.
+
+| | T1 rows | T2 rows | deferral dated | gate notices seen |
+|---|---|---|---|---|
+| A1 | 0 | **2** (done + deferred) | **yes** | 2 |
+| A2 | 0 | **2** (done + deferred) | **yes** | 2 |
+| A3 | 0 | 0 | no | 4 |
+
+**What did not move: T1, 0 of 3.** On the bug-fix ticket no session wrote a row, and
+none took the escape hatch the rule offers either — "this task committed to nothing"
+appears in no delivery summary. The notice fired in every one of those sessions, so
+this is not a delivery failure: the agent saw the prompt and did not act on it. A
+fix that works on feature work and not on bug fixes is half a fix, and it is
+reported as such.
+
+**A third session ignored four notices.** A3 received the nudge four times, named
+the out-of-scope item in prose, and wrote nothing. Whatever the remaining gap is, it
+is not that the message failed to arrive.
+
+**Unrelated first:** A2's T2 session spawned a real fresh-context reviewer (one
+`Agent` call) and said so. Every previous headless round in this log has had to
+record fresh-context review as structurally unavailable; this one did it unprompted.
+
 ## Standing caveats
 
 - n=2 per round is a signal, not statistics. A 0/2 → 2/2 flip after a targeted
