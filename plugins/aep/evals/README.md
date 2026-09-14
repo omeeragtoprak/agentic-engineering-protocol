@@ -72,6 +72,18 @@ on graders, not for reporting a result, since Δ is the number that means someth
 - **Your own credentials.** Runs and judge calls bill to your plan; `--max-cost-usd`
   is the ceiling worth setting.
 
+## Why this suite is not in AEP's CI
+
+`claude plugin eval` runs in CI — the [docs](https://code.claude.com/docs/en/plugin-evals)
+show the flags, and this repository's CI checks the suite's *structure* on every push.
+What it does not do is run the cases, for two reasons worth stating rather than
+hiding: every run bills to somebody's credentials, and a six-case suite at three runs
+per arm is a real cost per push; and a judge model is a noisy instrument, so a
+threshold gate on a small suite fails builds for reasons that have nothing to do with
+the change. The suite is run deliberately, by hand, when a rule changes — and the
+numbers land in [`docs/validation-log.md`](../../../docs/validation-log.md) with the
+round that produced them.
+
 ## Reading a result honestly
 
 - A `tool_used: Skill` grader can never pass without the plugin, so it is reported as
