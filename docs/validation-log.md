@@ -690,6 +690,41 @@ No regressions across v1.8.0 → v1.9.1. The part worth noticing is the seeding:
 start a ledger, the session wrote rows only for behaviours the existing tests prove,
 which is what `/aep:init` asks for and the opposite of what a wish-list would look like.
 
+## Round 20 — the flagship rule, with a real shell, against a frontier model (n=3 per arm)
+
+Round 3 is the result this project has leaned on hardest: making *"name who graded the
+diff"* unconditional took reviewer provenance from 0/2 to 2/2. That was a weaker model,
+an older harness, and a year of releases ago. This round re-ran the question under
+current conditions — Sonnet 5, full tool access, the plugin loaded the way a user
+installs it, the gate live and firing — on a green-baseline feature task (add a burst
+allowance to a rate limiter).
+
+| | reviewer named in the delivery | fresh-context review invoked | turns | cost |
+|---|---|---|---|---|
+| with AEP (core + plugin + gate) | **0/3** | **0/3** | 10, 11, 8 | $0.50, $0.33, $0.26 |
+| without | 0/3 | 0/3 | 10, 8, 11 | $0.39, $0.33, $0.43 |
+
+The setup was verified rather than assumed: the core reached all three AEP sessions
+(§0's precedence line present in each transcript), the gate's messages appear in all
+three and in none of the controls, and the tool calls were counted from parsed
+`tool_use` blocks — a first pass that grepped the raw transcripts reported "2 Agent
+calls" in every run including the controls, which turned out to be the tool *definitions*
+in the system prompt. That is this log's own rule 7 catching its author again.
+
+**What it means.** §3.4 of the always-on core says *"Run an adversarial review in a
+fresh context."* It was loaded in every AEP session and did not happen in any of them.
+The phase skills, where the unconditional *"Name the reviewer, always"* lives, never
+fired — consistent with Round 13: skills auto-match on intent-revealing phrasing and
+not on a plain task. So the rule that was measured working in Round 3 sits in a layer
+that this task never opened, and the line that *was* loaded did not produce the
+behaviour.
+
+**And there is no mechanism available for it.** The gate sees the working tree; it
+cannot see whether a subagent ran or what the delivery said. Unlike the ledger — where
+a hook can at least ask — reviewer provenance has only wording, which Round 18 suggests
+is not the binding constraint. This is recorded as an open requirement (R16) rather
+than patched with a stronger adjective.
+
 ## Standing caveats
 
 - n=2 per round is a signal, not statistics. A 0/2 → 2/2 flip after a targeted

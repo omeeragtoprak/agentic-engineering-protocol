@@ -5,6 +5,35 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.10.0] - 2026-09-15
+
+### Added
+- **`aep:acceptance-author`** — a fifth subagent that turns a spec's numbered acceptance
+  criteria into executable checks **before any implementation exists**, in a context
+  that never sees the plan's code, and confirms each one fails on the untouched tree for
+  the right reason. Criteria it cannot encode are reported as `NOT ENCODED` with the
+  manual probe, never weakened into something easier to assert.
+- Why it exists, with the number attached: one trajectory writing both the tests and the
+  code produces tests that agree with the code's mistakes. On SWE-bench Verified that
+  measured **worse than having no tests at all** — 57.3% resolved against a 61.2%
+  no-test baseline — while independently written tests raised it to 65.3%
+  ([arXiv:2609.09133](https://arxiv.org/abs/2609.09133); Qwen-3.5 backbone, so the
+  mechanism transfers and the numbers stay theirs). `aep:plan` and the orchestrator's
+  Plan gate now say the red-first checks are written by that subagent and committed —
+  frozen — before implementation starts.
+
+### Measured, and against the project
+- **Round 20 re-ran the flagship rule under current conditions and it did not hold.**
+  Sonnet 5, full shell, plugin loaded, gate firing, green-baseline feature task:
+  reviewer named in **0 of 3** AEP sessions and 0 of 3 controls, with no fresh-context
+  review invoked in any of them. The core's *"run an adversarial review in a fresh
+  context"* was loaded in every one. The unconditional *"name the reviewer"* rule lives
+  in a phase skill that a plain task prompt never opens.
+- Recorded as an open requirement (R16) rather than patched with a stronger adjective:
+  the gate can see the working tree, not whether a subagent ran, so there is no
+  mechanism available for this one — and Round 18 suggests wording is not the binding
+  constraint.
+
 ## [1.9.1] - 2026-09-15
 
 ### Measured

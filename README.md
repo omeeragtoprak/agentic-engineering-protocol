@@ -12,7 +12,7 @@ large skill library or a full toolkit, [docs/ecosystem.md](docs/ecosystem.md) na
 neighbours, says plainly where they are the better choice, and explains why running two
 protocol frameworks at once breaks both.
 
-## What nineteen measured rounds say about when this pays
+## What twenty measured rounds say about when this pays
 
 Everything below is in [docs/validation-log.md](docs/validation-log.md) with the runs
 behind it. Read this before installing — it is the part most projects leave out.
@@ -27,7 +27,9 @@ behind it. Read this before installing — it is the part most projects leave ou
 - **The rules that changed outcomes did so with weaker models.** One sentence about
   phase boundaries took a small model from 0 of 4 sessions producing any code to 2 of
   2 delivering committed, tested work. Making "name who reviewed this" unconditional
-  went 0/2 → 2/2 in the same conditions.
+  went 0/2 → 2/2 in the same conditions — though **re-run against a frontier model on a
+  small feature task, neither arm named a reviewer or ran one at all** (0/3 vs 0/3,
+  Round 20). The rule lives in a skill layer that a plain task prompt never opens.
 
 **What does not, or is not yet shown:**
 
@@ -58,7 +60,7 @@ Monolithic instruction files degrade: the longer the always-loaded file, the mor
 |---|---|---|---|
 | Always-on core | `AGENTS.md` (+ thin `CLAUDE.md` adapter) | Every session, in full | Operating stance, non-negotiables, protocol summary, project memory (§P) |
 | Playbooks | 9 skills (`aep:*`) | On demand (name+description always visible; body loads when invoked/matched) | Deep procedural detail: 5 phases + standards + triangulated research + orchestration |
-| Fresh-context review | 4 subagents | On delegation, isolated context | Adversarial review, gap audit, security & performance audits — the author never grades its own work |
+| Fresh-context review | 5 subagents | On delegation, isolated context | Adversarial review, gap audit, security & performance audits — the author never grades its own work |
 | Hard enforcement | Stop hook (`verify-gate.sh`) | Deterministic, outside the model | Blocks "task complete" while the project's check fails |
 | State at the right moment | SessionStart hook (`session-brief.sh`) | **Opt-in, off by default** | Reports tree state, check presence and open/deferred requirements. Built, measured, and left off because the measurement did not support turning it on — [why](plugins/aep/scripts/README.md) |
 | Bootstrap | `/aep:init` command | Manual | Installs the core + gate into any repository, populates project facts |
@@ -177,7 +179,7 @@ agentic-engineering-protocol/
 ## Validation
 
 AEP is measured on real tasks, and the failures are published next to the wins —
-nineteen rounds so far in [docs/validation-log.md](docs/validation-log.md), including
+twenty rounds so far in [docs/validation-log.md](docs/validation-log.md), including
 the ones that went against the project:
 
 - Three rules confirmed by targeted flips (spec persistence and reviewer provenance 0/2 → 2/2; one sentence about phase boundaries took a weak model from 0/4 sessions producing code to 2/2 delivering committed, tested work).
