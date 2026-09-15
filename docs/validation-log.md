@@ -667,6 +667,29 @@ it could not tell the arms apart. The next attempt needs a defect that sits at t
 of what an unprompted reviewer catches, which is a harder fixture to build than it
 sounds — and until it exists, this is what the log says.
 
+## Round 19 — does the published artifact still work? (release verification, v1.9.1)
+
+Six releases in one day is how a plugin quietly breaks for the people installing it, so
+the published version was cloned fresh from GitHub and pointed at a project that had
+never seen AEP: a small pricing module, three passing tests, a `Makefile`, nothing else.
+
+`/aep:init` was run against that clone's plugin directory, and then every claim it made
+was checked independently rather than believed:
+
+| Check | Result |
+|---|---|
+| Core installed (`AGENTS.md`, `CLAUDE.md` adapter) | yes, §P.1/§P.2 filled from commands it actually ran |
+| `.claude/aep-check.sh` wired to the real command | yes — stub replaced with `make test`, `trace.py` chained |
+| Ledger seeded from what the repo proves | 3 `done` rows, each naming a test that exists (`test_subtotal`, `test_discount`, `test_discount_rejects_out_of_range`) |
+| Gate green on a healthy tree | exit 0 |
+| **Decay probe:** rename one proven test | check goes **red**, naming R3 and the missing proof |
+| Stop hook, default | non-blocking ledger note, exit 0 |
+| Stop hook, `AEP_LEDGER_BLOCK=1` | blocks once, exit 2 |
+
+No regressions across v1.8.0 → v1.9.1. The part worth noticing is the seeding: asked to
+start a ledger, the session wrote rows only for behaviours the existing tests prove,
+which is what `/aep:init` asks for and the opposite of what a wish-list would look like.
+
 ## Standing caveats
 
 - n=2 per round is a signal, not statistics. A 0/2 → 2/2 flip after a targeted
