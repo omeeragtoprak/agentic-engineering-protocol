@@ -1,0 +1,15 @@
+schema_version: "1.1"
+name: review-happens
+description: >
+  A diff big enough to matter must not be graded only by its author. Measured across
+  Rounds 27-28: as a non-blocking note this happened 0 times in 7 runs; as a single
+  block at the Stop, 7 times in 7. This case checks the shipped guarantee rather than
+  the rule's wording, and needs no shell.
+
+  `gate-asked` is an indicator, not a score: if it fails, the diff never crossed the
+  significance threshold and the case measured nothing — read that before reading the
+  other two graders. The first version of this case did exactly that, producing a clean
+  0.00 that meant "the task was too small".
+tags: [protocol, verify, no-shell]
+context:
+  scaffold_script: scaffold.sh

@@ -5,6 +5,25 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.14.3] - 2026-09-15
+
+### Fixed
+- **A test runner could silence the review gate.** `record-review.sh` logs every finished
+  subagent by design, and the gate counted all of them — so an agent that sent two
+  subagents to run its tests was treated as having had its diff reviewed. Only a
+  review-shaped `agent_type` now satisfies the check (`review|audit|critic|adversar|security|performance|gap`);
+  a `general-purpose` subagent does not. Found by writing an eval case for the feature,
+  not by reading the code, and a mutation removing the filter turns CI red.
+
+### Added
+- **`evals/review-happens`** — the first case in the suite that checks a guarantee this
+  project ships rather than a gap it is still carrying. No shell required. With the plugin
+  it scores 1.00 against the bare model's 0.50 (Δ +0.50): both arms reach for subagents
+  when they have no shell, but only the AEP arm has the diff graded and says who graded it.
+- The case carries a `gate-asked` indicator so a run where the diff never crossed the
+  significance threshold reads as "this measured nothing" instead of as a clean zero —
+  which is exactly what the first version of the case did.
+
 ## [1.14.2] - 2026-09-15
 
 ### Measured

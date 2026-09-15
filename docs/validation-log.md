@@ -6,7 +6,7 @@ held, and what did not.
 
 ## Every round at a glance
 
-Twenty-nine rounds. **Nine** carry a negative or self-correcting verdict (rounds 5, 10,
+Thirty rounds. **Nine** carry a negative or self-correcting verdict (rounds 5, 10,
 13, 14, 15, 20, 21, 23, 24 — counted from the table below, not asserted), **five** made
 the project withdraw or refuse to ship something, and **three** corrected a claim this log
 itself had published. That distribution is the point: a log where everything confirms the
@@ -43,6 +43,7 @@ thesis is a marketing page.
 | [27](#round-27--a-mechanism-for-the-rule-that-had-none-and-a-prediction-made-before-the-run) | Can the gate see whether a review happened? | **yes — and blocking moved the flagship rule 0/3 → 3/3**; the notice alone moved nothing, as predicted |
 | [28](#round-28--the-replication-that-flipped-a-default-different-task-different-model) | Does that replicate elsewhere? | **yes — 0/4 notice, 4/4 blocking on a new task and model**; the default flipped |
 | [29](#round-29--what-the-new-default-costs-and-the-first-defects-this-log-can-point-at) | What does the new default cost, and does it break the sequence win? | win holds, 4–5 reviews per run, ~1.5–2× cost — **and the reviews caught a blocker, a unit mismatch and a tautological test** |
+| [30](#round-30--the-eval-case-that-broke-the-feature-it-was-written-to-demonstrate) | Can anyone reproduce the new guarantee? | **yes, Δ +0.50** — and writing the case exposed a test-runner subagent silencing the review gate |
 
 ### Claims this project withdrew
 
@@ -1202,6 +1203,40 @@ A suite that is green and a reviewer that is absent cannot tell you any of that.
 still one fixture and two runs, and none of these defects reached a user — but it is the
 first evidence here about what the protocol *catches*, rather than about what it makes an
 agent write down.
+
+## Round 30 — the eval case that broke the feature it was written to demonstrate
+
+The review block had just become a default, so it needed a case anyone could run: no
+shell, scaffolded repository, a task big enough to cross the significance threshold, and
+graders that read the trace rather than the prose.
+
+**The first version measured nothing, and said so.** It scored 0.00 in both arms — but a
+`gate-asked` indicator, added precisely so a silent case cannot look like a result,
+failed too: the diff never crossed the threshold. The task was too small. That is the
+kind of clean zero this log has learned to distrust, and the indicator turned it into a
+diagnosis instead of a finding.
+
+**The second version found a real defect in the shipped default.** With a bigger task the
+gate still said nothing — because the agent had used two subagents to run its tests (no
+shell was granted), the recorder had logged them, and the gate counted them as reviews. A
+test runner had silenced the review gate. The recorder logs every finished subagent by
+design; what was missing is that only a **review-shaped** `agent_type` may satisfy the
+check. That filter now exists, a `general-purpose` subagent no longer counts, and a
+mutation removing it turns CI red.
+
+**Then the case did what it was built for:**
+
+| | gate asked | review ran | reviewer named | score |
+|---|---|---|---|---|
+| with AEP | 2/2 | 2/2 | **2/2** | **1.00** |
+| without | — | 2/2 | 0/2 | 0.50 |
+
+Note the baseline's "review ran": with no shell, the bare model also reaches for
+subagents — to execute tests, not to grade the diff. The scored difference is entirely in
+whether anything **graded** the work and whether the delivery said so.
+
+`review-happens` is now in the suite, needs no shell, and is the first case here that
+checks a guarantee this project ships rather than a gap it is still carrying.
 
 ## Standing caveats
 

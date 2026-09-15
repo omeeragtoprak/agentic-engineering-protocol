@@ -132,7 +132,12 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
       # discarded, because it was almost certainly the work being committed. That
       # fails towards one notice too many rather than one too few, which is the
       # right direction for a gate.
+      # Only a review counts as a review. The recorder logs every finished subagent,
+      # and an agent sent to run the tests is not a fresh-context grader — measured:
+      # an eval run used two subagents as test runners and the gate fell silent, which
+      # is the failure this filter exists to stop.
       SEEN=$(awk -v since="$LAST_COMMIT" '$1 + 0 > since { print $3 }' "$REVIEWS" 2>/dev/null \
+        | grep -Ei 'review|audit|critic|adversar|security|performance|gap' \
         | sort -u | tr '\n' ' ')
     fi
     [ -z "$SEEN" ] && UNREVIEWED="$CHANGED source file(s), $LINES changed line(s)"

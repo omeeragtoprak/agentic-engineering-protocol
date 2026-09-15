@@ -23,6 +23,9 @@ echo "a=2" >> src/a.py
 echo "b=2" >> src/b.py
 AEP_REVIEW_BLOCK=0 sh gate.sh | grep -q "no fresh-context review" || { echo "unreviewed diff not reported"; exit 1; }
 sleep 1
+# a subagent that is not a reviewer must not silence it
+printf '{"agent_type":"general-purpose"}' | sh "$REC"
+AEP_REVIEW_BLOCK=0 sh gate.sh | grep -q "no fresh-context review" || { echo "a test-runner subagent counted as a review"; exit 1; }
 printf '{"agent_type":"aep:adversarial-reviewer"}' | sh "$REC"
 AEP_REVIEW_BLOCK=0 sh gate.sh | grep -q "no fresh-context review" && { echo "a recorded review was ignored"; exit 1; }
 git add -A; git -c user.email=p@l -c user.name=p commit -qm reviewed

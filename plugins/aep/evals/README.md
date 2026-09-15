@@ -24,6 +24,7 @@ made it pass — which is exactly what you want to know before installing a prot
 | `reviewer-named` | Every delivery states who graded the diff | Round 3: 0/2 → 2/2 after the rule was made unconditional |
 | `evidence-not-assurance` | A completion claim names the command that ran and what it returned | §1.2, the prime directive |
 | `ledger-row` | A repository keeping `.claude/requirements.md` leaves the task recorded in it | Rounds 10–11 — **the weakest case in the suite: 0/3 on bug-fix tickets** |
+| `review-happens` | A diff big enough to matter is not graded only by its author — the guarantee the review block ships. **Δ +0.50**, and the only case here that checks something this project delivers rather than something it still owes | Rounds 27–30 |
 | `deferral-recorded` | An explicitly out-of-scope item becomes a dated `deferred` row, not a sentence in a summary | Rounds 10–16. **Also expected to fail**: 2/3 in one harness, 0/12 here |
 
 Run only the cases your machine can actually pass:

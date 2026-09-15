@@ -141,6 +141,9 @@ jobs:
           OUT=$(sh gate.sh); echo "$OUT" | grep -q "no fresh-context review"
           # a recorded review after the last commit silences it
           sleep 1
+          # a subagent that is not a reviewer does not count
+          printf '{"agent_type":"general-purpose"}' | sh "$REPO/plugins/aep/scripts/record-review.sh"
+          OUT=$(sh gate.sh); echo "$OUT" | grep -q "no fresh-context review"
           printf '{"agent_type":"aep:adversarial-reviewer"}' | sh "$REPO/plugins/aep/scripts/record-review.sh"
           OUT=$(sh gate.sh)
           if echo "$OUT" | grep -q "no fresh-context review"; then echo "a recorded review was ignored"; exit 1; fi
