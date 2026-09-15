@@ -497,10 +497,14 @@ clean-looking number first:
 
 ## Round 14 — the ledger rule works through the hook, not through the prose (official harness, n=3 per arm)
 
-The `deferral-recorded` case, run with `--allow-tools Write Edit` and **no shell**.
-That matters: without `Bash` the project's check never runs, so the Stop hook — and
-the ledger notice v1.7.1 added to it — take no part in the result. This measures what
-the instructions achieve on their own.
+The `deferral-recorded` case, run with `--allow-tools Write Edit` and no `Bash` grant.
+
+> **Correction (same day).** This round was first published claiming that without a
+> `Bash` grant the project's check never runs, so the result measured the instructions
+> alone. That was wrong, and the traces prove it: hooks execute outside the agent's
+> tool grants, and the Stop hook fired in all three with-plugin runs and delivered its
+> ledger notice in each. The numbers below stand; the explanation under them did not,
+> and what replaced it is in Round 16.
 
 | | score | out-of-scope item held | dated `deferred` row written | turns |
 |---|---|---|---|---|
@@ -508,20 +512,15 @@ the instructions achieve on their own.
 | without | 0.33 | 2/3 | 0/3 | 14, 11, 9 |
 
 **Δ +0.17, and the interesting number is the zero.** In six runs the dated deferral
-row was written **never** — by either arm. The same rule, in the same words, with the
-Stop-hook notice participating, produced it in 2 of 3 sessions in Round 11.
+row was written **never** — by either arm, with the hook's reminder delivered in every
+with-plugin run. Round 11 had recorded 2 of 3 for the same rule in a different
+harness; that has not replicated here.
 
-The two are not a controlled pair: different harness, different n, and Round 11's runs
-had a shell. Read it as pointing the same way as this project's first design
-principle rather than as proof — *instruction files are advisory; hooks are
-deterministic*. What the prose does on its own here is hold scope (3/3 against 2/3),
-which is a weak signal, and nothing else.
-
-The controlled version — the identical case with `Bash` granted, hook live — could not
-run on the machine these rounds were measured on: `claude plugin eval` refuses a
-Bash-granting run when the Docker credential store contains a symbolic link anywhere
-inside it, which Docker Desktop's `cli-plugins/` normally does. The case ships; anyone
-whose machine allows it can close this gap, and the number will be published either way.
+The version with `Bash` granted — where the check itself runs inside the agent's own
+tooling as well — could not run on the machine these rounds were measured on:
+`claude plugin eval` refuses a Bash-granting run when the Docker credential store
+contains a symbolic link anywhere inside it, which Docker Desktop's `cli-plugins/`
+normally does. The case ships; anyone whose machine allows it can close that gap.
 
 ## Round 15 — a feature this project built, measured, and did not ship (n=3 per arm)
 
@@ -553,6 +552,50 @@ an all-components one by 32% ([arXiv:2605.05716](https://arxiv.org/abs/2605.0571
 This is the fourth rule or feature this log has withdrawn or refused to ship after
 measuring it. Anyone who wants it can enable it in four lines, and the case that
 measures it is in the suite.
+
+## Round 16 — reading the traces instead of the scoreboard, and a round the usage limit ate
+
+Round 14 was published with an explanation that turned out to be false, and finding
+that out changed what this project believes about its own gate.
+
+**What the traces said.** Hooks run outside the agent's tool grants: in every
+no-`Bash` eval run the Stop hook fired, ran the project's check, and delivered its
+ledger notice. So Round 14 did not measure "the prose alone" — it measured prose *and*
+notice, and the row still was not written. Worse for the earlier story, the notice
+lands **second-to-last in the transcript** in 3 of 3 traces, as
+`{"type":"system","subtype":"informational"}`, with the run ending one line later:
+
+```
+line 107 of 109  Stop says: AEP gate green, with something to confirm: … The
+                 requirements ledger has no row for uncommitted changes …
+line 109         (end of run)
+```
+
+A non-blocking notice at Stop **cannot change the run it appears in**. Whatever moved
+Round 11's deferral rows from 0/12 to 2/3, it was not that message arriving.
+
+**The experiment that follows from it** was to make the reminder block once — exit 2,
+with an explicit either/or ("add a row, or say this task committed to nothing"), a
+marker in `.git` so it asks once per session, and the next Stop passing whatever the
+agent decided. That behaviour is pinned by CI and two mutation tests.
+
+**The measurement is partial and is reported as partial.** A weekly usage limit hit
+mid-suite and voided four of six runs (two baseline runs ended at turn 1, one at turn
+6, one with-plugin run errored). What survives is two complete with-plugin runs, 11
+and 15 turns, the block confirmed firing in both from their traces — and the dated
+deferral row written in **neither**. The baseline arm produced no usable data at all,
+so there is no Δ.
+
+Two runs is not a result. It is, however, pointing the same way as the twelve before
+it, and the honest position is that **nothing this project has tried has reliably
+produced a requirements row in the eval harness** — not the prose, not the notice,
+and not the block in the two runs that finished.
+
+So blocking ships **off by default**, behind `AEP_LEDGER_BLOCK=1`. Turning a gate from
+advisory to blocking is exactly the kind of change that needs evidence before it lands
+on everyone, and the evidence was cut off at two runs. The default stays the note,
+with its purpose stated plainly: it reaches a human reading the session, not the turn
+it appears in.
 
 ## Standing caveats
 

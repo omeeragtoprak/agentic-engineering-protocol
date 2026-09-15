@@ -5,6 +5,32 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.8.3] - 2026-09-15
+
+A correction, and a feature held back because its measurement was cut short.
+
+### Corrected
+- **Round 14's explanation was wrong, and design rule 9 with it.** That round was
+  published claiming the Stop hook takes no part in a run with no `Bash` grant. Hooks
+  run regardless of the agent's tool grants: the traces show the gate firing and
+  delivering its ledger notice in every one of those runs. The numbers stood; the
+  reasoning under them did not.
+- **What the transcripts do prove** is narrower and more useful: a non-blocking notice
+  at Stop lands on the *second-to-last line* of the run, in 3 of 3 traces. It cannot
+  change the run it appears in. Design rule 9 now says that, and says plainly that the
+  wider claim it used to make was withdrawn.
+
+### Added, off by default
+- `AEP_LEDGER_BLOCK=1` makes the requirements reminder **block once** — exit 2, with
+  an either/or the agent can satisfy in one turn ("add a row, or say this task
+  committed to nothing"), a marker in `.git` so it asks once per session, and a second
+  Stop that passes whatever was decided. Pinned by CI and two mutation tests, both
+  paths.
+- It is off by default because Round 16's measurement was voided mid-suite by a weekly
+  usage limit: four of six runs unusable, two complete with-plugin runs, the block
+  confirmed firing in both, and the row written in neither. Turning a gate from
+  advisory to blocking for everyone needs more than two runs.
+
 ## [1.8.2] - 2026-09-14
 
 ### Added, but deliberately not enabled

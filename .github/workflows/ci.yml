@@ -85,20 +85,35 @@ jobs:
           printf '#!/bin/sh\nexit 1\n' > .claude/aep-check.sh
           set +e; sh gate.sh 2>err.txt; RC=$?; set -e; test $RC -eq 2
           grep -q "gate own inputs" err.txt
-          # a repository with a ledger gets one non-blocking nudge when code moved
-          # and the ledger did not; a repository without one stays silent
+          # a repository with no ledger is never asked about one
           rm -f err.txt
           git add -A && git -c user.email=a@b -c user.name=a commit -qm base2
           mkdir -p src && echo "print(1)" > src/a.py
           printf '#!/bin/sh\necho "OK"\n' > .claude/aep-check.sh
-          OUT=$(sh gate.sh); echo "$OUT" | grep -qv "requirements ledger" || exit 1
+          OUT=$(sh gate.sh)
+          if echo "$OUT" | grep -q "requirements ledger"; then echo "spoke with no ledger"; exit 1; fi
           printf '| ID | R | Status | Proof | Source |\n|--|--|--|--|--|\n| R1 | x | open | - | - |\n' > .claude/requirements.md
           git add -A && git -c user.email=a@b -c user.name=a commit -qm withledger
           echo "print(2)" >> src/a.py
-          OUT=$(sh gate.sh); echo "$OUT" | grep -q "requirements ledger has no row"
-          # touching the ledger in the same change silences that note
+          # by default the ledger reminder is a non-blocking note
+          rm -f .git/aep-ledger-nudge
+          OUT=$(sh gate.sh); test $? -eq 0
+          echo "$OUT" | grep -q "requirements ledger has no row"
+          # AEP_LEDGER_BLOCK=1 makes it block, exactly once
+          set +e; AEP_LEDGER_BLOCK=1 sh gate.sh 2>led.txt >/dev/null; RC=$?; set -e
+          test $RC -eq 2
+          grep -q "AEP LEDGER" led.txt
+          grep -q "committed to nothing new" led.txt
+          set +e; AEP_LEDGER_BLOCK=1 sh gate.sh >/dev/null 2>&1; RC=$?; set -e
+          test $RC -eq 0
+          # writing a row clears it, and the next change asks again
           printf '| R2 | y | open | - | - |\n' >> .claude/requirements.md
-          OUT=$(sh gate.sh); echo "$OUT" | grep -q "requirements ledger has no row" && exit 1
+          OUT=$(sh gate.sh)
+          if echo "$OUT" | grep -q "requirements ledger"; then echo "still nagging after a row"; exit 1; fi
+          git add -A && git -c user.email=a@b -c user.name=a commit -qm withrow
+          echo "print(9)" >> src/a.py
+          set +e; AEP_LEDGER_BLOCK=1 sh gate.sh 2>/dev/null >/dev/null; RC=$?; set -e
+          test $RC -eq 2
           echo "gate behavior ok"
 
       - name: Session brief behavior

@@ -50,6 +50,15 @@ SUPPRESSED=$(printf '%s\n' "$OUTPUT" | grep -Eio '[0-9]+ (expected failures?|ski
 # at the Stop, while there is still a turn left to act in.
 STALE_LEDGER=""
 if [ -f ".claude/requirements.md" ] && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  # If the ledger has moved since the nudge, forget it: the next task starts clean.
+  # Compared by content, not mtime - two writes inside one second are not ordered.
+  GD=$(git rev-parse --git-dir 2>/dev/null)
+  LEDGER_SUM=$(cksum .claude/requirements.md 2>/dev/null | cut -d" " -f1,2)
+  if [ -n "$GD" ] && [ -f "$GD/aep-ledger-nudge" ]; then
+    if [ "$(cat "$GD/aep-ledger-nudge" 2>/dev/null)" != "$LEDGER_SUM" ]; then
+      rm -f "$GD/aep-ledger-nudge" 2>/dev/null || true
+    fi
+  fi
   DIRTY=$(git status --porcelain 2>/dev/null | cut -c4- | grep -v '^\.claude/requirements\.md$' | head -1)
   LEDGER_DIRTY=$(git status --porcelain 2>/dev/null | cut -c4- | grep -c '^\.claude/requirements\.md$')
   if [ -n "$DIRTY" ] && [ "$LEDGER_DIRTY" -eq 0 ]; then
@@ -61,6 +70,31 @@ if [ -f ".claude/requirements.md" ] && git rev-parse --is-inside-work-tree >/dev
       STALE_LEDGER="the last commit"
     fi
   fi
+fi
+
+# A non-blocking notice at Stop arrives *after* the work is finished — measured: in
+# every eval run it landed on the second-to-last line of the transcript and the run
+# ended. It still reaches a human in an interactive session, which is why it stays
+# the default; what it cannot do is change the turn it appears in.
+#
+# Blocking once would change the turn. It is off by default because the measurement
+# that would justify it was cut short by a usage limit (Round 16): two usable runs,
+# no row written either time. Set AEP_LEDGER_BLOCK=1 to turn it on — the marker lives
+# in .git so it is never committed, and a second Stop passes whatever you decided.
+NUDGE=""
+if [ "${AEP_LEDGER_BLOCK:-0}" = "1" ] && [ -n "$STALE_LEDGER" ]; then
+  MARKER=""
+  GITDIR=$(git rev-parse --git-dir 2>/dev/null)
+  [ -n "$GITDIR" ] && MARKER="$GITDIR/aep-ledger-nudge"
+  if [ -n "$MARKER" ] && [ ! -f "$MARKER" ]; then
+    printf '%s' "$LEDGER_SUM" > "$MARKER" 2>/dev/null || true
+    NUDGE="yes"
+  fi
+fi
+
+if [ -n "$NUDGE" ]; then
+  printf 'AEP LEDGER: this task changed %s, and .claude/requirements.md has no row for it.\nDo one of two things, then finish:\n  1. add a row - `done` with a proof that exists, or `deferred`/`dropped` with a date and a reason; or\n  2. state in one line that this task committed to nothing new.\nThis is asked once per session; stopping again passes either way.\n' "$STALE_LEDGER" >&2
+  exit 2
 fi
 
 NOTES=""

@@ -143,31 +143,39 @@ The general form: **any enforcement an agent can edit is a convention, not a
 control.** Put controls outside the agent's write scope, and instrument everything
 inside it.
 
-## 9. A rule that must fire at a moment needs a mechanism at that moment.
+## 9. A notice that arrives at the end cannot change the run it arrives in.
 
-> The same sentence, unchanged, produced the behaviour in 2 of 3 sessions with a hook
-> firing at the Stop, and in 0 of 6 without one.
+> Measured in 3 of 3 transcripts: the Stop hook's message lands on the
+> second-to-last line, and the run ends on the next one.
 
-**Evidence.** AEP's requirements ledger asks for one thing at the end of a task: a row
-for what the task committed to. As prose in the always-on core it produced 2 rows in
-12 task-sessions, and **zero** dated deferrals. The fix was not better wording — the
-wording had already been made unconditional and creation-first. It was a Stop hook
-that, on a green check, says *the ledger has no row for this change* at the moment the
-agent is about to finish. Dated deferrals went to 2 of 3. Re-measured later under the
-official eval harness with no shell — and therefore no hook — the same prose produced
-0 of 6 again.
+**Evidence.** AEP's gate emits a non-blocking `systemMessage` when the check is green
+but something deserves a look — a suppressed test, an edited check script, a
+requirement nobody recorded. Reading the raw transcripts of eval runs showed exactly
+where that message lands:
 
-**How to write it.** Ask when the rule has to fire. If the answer is "at a specific
-moment" — before finishing, before committing, after a check goes green — prose in a
-file read at session start is the wrong instrument, however well phrased, because the
-agent has to remember it unprompted across everything else it is doing. Put the
-reminder where the moment is: a Stop hook, a pre-commit hook, a CI step. Keep the
-prose too, for the sessions where the mechanism is absent, but do not expect it to
-carry the rule alone.
+```
+line 107 of 109   {"type":"system","subtype":"informational",
+                   "content":"Stop says: AEP gate green, with something to confirm: …"}
+line 109          (end of run)
+```
 
-The corollary bounds this document: several findings here are about wording, and
-wording is what you tune when a rule fires at no particular time. For the rest,
-**wording is not the variable that matters**.
+It is delivered, it is correct, and it is too late: the agent has finished. Across
+twelve eval runs in which that notice fired every time, the behaviour it asked for
+happened zero times.
+
+**How to write it.** Decide who the message is for. For a *human* reading the session
+afterwards, an end-of-run notice is fine and cheap. For the *agent*, a message at Stop
+has to block — exit 2, with a way to satisfy it in one turn — or fire earlier, at a
+`PreToolUse` on the commit or at prompt submission. Otherwise it is documentation
+written into a transcript.
+
+**What was withdrawn here.** This slot first held a stronger claim: *a rule that must
+fire at a moment needs a mechanism at that moment*, resting on 0/6 without a hook
+against 2/3 with one. The 0/6 runs **had** the hook — hooks run regardless of the
+agent's tool grants, which the traces show plainly — so the contrast was never real.
+What replaced it is the narrow part that the transcripts actually prove. The wider
+claim may still be true; it has not been measured, and Round 16's attempt to measure
+it was cut short at two usable runs by a usage limit.
 
 ## What this evidence is and is not
 

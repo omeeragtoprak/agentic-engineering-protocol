@@ -76,6 +76,14 @@ See [docs/requirements.md](docs/requirements.md).
 
 **The verify gate:** `/aep:init` creates `.claude/aep-check.sh`. Point it at your real build+test command. While it exists and fails, a Stop hook blocks the agent from declaring the task complete (with a built-in safety override after repeated blocks, so a broken check can't dead-lock a session).
 
+When the check is *green* the gate can still have something to say — a suppressed
+test, an uncommitted edit to the check itself, a requirement nobody recorded — and it
+says it as a non-blocking note. Measured honestly: that note lands on the
+second-to-last line of the transcript, so **it reaches the human reading the session,
+not the turn it appears in**. Set `AEP_LEDGER_BLOCK=1` to make the requirements
+reminder block once instead; it is off by default because the measurement that would
+justify blocking everyone was cut short at two runs ([Round 16](docs/validation-log.md)).
+
 ## Quick start — Codex & other agents
 
 Skills follow the **Agent Skills open standard** (a directory with a `SKILL.md`: `name` + `description` frontmatter, markdown body — no tool-specific extensions), so they are portable:
@@ -133,7 +141,7 @@ agentic-engineering-protocol/
 ## Validation
 
 AEP is measured on real tasks, and the failures are published next to the wins —
-fifteen rounds so far in [docs/validation-log.md](docs/validation-log.md), including
+sixteen rounds so far in [docs/validation-log.md](docs/validation-log.md), including
 the ones that went against the project:
 
 - Three rules confirmed by targeted flips (spec persistence and reviewer provenance 0/2 → 2/2; one sentence about phase boundaries took a weak model from 0/4 sessions producing code to 2/2 delivering committed, tested work).
