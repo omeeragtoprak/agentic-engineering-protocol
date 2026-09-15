@@ -28,6 +28,7 @@ proofs are scripts now.
 | R16 | A significant diff gets a fresh-context review, and the delivery names who graded it, under a current frontier model | open | — | docs/validation-log.md |
 | R17 | AEP is scored by a third party on process discipline using a rubric that reads artifacts rather than action labels | open | — | docs/ecosystem.md |
 | R18 | The validation log's index links every round and every link resolves | done | cmd: python3 .claude/proofs/r18_log_index.py | docs/validation-log.md |
+| R19 | The validation log's summary counts match the table beneath them | done | cmd: python3 .claude/proofs/r19_log_counts.py | docs/validation-log.md |
 | R9 | Agents actually maintain this ledger across multiple tasks, rather than letting it decay | open | — | docs/requirements.md |
 | R10 | The gate is observed blocking a session that would otherwise have stopped red | deferred 2026-09-14 — nine controlled A/B rounds produced no such session; observing it needs a deliberately weak arm, and inventing one would measure the arm, not the gate | — | docs/validation-log.md |
 | R11 | AEP ships a broad skill library of its own | dropped 2026-09-14 — a second always-on protocol layer collides with the one the user already runs; the reasons and the safe composition rules are written down instead | — | docs/ecosystem.md |

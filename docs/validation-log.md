@@ -6,10 +6,11 @@ held, and what did not.
 
 ## Every round at a glance
 
-Twenty-four rounds. Nine of them went against the project, four of those made it
-withdraw or refuse to ship something, and three corrected a claim this log itself had
-published. That distribution is the point: a log where everything confirms the thesis is
-a marketing page.
+Twenty-four rounds. **Nine** carry a negative or self-correcting verdict (rounds 5, 10,
+13, 14, 15, 20, 21, 23, 24 — counted from the table below, not asserted), **five** made
+the project withdraw or refuse to ship something, and **three** corrected a claim this log
+itself had published. That distribution is the point: a log where everything confirms the
+thesis is a marketing page.
 
 | # | What was asked | Verdict |
 |---|---|---|

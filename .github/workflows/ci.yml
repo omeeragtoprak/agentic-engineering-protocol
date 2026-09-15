@@ -312,6 +312,9 @@ jobs:
       - name: Validation log index
         run: python3 .claude/proofs/r18_log_index.py
 
+      - name: Validation log counts
+        run: python3 .claude/proofs/r19_log_counts.py
+
       - name: Claude plugin validate
         run: |
           npm install -g @anthropic-ai/claude-code

@@ -253,7 +253,7 @@ easy to hit.
 | Document | What it answers |
 |---|---|
 | [docs/worked-example.md](docs/worked-example.md) | What AEP actually produces — the spec, evidence block and delivery summary from one measured session, verbatim |
-| [docs/validation-log.md](docs/validation-log.md) | Every measured round, indexed with its verdict — nine went against the project, four made it withdraw something, three corrected a claim the log itself had published |
+| [docs/validation-log.md](docs/validation-log.md) | Every measured round, indexed with its verdict — nine carry a negative or self-correcting verdict, five made the project withdraw something, three corrected a claim the log itself had published |
 | [docs/design-rules.md](docs/design-rules.md) | Which rule shapes agents follow, and which they drop — nine findings with their measurements |
 | [docs/requirements.md](docs/requirements.md) | How a project's commitments are tracked across sessions — the ledger, what the checker enforces, and what it deliberately is not |
 | [docs/ecosystem.md](docs/ecosystem.md) | What AEP is *not*, which neighbours overlap, how to compose them safely, and how to vet any agent plugin |
