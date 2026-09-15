@@ -12,6 +12,42 @@ large skill library or a full toolkit, [docs/ecosystem.md](docs/ecosystem.md) na
 neighbours, says plainly where they are the better choice, and explains why running two
 protocol frameworks at once breaks both.
 
+## What eighteen measured rounds say about when this pays
+
+Everything below is in [docs/validation-log.md](docs/validation-log.md) with the runs
+behind it. Read this before installing — it is the part most projects leave out.
+
+**What holds up:**
+
+- **The deterministic parts do what they claim**, and CI proves it on every push: the
+  Stop hook blocks completion while your check fails, reports suppressed tests and
+  uncommitted edits to the check itself, and the traceability checker turns a
+  requirement red when the test that proved it leaves the tree. These are not model
+  behaviour; they are scripts with mutation-tested assertions.
+- **The rules that changed outcomes did so with weaker models.** One sentence about
+  phase boundaries took a small model from 0 of 4 sessions producing any code to 2 of
+  2 delivering committed, tested work. Making "name who reviewed this" unconditional
+  went 0/2 → 2/2 in the same conditions.
+
+**What does not, or is not yet shown:**
+
+- **With a frontier model on a well-phrased request, the deltas go to zero.** Measured:
+  on a planning task, AEP scored 1.00 against the bare model's 1.00 — same acceptance
+  criteria, same grounding in the repo, same catch of a non-idempotent retry hazard —
+  for 2.4× the turns. That matches the wider finding that scaffolding gains shrink as
+  base models improve ([docs/ecosystem.md](docs/ecosystem.md) cites the work).
+- **The requirements ledger does not maintain itself.** Agents wrote rows in 2 of 12
+  task-sessions and dated deferrals in 0 of 12; the one condition that worked has not
+  replicated. Keep the rows yourself and the checker keeps them true — that part works.
+- **The gate has never blocked a real session** in eighteen rounds. It is insurance for
+  the tail case, not a performance multiplier.
+
+**So: install AEP if you want enforcement you can audit** — a completion gate, a
+traceability checker, evidence blocks, and a protocol whose every claim is published
+with the round that produced it, including the four rules this project withdrew after
+measuring them. **Do not install it expecting a capable model to get better at
+planning**; on that, the measurement says it does not.
+
 ---
 
 ## Architecture: the right rule in the right layer
