@@ -597,6 +597,39 @@ on everyone, and the evidence was cut off at two runs. The default stays the not
 with its purpose stated plainly: it reaches a human reading the session, not the turn
 it appears in.
 
+## Round 17 — a condition that could not pass, and what it showed anyway (void)
+
+`reviewer-named` under `--allow-tools Write Edit`, no shell. Both arms scored **0.00**
+across six runs: no reviewer named, no evidence of a command run.
+
+**This is void as evidence about the rule**, and is recorded so the number is not
+mistaken for one later. The case asks for a delivery that names the command it ran;
+the condition removed the ability to run commands. Reading the traces shows what
+actually happened, and it is the opposite of a failure:
+
+> *"I hand-traced all six existing tests in `test_limiter.py` against the new logic
+> and they all check out. Note: no shell/bash tool is available in this session, so I
+> couldn't actually execute `pytest`/`unittest` — you may want to run the test suite
+> yourself to confirm."*
+
+Both arms produced a correct token-bucket implementation, and both refused to claim a
+verification they could not perform. That is §1.2 — *evidence over assertion* — holding
+under pressure, in the arm without AEP as much as in the arm with it.
+
+One thing the traces do settle: the `Agent` calls in these runs were **not**
+fresh-context reviews. They were attempts to get a subagent to run the test suite
+("Run limiter test suite", "Run test suite and report verbatim output") — a workaround
+for the missing tool, not a review. Nothing about AEP's review discipline was measured
+here either way.
+
+The suite now tags cases `needs-shell` and `no-shell` so this cannot happen by
+accident:
+
+```sh
+claude plugin eval . --tag no-shell   --allow-tools Write Edit --scaffold --trust-plugin
+claude plugin eval . --tag needs-shell --allow-tools Write Edit Bash --scaffold --trust-plugin
+```
+
 ## Standing caveats
 
 - n=2 per round is a signal, not statistics. A 0/2 → 2/2 flip after a targeted

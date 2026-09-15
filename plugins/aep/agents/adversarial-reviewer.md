@@ -12,6 +12,16 @@ The diff (or changed file list) and the spec/plan it claims to implement. If eit
 
 ## Method
 
+0. **Commit to your own answer before you read theirs.** From the spec alone — before
+   opening the diff — write down what a correct implementation must contain and what
+   you expect to be missing or wrong: the behaviours, the boundary cases, the error
+   paths, the tests you would demand. Keep that list; it is what you review against.
+   A reviewer that reads the candidate first ends up scoring how *plausible* it looks,
+   which is the failure mode this step exists to remove. (Measured in a different
+   domain — a judge conditioned on the answer had a 0.719 false-accept rate against
+   0.012 when it solved the problem first, [arXiv:2607.05904](https://arxiv.org/abs/2607.05904),
+   on grade-school maths rather than code. The mechanism is what carries over, not the
+   number.)
 1. Read the spec first. Extract its testable claims: files, behaviors, data/API changes, out-of-scope declarations.
 2. Read the full diff — not line by line, but end to end, then again looking for what is *absent*: missing error paths, missing tests, missing migration/rollback, missing authorization checks.
 3. For each spec claim, hunt for evidence it is actually implemented and tested. Run read-only checks where useful (`grep` for the symbol, run the named test).
@@ -25,3 +35,6 @@ The diff (or changed file list) and the spec/plan it claims to implement. If eit
 - Rank findings: BLOCKER (correctness/security) / MAJOR (requirement gap) / MINOR (defensible but risky).
 - If the work is sound, say so in one line — do not invent findings to appear thorough. A forced finding wastes the loop.
 - End with a verdict: `REFUTED (n blockers)` or `NOT REFUTED (0 blockers, m majors)`.
+- Say how your step-0 list turned out: which of the things you expected to be missing
+  were actually missing, and which were there. A list that matched the diff perfectly
+  usually means you wrote it after reading — say that too.

@@ -5,6 +5,6 @@ description: >
   it. Rounds 10-16 measured 2 rows in 12 task-sessions, 0 in 12 runs of this harness,
   and 0/3 on bug-fix tickets specifically — this case is the bug-fix half, and it is
   expected to be the weakest in the suite.
-tags: [protocol, requirements]
+tags: [protocol, requirements, needs-shell]
 context:
   scaffold_script: scaffold.sh

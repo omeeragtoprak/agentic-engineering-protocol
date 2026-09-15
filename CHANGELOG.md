@@ -5,6 +5,36 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.9.0] - 2026-09-15
+
+Two changes to how AEP reviews work, both from primary sources, both with their limits
+stated rather than hidden.
+
+### Changed
+- **The adversarial reviewer now commits to its own answer before reading the diff.**
+  Step 0 of the method: from the spec alone, write down what a correct implementation
+  must contain and what you expect to be missing — then open the diff and review
+  against that list. A judge conditioned on a candidate scores how *plausible* it
+  looks, not whether it is correct; committing first is what separates the two.
+  Measured at 0.719 → 0.012 false accepts in
+  [arXiv:2607.05904](https://arxiv.org/abs/2607.05904) — on grade-school maths with
+  Qwen3 policies, not on code, so the protocol takes the mechanism and says so.
+- **"Two reviewers is the floor" is gone.** Agreement between reviewers drawn from the
+  same model is not evidence: *ten* dedicated reviewers unanimously endorsed a
+  Bleichenbacher padding oracle that did not exist, and only running the attack
+  refuted it ([arXiv:2604.19049](https://arxiv.org/abs/2604.19049)). The rule is now
+  **add lenses, not votes**, with two consequences written into the skill — a finding
+  is promoted by a probe and not by a majority, and AEP's own subagents share the
+  blind spots of whichever model you run them on, which a third same-family reviewer
+  does not fix.
+
+### Added
+- Eval cases are tagged `needs-shell` or `no-shell`, so a case that cannot pass without
+  `Bash` is not run in a condition that guarantees zero. Round 17 records the one time
+  that happened: both arms produced correct work, both said plainly that no shell was
+  available and asked the user to run the tests, and a grader scored that honesty as a
+  failure. Void as evidence, kept as a record.
+
 ## [1.8.3] - 2026-09-15
 
 A correction, and a feature held back because its measurement was cut short.

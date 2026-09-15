@@ -32,13 +32,32 @@ The agent that wrote the code does not grade it. For significant diffs:
 
 - **Claude Code:** invoke the `aep:adversarial-reviewer` subagent with the diff and the spec.
 - **Isolation matters:** give reviewers the diff and the spec — **never your reasoning, draft summary, or expected verdict**. A verifier that sees the author's conclusion tends to repeat it instead of testing it; that isolation is what makes fresh-context review work.
+- **Ask for a prediction before the reading.** Instruct the reviewer to write down, from the spec alone, what a correct implementation must contain and what it expects to find missing — *then* open the diff and review against its own list. A judge conditioned on a candidate scores plausibility rather than correctness; committing to an answer first is what separates the two ([arXiv:2607.05904](https://arxiv.org/abs/2607.05904) measures 0.719 → 0.012 false accepts doing this, on maths rather than code — take the mechanism, not the number).
 - **Other tools:** open a fresh session/context, paste only the diff + spec, and instruct: *"Try to refute this implementation against the spec. Report only gaps affecting correctness or stated requirements — not style preferences."*
 
 **Name the reviewer, always.** Every delivery states who graded the diff — `fresh-context subagent`, `separate session`, or `authoring context (weaker: the context that wrote the code graded it)`. This is one line, unconditional: there is no case where the reviewer is unnamed. When no fresh context is available, run the review pass anyway and name the authoring context — an unavailable reviewer must never silently become no review.
 
 Treat findings skeptically in both directions: verify each reported gap is real before fixing it (reviewers asked to find gaps will report some even in sound work), and do not dismiss a finding without evidence.
 
-**Scale the panel with the surface.** Independent verifiers with distinct lenses catch what redundant ones cannot: for diffs touching auth, input handling, or anything user-reachable, also run `aep:security-auditor`; for diffs touching hot paths, queries, or data volume, also run `aep:performance-auditor`. Two reviewers is the floor for significant work, not the ceiling.
+**Add lenses, not votes.** A second reviewer earns its place by looking for a
+*different class* of defect, not by agreeing: for diffs touching auth, input handling,
+or anything user-reachable, run `aep:security-auditor`; for hot paths, queries, or
+data volume, run `aep:performance-auditor`.
+
+**Agreement is not evidence.** Reviewers drawn from the same model share blind spots,
+and consensus among them can manufacture a finding rather than confirm one — measured:
+*ten* dedicated reviewers unanimously endorsed a Bleichenbacher padding oracle that did
+not exist, and only running the attack refuted it ([arXiv:2604.19049](https://arxiv.org/abs/2604.19049),
+whose adversarial kill-gates discard ~79-83% of candidates before disclosure). Two
+consequences for this protocol:
+
+- **A finding is promoted by a probe, not by a majority.** Before acting on any
+  reported gap, reproduce it: the failing test, the request that returns the wrong
+  status, the query plan. "Both reviewers agreed" is not a reproduction.
+- **Same-family reviewers are a known limit.** AEP's subagents all run on whichever
+  model you are using, so they share its blind spots by construction. Where a change is
+  high-stakes, a review from a different model family is worth more than a third
+  reviewer from this one.
 
 **A green check is only evidence if it could have been red.** On tasks that began
 green, state what makes the check fail without your change — the acceptance

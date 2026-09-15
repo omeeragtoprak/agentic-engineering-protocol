@@ -26,10 +26,23 @@ made it pass — which is exactly what you want to know before installing a prot
 | `ledger-row` | A repository keeping `.claude/requirements.md` leaves the task recorded in it | Rounds 10–11 — **the weakest case in the suite: 0/3 on bug-fix tickets** |
 | `deferral-recorded` | An explicitly out-of-scope item becomes a dated `deferred` row, not a sentence in a summary | Rounds 10–16. **Also expected to fail**: 2/3 in one harness, 0/12 here |
 
+Run only the cases your machine can actually pass:
+
+```sh
+claude plugin eval . --tag no-shell --scaffold --trust-plugin --allow-tools Write Edit
+claude plugin eval . --tag needs-shell --scaffold --trust-plugin --allow-tools Write Edit Bash
+```
+
 **Which cases need a shell.** `reviewer-named`, `evidence-not-assurance` and
 `ledger-row` grade work that involves running the project's tests, so they need
 `--allow-tools Bash`. `plan-before-code`, `plan-skill-fires` and `deferral-recorded`
 run with `--allow-tools Write Edit` or nothing at all.
+
+Running a `needs-shell` case without `Bash` does not measure a weaker version of the
+rule — it measures nothing. Tried once: both arms produced competent work, said
+plainly *"no shell is available, I hand-traced the tests, please run them yourself"*,
+and scored 0 on a grader that asks which command was run. That is the protocol's
+honesty rule working, marked as a failure by a case that could not be satisfied.
 
 This distinction is not only about convenience. **Without `Bash`, the Stop hook's
 check never runs**, so the gate — and the ledger notice v1.7.1 added to it — take no
