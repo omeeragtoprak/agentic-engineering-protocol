@@ -102,33 +102,39 @@ how it was decided and what was rejected. The `Source` column is the link betwee
 
 ## Honest status
 
-Wired in v1.7.0, measured in Rounds 10-11 of [validation-log.md](validation-log.md),
-and the measurement changed the design.
+Wired in v1.7.0, measured in Rounds 10-16 of [validation-log.md](validation-log.md),
+and the measurements have been mostly unkind.
 
-**Round 10 (12 task-sessions):** agents wrote a ledger row in **2 of 12**, and
-recorded a dated deferral — the one thing the ledger does that a delivery summary
-cannot — in **0 of 12**. The v1.6.1 control wrote nothing at all, so the
-instructions were doing something; they were not doing enough. The diagnosis: the
-always-on rule said *close every requirement you touched*, which an empty ledger
-satisfies by doing nothing.
+**What the checker does is solid.** Eighteen CI scenarios, four mutation tests, and
+AEP's own repository runs it on itself — see [`.claude/requirements.md`](../.claude/requirements.md)
+and [`.claude/proofs/`](../.claude/proofs/). A `done` row whose proof leaves the tree
+turns the project's check red; that part is not in question.
 
-**The fix:** the core now says *write this task into the ledger before you finish*,
-and the Stop hook, on a green check, emits a non-blocking notice when the working
-tree or the last commit moved code and the ledger did not — at the moment there is
-still a turn left to act in.
+**What agents do with it is another matter.** Rounds 10-16, counted honestly:
 
-**Round 11 (n=3, same tasks):** on the ticket carrying an explicit out-of-scope
-item, **2 of 3** sessions wrote both the `done` row and the dated `deferred` row
-unprompted, and quoted the ledger counts in their own evidence blocks. On the
-bug-fix ticket, **0 of 3** wrote anything — and none took the rule's own escape
-hatch of saying the task committed to nothing. The notice reached every one of those
-sessions, so the remaining gap is not delivery.
+| Condition | Rows written | Dated deferrals |
+|---|---|---|
+| v1.6.1 control, no ledger instructions (4 task-sessions) | 0 | 0 |
+| v1.7.0 prose (12 task-sessions) | 2 | 0 |
+| v1.7.1 prose + Stop notice, full sessions with a shell (3) | 2 | **2** |
+| v1.7.1+ under the official eval harness (12 runs) | 0 | 0 |
+| Blocking reminder, two usable runs before a usage limit (2) | 0 | 0 |
 
-So: the ledger holds where a task makes a visible commitment, and does not yet hold
-for ordinary bug fixes. That is the state of it, published next to the rounds that
-went against it.
+The one condition that worked has not replicated anywhere else, and the mechanism it
+was credited to — the Stop notice — provably arrives on the second-to-last line of a
+run, too late to change it (design rule 9). The difference between the condition that
+worked and the ones that did not is the harness, not the wording: Round 11's sessions
+ran two sequential tasks, with a shell, committing as they went. That comparison is
+the obvious next measurement, and it is blocked on this machine by an eval sandbox
+prerequisite, not by anything in AEP.
 
-**The checker itself** is pinned by eighteen CI scenarios and four mutation tests,
-and AEP's own repository runs it on itself — see
-[`.claude/requirements.md`](../.claude/requirements.md) and
-[`.claude/proofs/`](../.claude/proofs/).
+**What that means if you are deciding whether to use this.** The ledger and its
+checker are worth keeping if *you* maintain the rows — they will then stay true,
+because the checker enforces it. Do not adopt them expecting an agent to keep them for
+you: that is what the table above measures, and the honest reading is that it does not
+happen reliably yet. `AEP_LEDGER_BLOCK=1` makes the gate insist once per session; it is
+off by default because two runs is not enough evidence to make a gate blocking for
+everyone.
+
+The project's own ledger tracks this as an open row (R14), and will publish the number
+that closes it whichever way it goes.
