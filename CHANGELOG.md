@@ -5,6 +5,29 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.10.1] - 2026-09-15
+
+### Measured
+- **Round 21 tested v1.10.0's acceptance-author and found no local benefit at n=2.**
+  Both arms encoded the deliberately ambiguous criterion correctly, and all four suites
+  ended green. Two things it did establish: the **freeze held** — in both separated runs
+  the implementer left the committed test file untouched while making the suite pass —
+  and the independently written checks name the wrong implementation they exist to catch
+  (*"an implementation that only checks whether this single backoff fits… would
+  incorrectly allow the 4th sleep too"*) where the self-authored ones pin the exact sleep
+  sequence their own code produces. Whether that catches anything is not a question two
+  runs answer.
+- The subagent keeps its external justification — one trajectory writing both sides
+  measured worse than writing no tests at all — and gains no local one. The validation
+  log says that where it describes the rule.
+
+### Added
+- A standing caveat that now governs how to read this log: **ceiling effects are the
+  norm**. Rounds 18, 20 and 21 each failed to separate their arms because a frontier
+  model on a small, well-specified task already does the thing being tested. A 0.00
+  delta means "this fixture could not tell them apart" before it means "the rule does
+  nothing", and building fixtures that discriminate is now the harder half of this work.
+
 ## [1.10.0] - 2026-09-15
 
 ### Added

@@ -725,7 +725,53 @@ a hook can at least ask — reviewer provenance has only wording, which Round 18
 is not the binding constraint. This is recorded as an open requirement (R16) rather
 than patched with a stronger adjective.
 
+## Round 21 — separating the test author from the implementer (n=2 per arm)
+
+v1.10.0 shipped `aep:acceptance-author` on external evidence. This round asked what it
+does here.
+
+**Setup.** A spec with five numbered acceptance criteria, one of them written to invite a
+misreading: *"when the next backoff would exceed what is left of the budget, the client
+gives up rather than sleeping past it"* — where the natural implementation sleeps the
+remainder and continues. A fixed `FakeTransport` that counts calls, and a green baseline.
+
+- **Arm A:** one session writes `test_uploader.py` and then `uploader.py`.
+- **Arm B:** `aep:acceptance-author` writes the checks and they are committed; a second
+  session implements against them and is told they are frozen.
+
+**Primary metric — no difference.** Both arms encoded criterion 5 as *gives up*, not as
+*total sleep stays under budget*: A asserted `sleeps == [1, 2]` with `transport.calls ==
+3`; B asserted the same shape plus a case where the budget is below `base_delay` and no
+sleep may happen at all. 2/2 each. All four suites end green.
+
+**The freeze held.** In both arm-B runs the implementer left the committed test file
+untouched — one commit, clean working tree — while making the suite pass.
+
+**What differed, at n=2, is the kind of test rather than the verdict.** The independently
+written checks say out loud which wrong implementation they exist to catch:
+
+> *"An implementation that only checks 'does this single backoff fit under time_budget'
+> (instead of tracking cumulative spend) would incorrectly allow the 4th sleep too."*
+
+and reason about what must hold *regardless of the growth factor used*, while the
+self-authored ones pin the exact sleep sequence their own implementation produces. Arm B
+also wrote more of them (8–9 checks against 5–9). Whether that difference catches
+anything is not something two runs can say.
+
+**So the feature keeps its external justification and gains no local one.** It is in the
+protocol because one trajectory writing both sides measured worse than writing no tests
+at all on SWE-bench Verified; this round did not reproduce a benefit, and the log says so
+in the same place it describes the rule.
+
 ## Standing caveats
+
+- **Ceiling effects are now the norm, not the exception.** Rounds 18, 20 and 21 each
+  failed to separate their arms because a frontier model on a small, well-specified task
+  already does the thing being tested — the reviewer caught the seeded defect either way,
+  both arms encoded the tricky criterion, and neither arm named a reviewer. Fixtures that
+  discriminate have to sit at the edge of what the model does unprompted, and building
+  those is harder than building the protocol. Read any 0.00 delta in this log as "this
+  fixture could not tell them apart" before reading it as "the rule does nothing".
 
 - n=2 per round is a signal, not statistics. A 0/2 → 2/2 flip after a targeted
   change is reported as a confirmed diagnosis; anything narrower is reported as
