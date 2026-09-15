@@ -161,7 +161,10 @@ the ones that went against the project:
   12 task-sessions and not one dated deferral. The rule was vacuous — "close every
   requirement you touched" is satisfied by an empty ledger. After moving it into the
   always-on core as a creation rule and having the Stop hook name it, dated
-  deferrals went 0/12 → 2/3 on feature work, and remain 0/3 on bug fixes.
+  deferrals went 0/12 → 2/3 in one harness — and then **did not replicate**: 0 of 12
+  runs under the official eval harness, where the same reminder fires every time.
+  [docs/requirements.md](docs/requirements.md) has the full table, including the four
+  conditions that produced nothing.
 
 **AEP runs its own protocol on itself.** This repository keeps
 [`.claude/requirements.md`](.claude/requirements.md) — eleven of its own commitments,

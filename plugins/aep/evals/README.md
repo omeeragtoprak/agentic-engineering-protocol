@@ -24,7 +24,7 @@ made it pass — which is exactly what you want to know before installing a prot
 | `reviewer-named` | Every delivery states who graded the diff | Round 3: 0/2 → 2/2 after the rule was made unconditional |
 | `evidence-not-assurance` | A completion claim names the command that ran and what it returned | §1.2, the prime directive |
 | `ledger-row` | A repository keeping `.claude/requirements.md` leaves the task recorded in it | Rounds 10–11 — **the weakest case in the suite: 0/3 on bug-fix tickets** |
-| `deferral-recorded` | An explicitly out-of-scope item becomes a dated `deferred` row, not a sentence in a summary | Rounds 10–11: 0/12 → 2/3 |
+| `deferral-recorded` | An explicitly out-of-scope item becomes a dated `deferred` row, not a sentence in a summary | Rounds 10–16. **Also expected to fail**: 2/3 in one harness, 0/12 here |
 
 **Which cases need a shell.** `reviewer-named`, `evidence-not-assurance` and
 `ledger-row` grade work that involves running the project's tests, so they need
@@ -37,8 +37,10 @@ part in the result. A no-shell run measures the instruction layer alone, which i
 condition under which Round 10 measured 0/12. Read a no-shell score as "what the
 prose achieves by itself".
 
-`ledger-row` is expected to fail. It is in the suite because the gap is real and
-published, and a suite that only contains what already works measures nothing.
+`ledger-row` and `deferral-recorded` are both expected to fail. They are in the suite
+because the gap is real and published, and a suite that only contains what already
+works measures nothing. If either starts passing for you, that is a finding worth
+sending back.
 
 ## Cost and shape
 
