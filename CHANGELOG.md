@@ -5,7 +5,7 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
-## [1.14.0] - 2026-09-15
+## [1.14.1] - 2026-09-15
 
 **The review block is on by default.** The first default this project has turned on
 because a measurement said to, with the criterion published before the measurement that
@@ -24,6 +24,13 @@ satisfied it.
   overrides a Stop hook after repeated blocks, so it cannot dead-lock a session.
 
 ### Fixed
+- **A false alarm that would have greeted every new user.** With a clean tree the check
+  falls back to the last commit — including, before this, a commit from months ago. Open
+  an old repository, do nothing, stop, and the gate blocked you for someone else's diff.
+  The fallback now applies only to a commit under eight hours old
+  (`AEP_REVIEW_HEAD_MAX_AGE`); the heuristic and its failure mode are written into the
+  script. Root commits, detached HEAD, empty repositories and non-git directories were
+  each checked and pass through silently.
 - **The check went blind exactly when the protocol is followed.** It looked only at the
   working tree, so a session that committed its work before stopping was never asked
   about a review — which happened to two of the first ten runs and voided them. It now

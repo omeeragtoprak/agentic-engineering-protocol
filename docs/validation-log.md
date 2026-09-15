@@ -1142,6 +1142,16 @@ notice. This is the first default in the project turned on by measurement rather
 argument, and the criterion was published before the measurement that satisfied it — which
 is the only reason flipping it now is not moving the goalposts.
 
+**Turning it on meant testing what it does when it is wrong.** Four repository shapes
+were checked before shipping the default, and one was a real false alarm: a clean tree
+whose last commit is *old*. Opening a repository last touched in January, doing nothing,
+and stopping got you blocked for someone else's diff — which would have been the first
+thing a new user saw. The last-commit fallback now applies only to a commit less than
+eight hours old (`AEP_REVIEW_HEAD_MAX_AGE`), a heuristic whose failure mode is stated in
+the script: a session that commits early and stops much later is not asked. A root
+commit, a detached HEAD, an empty repository and a non-git directory all pass through
+silently rather than crashing.
+
 **What it costs, plainly.** On Sonnet the blocking runs cost $0.81–$1.28 against $0.30–$0.50
 for the notice arm; on Haiku, $0.12–$0.44 against $0.15–$0.19. It asks once per commit on a
 diff of two or more source files or twenty-five changed lines, and Claude Code overrides a

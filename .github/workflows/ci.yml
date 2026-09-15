@@ -159,6 +159,13 @@ jobs:
           git add -A && git -c user.email=a@b -c user.name=a commit -qm "d module"
           OUT=$(sh gate.sh); echo "$OUT" | grep -q "no fresh-context review"
 
+          # an old commit is not this session's work
+          python3 -c "open('src/e.py','w').write(chr(10).join(f'e{i}={i}' for i in range(40)))"
+          git add -A
+          GIT_AUTHOR_DATE="2025-01-02T10:00:00" GIT_COMMITTER_DATE="2025-01-02T10:00:00" git -c user.email=a@b -c user.name=a commit -qm "old work"
+          OUT=$(sh gate.sh)
+          if echo "$OUT" | grep -q "no fresh-context review"; then echo "blamed the session for a 2025 commit"; exit 1; fi
+
           # test-only changes never trigger it
           git add -A; git -c user.email=a@b -c user.name=a commit -qm reviewed || true
           sleep 1

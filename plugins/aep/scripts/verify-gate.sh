@@ -85,8 +85,16 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   SRC_LIST=$(git status --porcelain 2>/dev/null | cut -c4-)
   FROM_HEAD=""
   if [ -z "$SRC_LIST" ]; then
-    SRC_LIST=$(git show --name-only --format= HEAD 2>/dev/null)
-    FROM_HEAD="yes"
+    # Only a *recent* commit can plausibly be this session's work. Without this,
+    # opening a repository whose last commit is months old and stopping gets you
+    # blocked for someone else's diff — measured, and it would be the first thing a
+    # new user saw. Eight hours is a heuristic, and its failure mode is stated: a
+    # session that commits early and stops much later is not asked.
+    HEAD_AGE=$(( $(date +%s) - $(git log -1 --format=%ct 2>/dev/null || echo 0) ))
+    if [ "$HEAD_AGE" -lt "${AEP_REVIEW_HEAD_MAX_AGE:-28800}" ]; then
+      SRC_LIST=$(git show --name-only --format= HEAD 2>/dev/null)
+      FROM_HEAD="yes"
+    fi
   fi
   CHANGED=$(printf '%s\n' "$SRC_LIST" \
     | grep -Ev '(^|/)(tests?|specs?)(/|$)|(^|/)test_[^/]*$|[^/]*(_test|\.test|\.spec)\.[A-Za-z0-9]+$|^\.claude/' \

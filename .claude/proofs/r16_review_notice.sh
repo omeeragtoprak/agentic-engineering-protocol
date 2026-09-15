@@ -35,5 +35,13 @@ AEP_REVIEW_BLOCK=0 sh gate.sh | grep -q "no fresh-context review" && { echo "com
 git add -A; git -c user.email=p@l -c user.name=p commit -qm tests
 python3 -c "open('src/c.py','w').write(chr(10).join(f'q{i}={i}' for i in range(30)))"
 git add -A; git -c user.email=p@l -c user.name=p commit -qm "committed work"
-AEP_REVIEW_BLOCK=0 sh gate.sh | grep -q "no fresh-context review" || { echo "committed work was never asked about"; exit 1; }
+AEP_REVIEW_BLOCK=0 AEP_REVIEW_BLOCK=0 sh gate.sh | grep -q "no fresh-context review" || { echo "committed work was never asked about"; exit 1; }
+
+# but an old commit is not this session's work: a repository whose last commit is
+# months old must not be blamed for it
+python3 -c "open('src/e.py','w').write(chr(10).join(f'e{i}={i}' for i in range(40)))"
+git add -A
+GIT_AUTHOR_DATE="2025-01-02T10:00:00" GIT_COMMITTER_DATE="2025-01-02T10:00:00" \
+  git -c user.email=p@l -c user.name=p commit -qm "old work"
+AEP_REVIEW_BLOCK=0 sh gate.sh | grep -q "no fresh-context review" && { echo "blamed the session for an old commit"; exit 1; }
 exit 0
