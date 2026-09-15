@@ -763,63 +763,72 @@ protocol because one trajectory writing both sides measured worse than writing n
 at all on SWE-bench Verified; this round did not reproduce a benefit, and the log says so
 in the same place it describes the rule.
 
-## Round 22 — six tickets in one tree, and the first fixture that separated the arms (n=2)
+## Round 22 — six tickets in one tree, three arms, and a correction to its own first reading
 
 Every round from 18 onward failed for the same reason: a frontier model on one small,
 well-specified ticket already does the thing being tested. `bench/sequence` was built to
 leave that regime — six tickets against one repository, run in order, in one working
 tree, where **ticket 2's spec is silent on whether tax applies before or after a
 discount** and **ticket 6 adds a fixed loyalty credit whose total depends on that
-answer** ($75.60 against $76.40) while saying nothing about it. No ticket ever mentions
-the decision again.
+answer** ($75.60 against $76.40) while saying nothing about it. No ticket mentions the
+decision again. The scorer runs the finished code; it never reads a transcript.
 
-Arms: AEP installed the way a user installs it (core, plugin, ledger, check wired to
-`make test` plus `trace.py`) against the bare model. Same model, same tickets, same
-order. The scorer runs the finished code; it never reads a transcript.
+Three arms, same model, same tickets, same order:
 
-| | A1 | A2 | B1 | B2 |
-|---|---|---|---|---|
-| Decision recorded somewhere durable | **yes** | **yes** | no | no |
-| Ticket 6 delivered | **yes** | **yes** | **no** | **no** |
-| Credit ordering the code produces | 76.40 | 76.40 | — | — |
-| Out-of-scope item as a dated row | yes | no | no | no |
-| Tickets producing a commit | 6 | 5 | 4 | 4 |
-| Tests at the end (baseline 4) | 48 | 38 | 21 | 24 |
-| Project check at the end | pass | pass | pass | pass |
-| Cost across six tickets | $3.26 | $1.66 | $1.12 | $1.09 |
+- **A** — AEP as a user installs it: core, plugin, gate, and the requirements ledger.
+- **C** — identical to A **minus the ledger**: no `.claude/requirements.md`, no `trace.py`.
+- **B** — the bare model.
 
-**2/2 against 0/2 on the two things the fixture exists to measure.** Both AEP runs wrote
-the ordering into `.claude/requirements.md` at ticket 2 — *"discount applied to subtotal,
-then tax"*, with a named test as its proof — and both delivered ticket 6, independently
-converging on the same ordering for the credit.
+| | A1 | A2 | A3 | C1 | C2 | B1 | B2 | B3 |
+|---|---|---|---|---|---|---|---|---|
+| Decision recorded durably | yes | yes | yes | **no** | **no** | no | no | no |
+| Ticket 6 delivered | yes | yes | yes | **yes** | **yes** | **no** | **no** | **no** |
+| Ordering the code produces | 76.40 | 76.40 | 76.40 | 76.40 | 76.40 | — | — | — |
+| Out-of-scope item as a dated row | yes | no | undated | no | no | no | no | no |
+| Tickets producing a commit | 6 | 5 | 6 | 6 | 5 | 4 | 4 | 4 |
+| Tests at the end (baseline 4) | 48 | 38 | 40 | 44 | 57 | 21 | 24 | 24 |
+| Project check at the end | pass | pass | pass | pass | pass | pass | pass | pass |
 
-**Both bare runs stopped and asked.** Ticket 6 produced no code in either:
+**The headline holds: 5/5 against 0/3 on delivering ticket 6.** Both bare runs and the
+third stopped and asked instead of building:
 
 > *"Where should the loyalty credit apply in the pricing pipeline? A) After tax (like a
 > gift card)… B) Before tax, alongside the discount code… this is a business-rules
 > question."*
 
-That is not a defect — the question is a good one, and a human sitting there would
-answer it. It is the measurement: with nothing recorded, the sixth ticket cannot proceed
-on its own, and in an unattended run it simply does not happen. Ticket 4 stalled the same
-way in both bare runs.
+That is a fair question, and a human sitting there would answer it. Unattended, it means
+the ticket produces nothing — which happened to ticket 4 in all three bare runs too.
 
-**What went against AEP in the same data.** A2 never committed ticket 4 at all — five of
-six — and recorded no dated deferral, so the ledger habit held 2/2 for decisions and 1/2
-for deferrals. The cost is real: $3.26 and $1.66 against $1.12 and $1.09, and A1's
-ticket 4 alone ran 31 turns.
+**And the correction: it was not the ledger.** This round was first published with two
+arms, where both AEP runs had written the ordering into `.claude/requirements.md` and
+both finished — which reads as the ledger doing the work. Arm C removes the ledger
+entirely and still finishes ticket 6, twice, with the same ordering, having recorded the
+decision nowhere. What those runs did instead is state the interpretation and proceed:
+
+> *"applied **after** tax — it's a payment credit against the final charge (like a gift
+> card), not a discount that should reduce the taxable base."*
+
+That is §4 of the always-on core — *state the chosen interpretation in one line and
+proceed; ask one precise question only if a wrong guess would be destructive* — and it,
+not the ledger, is what separates these arms. The ledger's measured contribution is
+narrower and still real: **3/3 against 0/2, recording the decision for a session that
+has not happened yet.** This fixture cannot see that value, because it ends at ticket 6.
+
+**What went against AEP in the same data.** Two of five AEP-side runs left a ticket
+uncommitted (five of six), dated deferrals held only 1/3 in arm A and 0/2 in arm C, and
+the cost is roughly double the bare arm's. All eight runs ended with a passing check, so
+nothing here says the bare model wrote worse code — it wrote less of it, and asked.
 
 **And the scorer was wrong twice before it was right.** Its first version required a
-positional four-argument call and reported `n/a` against a real API that used keyword
-parameters; its second passed a float where A2's code wanted the `LoyaltyCredit`
-dataclass it had defined, and reported `n/a` for a run that had implemented the ticket
-correctly. Both were caught by reading the produced code, not by trusting the number.
-Anyone re-running this should assume the same about their own harness.
+positional four-argument call and reported `n/a` against a real API using keyword
+parameters; its second passed a float where one run's code wanted the `LoyaltyCredit`
+dataclass it had defined. Both reported `n/a` for runs that had implemented the ticket
+correctly, and both were caught by reading the produced code rather than trusting the
+number. Anyone re-running this should assume the same about their own harness.
 
-**n=2, one task, one model.** What it establishes is narrower than it looks: on a task
-long enough for a decision to be forgotten, the arm that wrote the decision down finished
-work the other arm could not. That is the first time in this log that a fixture has told
-the arms apart, and it took leaving the single-ticket regime to do it.
+**n=3/2/3, one task, one model.** What it establishes: on a task long enough for a
+decision to be forgotten, the arms carrying the always-on core finished work the bare arm
+could not — and the component that did it is the operating stance, not the file.
 
 ## Standing caveats
 

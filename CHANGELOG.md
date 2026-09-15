@@ -5,6 +5,39 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.11.1] - 2026-09-15
+
+### Corrected
+- **Round 22 was published with two arms and read as "the ledger did it". A third arm
+  says otherwise.** With `.claude/requirements.md` and `trace.py` removed and everything
+  else identical, both runs still delivered the final ticket and produced the same
+  ordering, having recorded the decision nowhere — they stated their interpretation and
+  proceeded (*"applied after tax — a payment credit against the final charge, not a
+  discount that reduces the taxable base"*). What separates the arms is §4 of the
+  always-on core, not the ledger file.
+- The headline is stronger and the attribution is narrower: **5/5 against 0/3** on
+  delivering ticket 6 across every run carrying the core, while all three bare runs
+  stopped to ask a business-rules question and shipped nothing for it. The ledger's own
+  measured contribution is recording the decision — 3/3 against 0/2 — which this fixture
+  cannot price, because it ends at ticket 6.
+- Also in the same data, against the project: two of five AEP-side runs left a ticket
+  uncommitted, dated deferrals held 1/3 and 0/2, and the cost is roughly double. Every
+  one of the eight runs ended with a passing check, so nothing here says the bare model
+  wrote worse code — it wrote less of it.
+
+### Added
+- `docs/ecosystem.md` gains **agent-rigor / RigorBench**, the nearest thing to a
+  competitor with its own measurements: a six-phase lifecycle enforced as an intercepting
+  harness, and a benchmark that scores the trajectory rather than the outcome, reporting
+  process and outcome correlated at r = 0.87 ([arXiv:2606.22678](https://arxiv.org/abs/2606.22678)).
+  Recorded with the two things the vetting checklist demands: the repository has **no
+  licence file**, and its own figures differ between paper and README (30 tasks against
+  "100 complex software tasks"; agent-rigor 0.61 against 0.53). Its leaderboard has
+  **Superpowers at or below a plain ReAct baseline on process discipline** in both
+  versions — a caution that applies to AEP exactly as much.
+- **R17**, open: AEP gets scored by a third party on process discipline, not only by its
+  own harness.
+
 ## [1.11.0] - 2026-09-15
 
 The first measurement in this project that separated the arms, and the fixture that made

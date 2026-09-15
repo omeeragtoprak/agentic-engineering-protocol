@@ -45,11 +45,13 @@ behind it. Read this before installing — it is the part most projects leave ou
   the tail case, not a performance multiplier.
 
 **Where it measurably pays, once:** on a six-ticket sequence in one repository — long
-enough for a decision to be forgotten — both AEP runs wrote the ordering decision into
-the requirements ledger at ticket 2 and delivered ticket 6; **both bare runs stopped and
-asked a question instead, and shipped nothing for it** (2/2 against 0/2, n=2, about 2×
-the cost and roughly double the tests). That is one task and one model, and it is the
-first fixture in this log that could tell the arms apart at all.
+enough for a decision to be forgotten — every run carrying AEP's always-on core delivered
+the final ticket, and **every bare run stopped to ask a business-rules question and
+shipped nothing for it** (5/5 against 0/3, about 2× the cost and roughly double the
+tests). A third arm isolated the cause: with the requirements ledger removed the runs
+still finished, stating their interpretation and proceeding, so it is the operating
+stance doing the work and not the file. One task, one model, and the first fixture in
+this log that could tell the arms apart at all.
 
 **Where it probably also pays, unmeasured:** the failure categories AEP targets are the
 ones that dominate *long-horizon* agent work — 41.6% shipping broken code, 31.4% running
