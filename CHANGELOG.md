@@ -5,6 +5,32 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.14.0] - 2026-09-15
+
+**The review block is on by default.** The first default this project has turned on
+because a measurement said to, with the criterion published before the measurement that
+satisfied it.
+
+### Changed
+- A significant diff that no fresh-context review touched now **blocks the Stop once**,
+  with an either/or satisfiable in one turn: run the review, or say the authoring context
+  graded its own work. `AEP_REVIEW_BLOCK=0` restores the non-blocking notice.
+- Evidence, counting only runs where the gate actually asked: **notice 0 of 7, blocking
+  7 of 7** — two tasks (a rate limiter, an HTTP retry client), two models (Sonnet 5,
+  Haiku 4.5). Round 27 named "replication on a different task and a different model" as
+  the condition for flipping; Round 28 is that replication.
+- Cost, plainly: on Sonnet the blocking runs cost $0.81–$1.28 against $0.30–$0.50; on
+  Haiku, $0.12–$0.44 against $0.15–$0.19. It asks once per commit, and Claude Code
+  overrides a Stop hook after repeated blocks, so it cannot dead-lock a session.
+
+### Fixed
+- **The check went blind exactly when the protocol is followed.** It looked only at the
+  working tree, so a session that committed its work before stopping was never asked
+  about a review — which happened to two of the first ten runs and voided them. It now
+  falls back to the last commit's diff when the tree is clean, and a review recorded just
+  before that commit counts as having graded it. The voided runs were re-run rather than
+  reinterpreted, and a mutation removing the fallback turns CI red.
+
 ## [1.13.0] - 2026-09-15
 
 The flagship rule finally moved, and what moved it was not wording.

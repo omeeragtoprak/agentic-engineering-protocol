@@ -12,7 +12,7 @@ large skill library or a full toolkit, [docs/ecosystem.md](docs/ecosystem.md) na
 neighbours, says plainly where they are the better choice, and explains why running two
 protocol frameworks at once breaks both.
 
-## What twenty-seven measured rounds say about when this pays
+## What twenty-eight measured rounds say about when this pays
 
 Everything below is in [docs/validation-log.md](docs/validation-log.md) with the runs
 behind it. Read this before installing — it is the part most projects leave out.
@@ -46,10 +46,10 @@ behind it. Read this before installing — it is the part most projects leave ou
   agent to write all of them for you.
 - **The gate has never blocked a real session on a failing check** in twenty-seven rounds.
   It is insurance for the tail case. What *did* move a number was making a reminder block:
-  with `AEP_REVIEW_BLOCK=1`, a diff nothing had reviewed went from **0 of 3** sessions
-  running a fresh-context review to **3 of 3**, where the same reminder delivered as a
-  non-blocking note moved nothing at all. It stays off by default — n=3, one task, and
-  the review roughly doubles the cost.
+  a diff that nothing had reviewed went from **0 of 7** sessions running a fresh-context
+  review to **7 of 7** when the reminder blocks once instead of being a note — across two
+  tasks and two models. That is now **on by default**; `AEP_REVIEW_BLOCK=0` turns it off.
+  It asks once per commit on a diff of 2+ source files or 25+ changed lines.
 
 **Where it measurably pays, once:** on a six-ticket sequence in one repository — long
 enough for a decision to be forgotten — every run carrying AEP's always-on core delivered
@@ -205,7 +205,7 @@ agentic-engineering-protocol/
 ## Validation
 
 AEP is measured on real tasks, and the failures are published next to the wins —
-twenty-seven rounds so far in [docs/validation-log.md](docs/validation-log.md), including
+twenty-eight rounds so far in [docs/validation-log.md](docs/validation-log.md), including
 the ones that went against the project:
 
 - Three rules confirmed by targeted flips (spec persistence and reviewer provenance 0/2 → 2/2; one sentence about phase boundaries took a weak model from 0/4 sessions producing code to 2/2 delivering committed, tested work).

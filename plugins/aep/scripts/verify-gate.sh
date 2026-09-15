@@ -79,7 +79,16 @@ fi
 # instruction to do so was loaded in every one. This reports; it does not block.
 UNREVIEWED=""
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  CHANGED=$(git status --porcelain 2>/dev/null | cut -c4- \
+  # Uncommitted work first; if the tree is clean, look at the commit just made — the
+  # protocol tells agents to commit, and a session that does was invisible here.
+  # Measured: two runs finished, committed, and the gate never asked about a review.
+  SRC_LIST=$(git status --porcelain 2>/dev/null | cut -c4-)
+  FROM_HEAD=""
+  if [ -z "$SRC_LIST" ]; then
+    SRC_LIST=$(git show --name-only --format= HEAD 2>/dev/null)
+    FROM_HEAD="yes"
+  fi
+  CHANGED=$(printf '%s\n' "$SRC_LIST" \
     | grep -Ev '(^|/)(tests?|specs?)(/|$)|(^|/)test_[^/]*$|[^/]*(_test|\.test|\.spec)\.[A-Za-z0-9]+$|^\.claude/' \
     | grep -Ec '\.(py|js|ts|tsx|jsx|go|rs|rb|java|cs|kt|swift|php|sh)$' || true)
   # "Significant" is two or more source files, or one file substantially rewritten.
@@ -88,7 +97,9 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   # notice never fired because the diff touched one file.
   LINES=0
   if [ "${CHANGED:-0}" -ge 1 ]; then
-    LINES=$(git diff HEAD --numstat 2>/dev/null \
+    DIFF_RANGE="HEAD"
+    [ -n "$FROM_HEAD" ] && DIFF_RANGE="HEAD~1..HEAD"
+    LINES=$(git diff $DIFF_RANGE --numstat 2>/dev/null \
       | grep -Ev '(^|/)(tests?|specs?)/|(^|/)test_[^/]*\s|^\.claude/' \
       | awk '$3 ~ /\.(py|js|ts|tsx|jsx|go|rs|rb|java|cs|kt|swift|php|sh)$/ { n += $1 + $2 } END { print n + 0 }')
     # `git diff` does not see a file that was never tracked, so a brand-new 30-line
@@ -104,6 +115,9 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     GD=$(git rev-parse --git-dir 2>/dev/null)
     REVIEWS="$GD/aep-reviews"
     LAST_COMMIT=$(git log -1 --format=%ct 2>/dev/null || echo 0)
+    # when the change we are judging *is* the last commit, a review from just before
+    # it still counts - it graded that work
+    [ -n "$FROM_HEAD" ] && LAST_COMMIT=$(git log -1 --skip=1 --format=%ct 2>/dev/null || echo 0)
     SEEN=""
     if [ -f "$REVIEWS" ]; then
       # Strictly after: a review recorded in the same second as the commit is
@@ -137,11 +151,17 @@ if [ "${AEP_LEDGER_BLOCK:-0}" = "1" ] && [ -n "$STALE_LEDGER" ]; then
   fi
 fi
 
-# Same shape as the ledger reminder, same reason: a notice at Stop cannot change the
-# run it appears in (measured — delivered 3/3, reviewer still named 0/3), so the only
-# version that could is one that blocks once. Off by default until that is measured.
+# On by default, which is unusual for this project and was earned rather than assumed.
+# A notice at Stop cannot change the run it appears in; a single block can. Measured
+# on two tasks and two models, counting only runs where the gate actually asked:
+# notice 0 of 7 ran a review, blocking 7 of 7. The criterion for turning this on was
+# written down before the second measurement existed - replication on a different task
+# and a different model - and then met.
+#
+# AEP_REVIEW_BLOCK=0 turns it off. It asks once per commit, and Claude Code overrides
+# a Stop hook after repeated blocks, so it cannot dead-lock a session.
 REVIEW_NUDGE=""
-if [ "${AEP_REVIEW_BLOCK:-0}" = "1" ] && [ -n "$UNREVIEWED" ]; then
+if [ "${AEP_REVIEW_BLOCK:-1}" = "1" ] && [ -n "$UNREVIEWED" ]; then
   RMARK=""
   RGD=$(git rev-parse --git-dir 2>/dev/null)
   [ -n "$RGD" ] && RMARK="$RGD/aep-review-nudge"

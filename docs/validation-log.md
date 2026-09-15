@@ -6,7 +6,7 @@ held, and what did not.
 
 ## Every round at a glance
 
-Twenty-seven rounds. **Nine** carry a negative or self-correcting verdict (rounds 5, 10,
+Twenty-eight rounds. **Nine** carry a negative or self-correcting verdict (rounds 5, 10,
 13, 14, 15, 20, 21, 23, 24 — counted from the table below, not asserted), **five** made
 the project withdraw or refuse to ship something, and **three** corrected a claim this log
 itself had published. That distribution is the point: a log where everything confirms the
@@ -41,6 +41,7 @@ thesis is a marketing page.
 | [25](#round-25--does-the-ledger-decay-six-tickets-say-no-n3-artifacts-already-in-hand) | Does the ledger decay across six tickets? | **it held** — every proof still resolved, 3/3; coverage 2–4 of 6 |
 | [26](#round-26--a-bug-fix-leaves-no-row-and-an-agent-finds-a-hole-in-our-own-checker-n3) | Does a bug fix leave a row? | **0/3 — and R14 was the wrong question**; an agent found a real gap in our checker |
 | [27](#round-27--a-mechanism-for-the-rule-that-had-none-and-a-prediction-made-before-the-run) | Can the gate see whether a review happened? | **yes — and blocking moved the flagship rule 0/3 → 3/3**; the notice alone moved nothing, as predicted |
+| [28](#round-28--the-replication-that-flipped-a-default-different-task-different-model) | Does that replicate elsewhere? | **yes — 0/4 notice, 4/4 blocking on a new task and model**; the default flipped |
 
 ### Claims this project withdrew
 
@@ -1112,6 +1113,40 @@ rule 9 said a notice arriving at the end cannot change the run it arrives in, an
 anything meant to change behaviour has to block or fire earlier. That was inferred from
 transcripts. This round pre-registered it as a prediction, built both versions, and
 measured them against the same task: notice 0/3, block 3/3.
+
+## Round 28 — the replication that flipped a default (different task, different model)
+
+Round 27 ended by naming the condition under which blocking would become the default:
+*replication on a different task and a different model*. That sentence was written when
+the only evidence was one task on Sonnet 5. This round is that replication — a
+retry-with-backoff task against a scaffolded HTTP client, on **Haiku 4.5**.
+
+| | the gate asked | review actually ran | reviewer named |
+|---|---|---|---|
+| notice only | 4/4 | **0/4** | 0/4 |
+| blocking once | 4/4 | **4/4** | **4/4** |
+
+Combined with Round 27, counting only runs where the gate actually asked: **notice 0 of
+7, blocking 7 of 7.** Two tasks, two models, and no run in between.
+
+**Two runs were thrown out first, and they found the bug.** In the first pass one
+blocking run and one notice run were never asked anything, because they **committed their
+work before stopping** — the check looked only at the working tree, which was by then
+clean. AEP tells agents to commit; a rule that goes blind exactly when they do is not a
+rule. The check now falls back to the last commit's diff when the tree is clean, and a
+review recorded just before that commit counts as having graded it. Those two runs were
+re-run, not reinterpreted.
+
+**So the default flips.** Blocking is on; `AEP_REVIEW_BLOCK=0` turns it off and leaves the
+notice. This is the first default in the project turned on by measurement rather than
+argument, and the criterion was published before the measurement that satisfied it — which
+is the only reason flipping it now is not moving the goalposts.
+
+**What it costs, plainly.** On Sonnet the blocking runs cost $0.81–$1.28 against $0.30–$0.50
+for the notice arm; on Haiku, $0.12–$0.44 against $0.15–$0.19. It asks once per commit on a
+diff of two or more source files or twenty-five changed lines, and Claude Code overrides a
+Stop hook after repeated blocks, so it cannot dead-lock a session. The whole basis is
+fifteen runs across two tasks and two models.
 
 ## Standing caveats
 
