@@ -4,6 +4,54 @@ AEP is tested the way it asks you to test: behaviorally, on real tasks, with the
 failures published next to the wins. Each entry records what was measured, what
 held, and what did not.
 
+## Every round at a glance
+
+Twenty-four rounds. Nine of them went against the project, four of those made it
+withdraw or refuse to ship something, and three corrected a claim this log itself had
+published. That distribution is the point: a log where everything confirms the thesis is
+a marketing page.
+
+| # | What was asked | Verdict |
+|---|---|---|
+| [1](#round-1--v130-cross-module-retry-task-n2) | Does the protocol survive a cross-module task? | baseline established |
+| [2](#round-2--v140-same-task-n2) | Does spec persistence hold? | **confirmed** 0/2 → 2/2 |
+| [3](#round-3--v141-same-task-n2) | Does naming the reviewer hold when made unconditional? | **confirmed** 0/2 → 2/2 |
+| [4](#round-4--v142-cross-module-task-at-a-deliberately-tight-budget-n2) | What happens under a hard budget cut? | limit found, not fixable by wording |
+| [5](#round-5--does-the-gate-add-anything-the-instructions-do-not-controlled-ab-n1-per-arm) | Does the gate add anything to the instructions? | **no** — it never blocked |
+| [6](#round-6--the-gate-against-a-wider-project-check-controlled-ab-n1-per-arm) | Does a wider check change that? | no |
+| [7](#round-7--a-weaker-model-and-the-gates-blind-spot-controlled-ab-n1-per-arm) | A weaker model, and what the gate misses | blind spot found: a green baseline proves nothing |
+| [8](#round-8--testing-red-first-and-finding-why-the-small-model-rounds-produce-nothing-n2-both-gated) | Why do small-model rounds produce nothing? | phase boundaries diagnosed |
+| [9](#round-9--the-phase-boundary-fix-measured-n2-same-weak-model-same-task) | Does one sentence fix it? | **confirmed** 0/4 → 2/2 |
+| [10](#round-10--does-anyone-actually-keep-the-ledger-3-conditions-n2-two-sequential-tasks-each) | Do agents keep the requirements ledger? | **refuted** — 2 rows in 12, 0 dated deferrals |
+| [11](#round-11--the-ledger-fix-measured-n3-same-model-same-two-tasks) | Does the fix work? | 2/3 on feature work, 0/3 on bug fixes |
+| [12](#round-12--a-conflict-audit-that-measured-nothing-n2-per-arm-inconclusive) | Does "instruction files are advisory" reduce adherence? | **inconclusive** — metric at the floor |
+| [13](#round-13--the-official-harness-and-a-result-that-goes-against-the-project) | What does the official eval harness say? | **against** — Δ 0.00 on planning; skills fire on phrasing, not tasks |
+| [14](#round-14--the-ledger-rule-works-through-the-hook-not-through-the-prose-official-harness-n3-per-arm) | Prose or hook? | **corrected later** — the premise was false |
+| [15](#round-15--a-feature-this-project-built-measured-and-did-not-ship-n3-per-arm) | Does a session-start brief help? | **no — built, measured, not shipped** |
+| [16](#round-16--reading-the-traces-instead-of-the-scoreboard-and-a-round-the-usage-limit-ate) | Does a blocking reminder work? | **partial** — usage limit voided 4 of 6 runs |
+| [17](#round-17--a-condition-that-could-not-pass-and-what-it-showed-anyway-void) | Reviewer naming without a shell | **void** — the case could not pass |
+| [18](#round-18--testing-the-new-reviewer-rule-directly-and-hitting-a-ceiling-n3-per-arm) | Does "predict before you read" help? | **ceiling** — 6/6 both arms |
+| [19](#round-19--does-the-published-artifact-still-work-release-verification-v191) | Does the published plugin still work? | verified end to end |
+| [20](#round-20--the-flagship-rule-with-a-real-shell-against-a-frontier-model-n3-per-arm) | Reviewer provenance under a frontier model | **against** — 0/3, and 0/3 for the control |
+| [21](#round-21--separating-the-test-author-from-the-implementer-n2-per-arm) | Does separating the test author help? | **no local benefit**; the freeze held 2/2 |
+| [22](#round-22--six-tickets-in-one-tree-three-arms-and-a-correction-to-its-own-first-reading) | Six tickets, one tree | **for** — 5/5 vs 0/3, and its own first reading corrected |
+| [23](#round-23--checking-a-citation-by-running-it-no-agent-runs) | Is the citation we made sound? | **downgraded our own claim** |
+| [24](#round-24--someone-elses-rubric-our-artifacts-no-agent-runs) | Can an outside rubric score us? | **not usable here** — 3 of 4 metrics flat |
+
+### Claims this project withdrew
+
+- **Round 15** — a `SessionStart` brief, built and CI-pinned, was **not shipped**: it did
+  not move the number it existed to move.
+- **Round 14 → 16** — "without a shell the hook never runs" was **false**; the traces show
+  it firing every time. Design rule 9 was rewritten to the narrow claim the transcripts
+  prove, and its wider version withdrawn.
+- **Round 22** — first published as "the ledger did it"; a third arm without the ledger
+  finished the same work, so the cause was reattributed to the always-on core.
+- **Round 23** — this log's own citation of an external benchmark, downgraded after
+  running that benchmark's code.
+- **v1.6.x** — two rule shapes shipped and later rewritten or removed after the evidence
+  went against them (see [design-rules.md](design-rules.md)).
+
 ## How runs are measured
 
 Count behaviors from the **session transcript**

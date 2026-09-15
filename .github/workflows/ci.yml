@@ -309,6 +309,9 @@ jobs:
           sh score.sh "$T/after"  | grep -q "credit after tax (76.40)"
           echo "sequence fixture ok"
 
+      - name: Validation log index
+        run: python3 .claude/proofs/r18_log_index.py
+
       - name: Claude plugin validate
         run: |
           npm install -g @anthropic-ai/claude-code
