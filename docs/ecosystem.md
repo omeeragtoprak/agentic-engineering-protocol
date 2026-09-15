@@ -8,9 +8,10 @@ overlap with AEP and might suit you better.
 **AEP installs none of them.** Everything here is something *you* choose,
 install, and own. That is a deliberate position, explained at the bottom.
 
-*Repository figures below were read from the GitHub API on 2026-09-14 and will
-drift. Re-check before trusting any of them — the vetting checklist is the
-durable part of this page.*
+*Every repository on this page was re-checked against the GitHub API on 2026-09-15:
+all are active and carry the licence stated, except GSD, which is archived (last push
+2026-05-31). Figures drift — re-check before trusting any of them; the vetting
+checklist is the durable part of this page.*
 
 ---
 
