@@ -300,13 +300,13 @@ jobs:
           for order in before after; do
             mkdir -p "$T/$order"; cp repo/test_pricing.py repo/Makefile "$T/$order/"
             if [ "$order" = before ]; then
-              printf 'def line_total(i): return i["unit_price"]*i["qty"]\ndef subtotal(x): return sum(line_total(i) for i in x)\ndef amount_due(items, d=0, t=0.0, c=0.0):\n    b = subtotal(items)*(1-d/100)\n    return max(b-c, 0.0)*(1+t)\n' > "$T/$order/pricing.py"
+              printf 'def line_total(i): return i["unit_price"]*i["qty"]\ndef subtotal(x): return sum(line_total(i) for i in x)\ndef amount_due(items, discount=0, tax_rate=0.0, credit=0.0):\n    b = subtotal(items)*(1-discount/100)\n    return max(b-credit, 0.0)*(1+tax_rate)\n' > "$T/$order/pricing.py"
             else
-              printf 'def line_total(i): return i["unit_price"]*i["qty"]\ndef subtotal(x): return sum(line_total(i) for i in x)\ndef amount_due(items, d=0, t=0.0, c=0.0):\n    b = subtotal(items)*(1-d/100)*(1+t)\n    return max(b-c, 0.0)\n' > "$T/$order/pricing.py"
+              printf 'def line_total(i): return i["unit_price"]*i["qty"]\ndef subtotal(x): return sum(line_total(i) for i in x)\ndef amount_due(items, discount=0, tax_rate=0.0, credit=0.0):\n    b = subtotal(items)*(1-discount/100)*(1+tax_rate)\n    return max(b-credit, 0.0)\n' > "$T/$order/pricing.py"
             fi
           done
-          sh score.sh "$T/before" | grep -q "credit applied before tax"
-          sh score.sh "$T/after"  | grep -q "credit applied after tax"
+          sh score.sh "$T/before" | grep -q "credit before tax (75.60)"
+          sh score.sh "$T/after"  | grep -q "credit after tax (76.40)"
           echo "sequence fixture ok"
 
       - name: Claude plugin validate

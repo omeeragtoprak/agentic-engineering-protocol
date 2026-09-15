@@ -12,7 +12,7 @@ large skill library or a full toolkit, [docs/ecosystem.md](docs/ecosystem.md) na
 neighbours, says plainly where they are the better choice, and explains why running two
 protocol frameworks at once breaks both.
 
-## What twenty-one measured rounds say about when this pays
+## What twenty-two measured rounds say about when this pays
 
 Everything below is in [docs/validation-log.md](docs/validation-log.md) with the runs
 behind it. Read this before installing — it is the part most projects leave out.
@@ -44,7 +44,14 @@ behind it. Read this before installing — it is the part most projects leave ou
 - **The gate has never blocked a real session** in eighteen rounds. It is insurance for
   the tail case, not a performance multiplier.
 
-**Where it probably does pay, unmeasured:** the failure categories AEP targets are the
+**Where it measurably pays, once:** on a six-ticket sequence in one repository — long
+enough for a decision to be forgotten — both AEP runs wrote the ordering decision into
+the requirements ledger at ticket 2 and delivered ticket 6; **both bare runs stopped and
+asked a question instead, and shipped nothing for it** (2/2 against 0/2, n=2, about 2×
+the cost and roughly double the tests). That is one task and one model, and it is the
+first fixture in this log that could tell the arms apart at all.
+
+**Where it probably also pays, unmeasured:** the failure categories AEP targets are the
 ones that dominate *long-horizon* agent work — 41.6% shipping broken code, 31.4% running
 out the clock, 15.4% reward hacking, and a validation-failure signal in 99.6% of failures
 across attempts averaging 27.2M tokens ([SWE-Marathon](https://arxiv.org/abs/2606.07682)).
@@ -188,7 +195,7 @@ agentic-engineering-protocol/
 ## Validation
 
 AEP is measured on real tasks, and the failures are published next to the wins —
-twenty-one rounds so far in [docs/validation-log.md](docs/validation-log.md), including
+twenty-two rounds so far in [docs/validation-log.md](docs/validation-log.md), including
 the ones that went against the project:
 
 - Three rules confirmed by targeted flips (spec persistence and reviewer provenance 0/2 → 2/2; one sentence about phase boundaries took a weak model from 0/4 sessions producing code to 2/2 delivering committed, tested work).

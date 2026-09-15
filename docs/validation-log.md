@@ -763,6 +763,64 @@ protocol because one trajectory writing both sides measured worse than writing n
 at all on SWE-bench Verified; this round did not reproduce a benefit, and the log says so
 in the same place it describes the rule.
 
+## Round 22 — six tickets in one tree, and the first fixture that separated the arms (n=2)
+
+Every round from 18 onward failed for the same reason: a frontier model on one small,
+well-specified ticket already does the thing being tested. `bench/sequence` was built to
+leave that regime — six tickets against one repository, run in order, in one working
+tree, where **ticket 2's spec is silent on whether tax applies before or after a
+discount** and **ticket 6 adds a fixed loyalty credit whose total depends on that
+answer** ($75.60 against $76.40) while saying nothing about it. No ticket ever mentions
+the decision again.
+
+Arms: AEP installed the way a user installs it (core, plugin, ledger, check wired to
+`make test` plus `trace.py`) against the bare model. Same model, same tickets, same
+order. The scorer runs the finished code; it never reads a transcript.
+
+| | A1 | A2 | B1 | B2 |
+|---|---|---|---|---|
+| Decision recorded somewhere durable | **yes** | **yes** | no | no |
+| Ticket 6 delivered | **yes** | **yes** | **no** | **no** |
+| Credit ordering the code produces | 76.40 | 76.40 | — | — |
+| Out-of-scope item as a dated row | yes | no | no | no |
+| Tickets producing a commit | 6 | 5 | 4 | 4 |
+| Tests at the end (baseline 4) | 48 | 38 | 21 | 24 |
+| Project check at the end | pass | pass | pass | pass |
+| Cost across six tickets | $3.26 | $1.66 | $1.12 | $1.09 |
+
+**2/2 against 0/2 on the two things the fixture exists to measure.** Both AEP runs wrote
+the ordering into `.claude/requirements.md` at ticket 2 — *"discount applied to subtotal,
+then tax"*, with a named test as its proof — and both delivered ticket 6, independently
+converging on the same ordering for the credit.
+
+**Both bare runs stopped and asked.** Ticket 6 produced no code in either:
+
+> *"Where should the loyalty credit apply in the pricing pipeline? A) After tax (like a
+> gift card)… B) Before tax, alongside the discount code… this is a business-rules
+> question."*
+
+That is not a defect — the question is a good one, and a human sitting there would
+answer it. It is the measurement: with nothing recorded, the sixth ticket cannot proceed
+on its own, and in an unattended run it simply does not happen. Ticket 4 stalled the same
+way in both bare runs.
+
+**What went against AEP in the same data.** A2 never committed ticket 4 at all — five of
+six — and recorded no dated deferral, so the ledger habit held 2/2 for decisions and 1/2
+for deferrals. The cost is real: $3.26 and $1.66 against $1.12 and $1.09, and A1's
+ticket 4 alone ran 31 turns.
+
+**And the scorer was wrong twice before it was right.** Its first version required a
+positional four-argument call and reported `n/a` against a real API that used keyword
+parameters; its second passed a float where A2's code wanted the `LoyaltyCredit`
+dataclass it had defined, and reported `n/a` for a run that had implemented the ticket
+correctly. Both were caught by reading the produced code, not by trusting the number.
+Anyone re-running this should assume the same about their own harness.
+
+**n=2, one task, one model.** What it establishes is narrower than it looks: on a task
+long enough for a decision to be forgotten, the arm that wrote the decision down finished
+work the other arm could not. That is the first time in this log that a fixture has told
+the arms apart, and it took leaving the single-ticket regime to do it.
+
 ## Standing caveats
 
 - **Every round in this log is short-horizon.** The longest task here is a two-task

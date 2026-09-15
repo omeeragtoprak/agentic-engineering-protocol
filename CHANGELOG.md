@@ -5,6 +5,41 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.11.0] - 2026-09-15
+
+The first measurement in this project that separated the arms, and the fixture that made
+it possible.
+
+### Added
+- **`bench/sequence`** — six tickets against one repository, run in order in one working
+  tree. Ticket 2's spec is silent on whether tax applies before or after a discount;
+  ticket 6 adds a fixed loyalty credit whose total depends on that answer ($75.60 against
+  $76.40) and never mentions it. `score.sh` runs the finished code rather than reading
+  it, and CI proves the scorer can tell the two orderings apart — a scorer that cannot is
+  not a scorer.
+
+### Measured
+- **Round 22: 2/2 against 0/2.** Both AEP runs recorded the ordering decision in
+  `.claude/requirements.md` at ticket 2 and delivered ticket 6, converging independently
+  on the same ordering. **Both bare runs stopped and asked a business-rules question and
+  shipped no code for that ticket** — a reasonable question with a human present, and
+  nothing at all in an unattended run. Ticket 4 stalled the same way in both.
+- Against AEP in the same data: one AEP run never committed ticket 4 (five of six) and
+  recorded no dated deferral, and the cost was about 2× ($3.26 and $1.66 against $1.12
+  and $1.09). Tests roughly doubled (48 and 38 against 21 and 24).
+- The scorer was wrong twice before it was right, both times reporting `n/a` for runs
+  that had implemented the ticket correctly — caught by reading the produced code rather
+  than trusting the number. Noted in the log so anyone re-running assumes the same about
+  their own harness.
+
+### Context
+- Why this fixture exists: SWE-Marathon ([arXiv:2606.07682](https://arxiv.org/abs/2606.07682))
+  measures the failures AEP targets at attempts averaging 27.2M tokens — 41.6% shipping
+  broken code, 31.4% running out the clock, 15.4% reward hacking, and a validation-failure
+  signal in 99.6% of them, with no configuration above 30% pass@1. Every other measurement
+  in this repository is short-horizon, where a capable model needs none of it. The README,
+  the ecosystem map and the validation log all now say that in plain words.
+
 ## [1.10.1] - 2026-09-15
 
 ### Measured

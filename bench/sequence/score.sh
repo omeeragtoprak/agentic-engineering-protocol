@@ -49,6 +49,20 @@ def discount_values():
     return vals
 
 CREDIT_WORDS = ("credit", "loyalty", "points", "balance", "wallet")
+
+def credit_values():
+    """A credit may be a plain 10.0 or an object this repo defined for it."""
+    vals = [10.0, 10]
+    for name, cls in inspect.getmembers(pricing, inspect.isclass):
+        if cls.__module__ != "pricing" or not any(w in name.lower() for w in CREDIT_WORDS):
+            continue
+        for args in ((10.0,), (10,), ("LOYALTY", 10.0)):
+            try:
+                vals.append(cls(*args)); break
+            except Exception:
+                continue
+    return vals
+
 hits = []
 for name, f in inspect.getmembers(pricing, inspect.isfunction):
     if name.startswith("_"):
@@ -60,16 +74,24 @@ for name, f in inspect.getmembers(pricing, inspect.isfunction):
         kw = {}
         for p in params:
             pl = p.lower()
-            if any(w in pl for w in CREDIT_WORDS): kw[p] = 10.0
+            if any(w in pl for w in CREDIT_WORDS): kw[p] = None  # filled per candidate below
             elif "tax" in pl:                      kw[p] = 0.08
             elif "disc" in pl or "code" in pl or "coupon" in pl: kw[p] = disc
             elif "item" in pl or "order" in pl or "line" in pl:  kw[p] = items
         if len(kw) < len(params) - sum(1 for p in params.values() if p.default is not p.empty):
             continue
-        try:
-            hits.append((name, round(float(f(**kw)), 2))); break
-        except Exception:
-            continue
+        done = False
+        for credit in credit_values():
+            call = dict(kw)
+            for p in call:
+                if any(w in p.lower() for w in CREDIT_WORDS):
+                    call[p] = credit
+            try:
+                hits.append((name, round(float(f(**call)), 2))); done = True; break
+            except Exception:
+                continue
+        if done:
+            break
 
 if not hits:
     out("decision_held", "n/a (no function with a credit-shaped parameter priced an order)")
