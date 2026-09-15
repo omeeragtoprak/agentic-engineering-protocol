@@ -1,0 +1,3 @@
+Add discount codes to the pricing module. A discount code has a percentage (0-100) and
+applies to the whole order. Expose it so callers can price an order with or without a
+code. Keep the existing functions working.

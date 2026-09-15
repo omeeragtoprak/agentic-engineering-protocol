@@ -288,6 +288,27 @@ jobs:
           for f in plugins/aep/evals/*/scaffold.sh; do bash -n "$f"; done
           echo "scaffolds parse"
 
+      - name: Bench sequence fixture
+        run: |
+          set -e
+          cd bench/sequence
+          sh -n score.sh
+          test "$(ls tickets/*.txt | wc -l | tr -d ' ')" -eq 6
+          ( cd repo && python3 -m unittest -q 2>&1 | tail -1 | grep -q OK )
+          # the scorer must be able to tell the two orderings apart, or it measures nothing
+          T=$(mktemp -d)
+          for order in before after; do
+            mkdir -p "$T/$order"; cp repo/test_pricing.py repo/Makefile "$T/$order/"
+            if [ "$order" = before ]; then
+              printf 'def line_total(i): return i["unit_price"]*i["qty"]\ndef subtotal(x): return sum(line_total(i) for i in x)\ndef amount_due(items, d=0, t=0.0, c=0.0):\n    b = subtotal(items)*(1-d/100)\n    return max(b-c, 0.0)*(1+t)\n' > "$T/$order/pricing.py"
+            else
+              printf 'def line_total(i): return i["unit_price"]*i["qty"]\ndef subtotal(x): return sum(line_total(i) for i in x)\ndef amount_due(items, d=0, t=0.0, c=0.0):\n    b = subtotal(items)*(1-d/100)*(1+t)\n    return max(b-c, 0.0)\n' > "$T/$order/pricing.py"
+            fi
+          done
+          sh score.sh "$T/before" | grep -q "credit applied before tax"
+          sh score.sh "$T/after"  | grep -q "credit applied after tax"
+          echo "sequence fixture ok"
+
       - name: Claude plugin validate
         run: |
           npm install -g @anthropic-ai/claude-code

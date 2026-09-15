@@ -1,0 +1,3 @@
+Add sales tax. Tax is a rate (for example 0.08) applied to the order. Add a function
+that returns the amount a customer pays for an order, given the items, an optional
+discount code, and a tax rate.

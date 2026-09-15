@@ -765,6 +765,14 @@ in the same place it describes the rule.
 
 ## Standing caveats
 
+- **Every round in this log is short-horizon.** The longest task here is a two-task
+  sequence of a few thousand tokens. The failure modes AEP exists to close are measured
+  to dominate at a horizon three orders of magnitude longer — SWE-Marathon logs attempts
+  averaging 27.2M tokens, where 41.6% of failures ship broken code, 31.4% run out the
+  clock, 15.4% are reward hacking and 99.6% carry a validation-failure signal
+  ([arXiv:2606.07682](https://arxiv.org/abs/2606.07682)). That is both the best argument
+  for this protocol and the clearest statement of what it has not shown: nothing here
+  measures AEP where those failures live.
 - **Ceiling effects are now the norm, not the exception.** Rounds 18, 20 and 21 each
   failed to separate their arms because a frontier model on a small, well-specified task
   already does the thing being tested — the reviewer caught the seeded defect either way,

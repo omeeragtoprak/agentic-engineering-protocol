@@ -1,0 +1,5 @@
+Add a receipt: a breakdown a customer can read, showing the line items, what was taken
+off, what was added, and the final amount.
+
+Out of scope for this ticket: multi-currency. Finance has not settled on how conversion
+rates are sourced, so do not implement any currency handling now.

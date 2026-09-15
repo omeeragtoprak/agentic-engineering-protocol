@@ -66,6 +66,25 @@ of them cut against the instinct to write more rules.
   it has to take about itself, and the reason the [eval suite](../plugins/aep/evals/README.md)
   reports each case with and without the plugin rather than reporting a total.
 
+- **The failure modes this protocol targets are measured — at a horizon none of its own
+  rounds reach.** SWE-Marathon ([arXiv:2606.07682](https://arxiv.org/abs/2606.07682))
+  runs 20 ultra-long-horizon tasks, logged agent attempts averaging **27.2M tokens**, and
+  no configuration solves more than **30%** at pass@1. Its failure table is, almost line
+  for line, what AEP was written against: of 526 agent-attributable failures, 41.6%
+  shipped code that does not work, 31.4% ran out the clock, 15.4% were reward hacking,
+  7.6% terminated prematurely, 4.0% were poor self-verification — and **99.6% carried a
+  validation-failure signal**, meaning weak local testing was near-universal. Separately,
+  **13.8% of rollouts contained an exploit-shaped action** against the environment or the
+  verifier, though none earned reward against their multi-layer checks, and the rate is
+  strongly model-dependent (26.0% for one frontier model, 0.5% for another).
+
+  Two honest consequences for AEP. The gate, the evidence block and the tamper reporting
+  aim at exactly the categories that dominate there — and **every measurement in this
+  project is short-horizon**, single tasks of a few thousand tokens, which is precisely
+  the regime where a capable model needs none of it (see the ceiling effects in
+  [validation-log.md](validation-log.md)). AEP has no evidence at 27M tokens. Anyone
+  telling you a protocol helps on long-horizon work, this one included, is extrapolating.
+
 - **Process frameworks converge, and none covers everything.** A 2026 taxonomy of
   agent development frameworks ([arXiv:2606.04967](https://arxiv.org/abs/2606.04967))
   compares Spec Kit, OpenSpec, BMAD, GSD, Spec Kitty and Reversa across six

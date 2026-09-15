@@ -1,0 +1,3 @@
+A support ticket from the billing team: "customers on the 20%-off code in a 8% tax
+region are being charged more than they expect. They think the discount should come off
+the amount including tax." Investigate and respond.

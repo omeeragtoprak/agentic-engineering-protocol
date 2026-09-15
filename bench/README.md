@@ -20,6 +20,7 @@ Plus one task of a different kind:
 | Task | Module | What it plants |
 |---|---|---|
 | [`retry-crossmodule`](retry-crossmodule/) | HTTP helper with two callers | no bug — a **design tension**: one shared helper, two callers with opposite latency budgets, and a correctness question (which failures are transient?) that cannot be answered from the repo. Baseline is green; see its README for the separate scoring guide. |
+| [`sequence`](sequence/) | order pricing, **six tickets in a row** | no bug either — a **decision that has to survive**. Ticket 2's spec is silent on whether tax applies before or after a discount; ticket 6 adds a fixed credit whose total differs by ordering ($75.60 against $76.40), and says nothing about it. The scorer runs the finished code and reports which ordering it produced, whether the decision was written down anywhere durable, and whether ticket 4's out-of-scope item became a dated deferral. Built because every other task here is a single ticket, and single tickets stopped separating the arms. |
 
 ## Protocol
 

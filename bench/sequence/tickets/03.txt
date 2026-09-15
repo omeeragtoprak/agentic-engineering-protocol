@@ -1,0 +1,3 @@
+Support refunding a single line item from an order that has already been priced. The
+refund should give back what the customer actually paid for that line, not its list
+price.

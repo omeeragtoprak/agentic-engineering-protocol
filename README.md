@@ -44,6 +44,14 @@ behind it. Read this before installing — it is the part most projects leave ou
 - **The gate has never blocked a real session** in eighteen rounds. It is insurance for
   the tail case, not a performance multiplier.
 
+**Where it probably does pay, unmeasured:** the failure categories AEP targets are the
+ones that dominate *long-horizon* agent work — 41.6% shipping broken code, 31.4% running
+out the clock, 15.4% reward hacking, and a validation-failure signal in 99.6% of failures
+across attempts averaging 27.2M tokens ([SWE-Marathon](https://arxiv.org/abs/2606.07682)).
+Every measurement in this repository is short-horizon, where a capable model needs none
+of that. So the honest shape of the claim is: the problem is real and measured, AEP aims
+at it, and AEP has not been measured there.
+
 **So: install AEP if you want enforcement you can audit** — a completion gate, a
 traceability checker, evidence blocks, and a protocol whose every claim is published
 with the round that produced it, including the four rules this project withdrew after

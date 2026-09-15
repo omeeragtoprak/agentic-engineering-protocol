@@ -1,0 +1,3 @@
+Add loyalty credit: a fixed dollar amount a customer can burn on an order. Apply it to
+what the customer pays, and make sure a credit larger than the order never produces a
+negative amount.
