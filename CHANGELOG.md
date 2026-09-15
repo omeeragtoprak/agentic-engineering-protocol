@@ -5,6 +5,24 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.12.0] - 2026-09-15
+
+### Added
+- **The traceability checker now runs test-shaped proofs instead of only locating them.**
+  A proof named `test_*` or `*_test` is executed against the project's runner (pytest,
+  else unittest), so a row that claims `done` while its own test is red now fails the
+  check. Any other symbol proof is still existence-only and the output says how many of
+  each kind there were. `AEP_TRACE_NO_RUN=1` restores the old behaviour;
+  `AEP_TRACE_RUN_CAP=<n>` sets the count above which it stops bothering (default 20).
+- Three CI scenarios pin it — passing proof, failing proof, escape hatch — and a mutation
+  that removes the running path turns that step red.
+
+### Why
+- Round 26: an agent running AEP on a routine bug fix reported that *"whatever gate is
+  supposed to keep `done` rows green isn't running, since the ledger was silently wrong
+  for at least the last commit."* It was right — the checker verified that a proof
+  existed, never that it passed. v1.11.5 documented the limit honestly; this closes it.
+
 ## [1.11.5] - 2026-09-15
 
 ### Fixed

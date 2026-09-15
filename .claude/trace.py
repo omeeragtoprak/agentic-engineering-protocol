@@ -11,13 +11,17 @@ requirement — and fails when the ledger and the repository disagree:
 
   * a `done` row whose proof no longer exists  (the ledger went stale)
 
-A symbol proof is checked for **existence, not truth**: `test_x` naming a test that
-is present but failing still passes this checker, because running an arbitrary
-project's suite from here is not something this script can do reliably. The project
-check is what catches that, by running the tests before this runs at all — and when
-a row's truth matters more than its presence, write the proof as a command
-(`cmd: python3 -m pytest -k test_x -q`), which is executed. An agent running AEP
-found this gap in the promise; it is now stated instead of implied.
+A **test-shaped** symbol proof (`test_*` or `*_test`) is run, not merely located:
+the checker finds the project's runner (pytest, else unittest) and executes the named
+test, so a row that claims `done` while its own test is red now fails. Set
+`AEP_TRACE_NO_RUN=1` to go back to locating them, `AEP_TRACE_RUN_CAP=<n>` to change
+the count above which it stops bothering (default 20). Any other symbol proof is
+still checked for existence only, and the output says how many of each kind there
+were — when a row's truth matters and its proof is not a test, write it as a command
+(`cmd: ...`), which is always executed.
+
+That distinction exists because an agent running AEP found it: on a seeded
+regression, a `done` row's named test was failing while this checker reported OK.
   * a `done` row with no proof, including an empty `cmd:`
   * a `deferred` row whose status cell lacks a date or a reason
   * a duplicate ID, an unknown status, a missing source spec, a malformed row
@@ -35,6 +39,7 @@ A `|` inside a cell must be escaped as `\\|`. Long shell pipelines belong in a
 small script (`cmd: .claude/proofs/r4_versions.sh`), which is more readable in the
 table and testable on its own.
 """
+import glob
 import os
 import re
 import subprocess
@@ -123,6 +128,60 @@ def resolve_proofs(proofs, files):
     return found
 
 
+TEST_NAME = re.compile(r"^(test[_A-Za-z0-9]*|[A-Za-z0-9_]*_test)$")
+NO_RUN = os.environ.get("AEP_TRACE_NO_RUN") == "1"
+RUN_CAP = int(os.environ.get("AEP_TRACE_RUN_CAP", "20"))
+
+
+def detect_runner():
+    """pytest if the project has it, else unittest, else nothing."""
+    try:
+        import pytest  # noqa: F401
+        return "pytest"
+    except Exception:
+        pass
+    return "unittest" if glob.glob("**/test_*.py", recursive=True) else None
+
+
+def run_test_proofs(names):
+    """Run the named tests and return {name: True/False/None}.
+
+    None means "not run" — no runner, disabled, or too many to be worth it. A
+    symbol proof that exists but fails is the gap this closes: before this, the
+    ledger said OK while the test it named was red.
+    """
+    out = {n: None for n in names}
+    if NO_RUN or not names or len(names) > RUN_CAP:
+        return out
+    runner = detect_runner()
+    if runner is None:
+        return out
+    if runner == "pytest":
+        expr = " or ".join(sorted(names))
+        try:
+            r = subprocess.run(["python3", "-m", "pytest", "-k", expr, "-q",
+                                "--no-header", "-p", "no:cacheprovider"],
+                               capture_output=True, text=True, timeout=300)
+        except Exception:
+            return out
+        if r.returncode == 0:
+            return {n: True for n in names}
+        # a failure somewhere: fall through to per-name so only the guilty row fails
+    for n in sorted(names):
+        cmd = (["python3", "-m", "pytest", "-k", n, "-q", "--no-header",
+                "-p", "no:cacheprovider"] if runner == "pytest"
+               else ["python3", "-m", "unittest", "-k", n])
+        try:
+            r = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        except Exception:
+            continue
+        text = (r.stdout + r.stderr).lower()
+        if "no tests ran" in text or "ran 0 tests" in text:
+            continue                      # selector matched nothing: leave as not-run
+        out[n] = r.returncode == 0
+    return out
+
+
 def main():
     if not os.path.isfile(LEDGER):
         print(f"FAIL no requirements ledger at {LEDGER}")
@@ -138,6 +197,7 @@ def main():
                and not r["proof"].strip("`").startswith("cmd:")
                and r["proof"].strip("`") not in NONE]
     found = resolve_proofs(symbols, corpus()) if symbols else set()
+    ran = run_test_proofs([s for s in found if TEST_NAME.match(s)])
 
     unverified = []
     seen = {}
@@ -180,6 +240,9 @@ def main():
             elif proof not in found:
                 problems.append(f"{where} proof no longer exists in the codebase: "
                                 f"{proof} — the ledger has gone stale")
+            elif ran.get(proof) is False:
+                problems.append(f"{where} proof exists but FAILS: {proof} — the row "
+                                f"claims done and its own test is red")
 
         if status == "deferred" and not DEFERRED_OK.match(r["status"]):
             problems.append(f"{where} deferred without a date and a reason in the "
@@ -195,9 +258,13 @@ def main():
     for u in unverified:
         print("UNVERIFIED " + u)
     print(f"{len(rows)} requirement(s) — {summary}")
-    if symbols:
-        print(f"note: {len(symbols)} proof(s) checked for existence only, not for passing "
-              f"— write them as `cmd:` if that distinction matters")
+    checked = sum(1 for v in ran.values() if v is not None)
+    unchecked = len(symbols) - checked
+    if checked:
+        print(f"note: {checked} test-shaped proof(s) were run, not just located")
+    if unchecked > 0:
+        print(f"note: {unchecked} proof(s) checked for existence only — no runner, "
+              f"disabled, or not test-shaped; write them as `cmd:` if truth matters")
     if unverified:
         print(f"{len(unverified)} command proof(s) NOT executed (AEP_TRACE_NO_CMD=1) "
               f"— those rows are unproven, not passing")

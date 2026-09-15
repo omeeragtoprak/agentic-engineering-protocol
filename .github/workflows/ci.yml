@@ -183,6 +183,19 @@ jobs:
           echo "GATE_SENTINEL = 1" >> src/renamed.py
           run; test $RC -eq 0
 
+          # a test-shaped proof is run, not just located: a row claiming done while
+          # its own test is red must fail
+          printf 'import unittest\n\nclass T(unittest.TestCase):\n    def test_green(self):\n        self.assertTrue(True)\n    def test_red(self):\n        self.assertEqual(1, 2)\n' > test_things.py
+          hdr; printf '| R1 | A | done | test_green | - |\n' >> $L
+          run; test $RC -eq 0
+          grep -q "were run, not just located" out.txt
+          hdr; printf '| R1 | A | done | test_red | - |\n' >> $L
+          run; test $RC -eq 1; grep -q "proof exists but FAILS" out.txt
+          # and the escape hatch puts it back to locating them
+          set +e; AEP_TRACE_NO_RUN=1 python3 .claude/trace.py > out.txt 2>&1; RC=$?; set -e
+          test $RC -eq 0; grep -q "existence only" out.txt
+          rm -f test_things.py
+
           # a row that is not five cells is a failure, not silently skipped
           hdr; printf '| R1 | A | open | - | - |\n| R2 | B | done | test_that_never_existed |\n' >> $L
           run; test $RC -eq 1; grep -q "malformed row" out.txt
@@ -214,7 +227,7 @@ jobs:
           hdr; printf '| R1 | A | done | cmd: | - |\n' >> $L
           run; test $RC -eq 1; grep -q "empty cmd" out.txt
 
-          echo "traceability checker behavior ok (18 scenarios)"
+          echo "traceability checker behavior ok (21 scenarios)"
 
       - name: Installer behavior
         run: |
