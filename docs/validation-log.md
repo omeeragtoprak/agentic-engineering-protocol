@@ -6,7 +6,7 @@ held, and what did not.
 
 ## Every round at a glance
 
-Twenty-eight rounds. **Nine** carry a negative or self-correcting verdict (rounds 5, 10,
+Twenty-nine rounds. **Nine** carry a negative or self-correcting verdict (rounds 5, 10,
 13, 14, 15, 20, 21, 23, 24 — counted from the table below, not asserted), **five** made
 the project withdraw or refuse to ship something, and **three** corrected a claim this log
 itself had published. That distribution is the point: a log where everything confirms the
@@ -42,6 +42,7 @@ thesis is a marketing page.
 | [26](#round-26--a-bug-fix-leaves-no-row-and-an-agent-finds-a-hole-in-our-own-checker-n3) | Does a bug fix leave a row? | **0/3 — and R14 was the wrong question**; an agent found a real gap in our checker |
 | [27](#round-27--a-mechanism-for-the-rule-that-had-none-and-a-prediction-made-before-the-run) | Can the gate see whether a review happened? | **yes — and blocking moved the flagship rule 0/3 → 3/3**; the notice alone moved nothing, as predicted |
 | [28](#round-28--the-replication-that-flipped-a-default-different-task-different-model) | Does that replicate elsewhere? | **yes — 0/4 notice, 4/4 blocking on a new task and model**; the default flipped |
+| [29](#round-29--what-the-new-default-costs-and-the-first-defects-this-log-can-point-at) | What does the new default cost, and does it break the sequence win? | win holds, 4–5 reviews per run, ~1.5–2× cost — **and the reviews caught a blocker, a unit mismatch and a tautological test** |
 
 ### Claims this project withdrew
 
@@ -1157,6 +1158,50 @@ for the notice arm; on Haiku, $0.12–$0.44 against $0.15–$0.19. It asks once 
 diff of two or more source files or twenty-five changed lines, and Claude Code overrides a
 Stop hook after repeated blocks, so it cannot dead-lock a session. The whole basis is
 fifteen runs across two tasks and two models.
+
+## Round 29 — what the new default costs, and the first defects this log can point at
+
+Flipping a default is a change to everyone's sessions, so the six-ticket fixture from
+Round 22 was re-run under it. Same tickets, same tree, same model; the only difference is
+that an unreviewed diff now blocks once.
+
+| | Round 22 (notice era) | under the blocking default |
+|---|---|---|
+| Decision recorded durably | 3/3 | 2/2 |
+| Ticket 6 delivered, same ordering | 3/3 (76.40) | 2/2 (76.40) |
+| Tickets producing a commit | 6, 5, 6 | 5, 4 |
+| Tests at the end (baseline 4) | 48, 38, 40 | 53, 39 |
+| **Fresh-context reviews that ran** | **0** | **5, 4** |
+| Cost across six tickets | $3.26, $1.66 | $4.00, $3.39 |
+
+**The win survives and the reviews arrive.** Both runs still recorded the ordering
+decision, both delivered ticket 6, and both produced the same $76.40 — while running four
+to five fresh-context reviews that the notice era produced none of. The cost is roughly
+1.5–2× and two tickets per run produced no commit, against one in the old runs; that is
+the price, stated rather than buried.
+
+**One thing moved without being asked to.** The decision was recorded in `AGENTS.md`'s
+decision log rather than in `.claude/requirements.md` this time. That is arguably its
+better home — §P.4 is what a decision log is for — but it was not designed, it was
+observed, and the scorer counts either.
+
+**And for the first time this log can point at defects rather than process.** Every
+measurement before this one counted whether a rule was followed. These reviews found
+things:
+
+> **MAJOR** — *"`tax_rate` (0–1 fraction) and `DiscountCode.percentage` (0–100)"* — two
+> units for the same idea, in code that had already passed its tests.
+>
+> **BLOCKER** — *"`refund_for_line` indexed `items[line_index]` directly, so a negative
+> `line_index`"* silently refunds the wrong line.
+>
+> **A tautological test** — *"the test claiming to verify 'discount applied'"* did not
+> verify it.
+
+A suite that is green and a reviewer that is absent cannot tell you any of that. It is
+still one fixture and two runs, and none of these defects reached a user — but it is the
+first evidence here about what the protocol *catches*, rather than about what it makes an
+agent write down.
 
 ## Standing caveats
 

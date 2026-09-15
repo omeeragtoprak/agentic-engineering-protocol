@@ -12,12 +12,18 @@ large skill library or a full toolkit, [docs/ecosystem.md](docs/ecosystem.md) na
 neighbours, says plainly where they are the better choice, and explains why running two
 protocol frameworks at once breaks both.
 
-## What twenty-eight measured rounds say about when this pays
+## What twenty-nine measured rounds say about when this pays
 
 Everything below is in [docs/validation-log.md](docs/validation-log.md) with the runs
 behind it. Read this before installing — it is the part most projects leave out.
 
 **What holds up:**
+
+- **The reviews it forces find real defects.** On a six-ticket sequence the forced
+  fresh-context reviews caught a blocker (a negative index silently refunding the wrong
+  line), a unit mismatch between a 0–1 tax rate and a 0–100 discount percentage, and a
+  test that claimed to verify a discount and did not — all in code whose suite was green.
+  Cost: roughly 1.5–2× the run.
 
 - **The deterministic parts do what they claim**, and CI proves it on every push: the
   Stop hook blocks completion while your check fails, reports suppressed tests and
@@ -205,7 +211,7 @@ agentic-engineering-protocol/
 ## Validation
 
 AEP is measured on real tasks, and the failures are published next to the wins —
-twenty-eight rounds so far in [docs/validation-log.md](docs/validation-log.md), including
+twenty-nine rounds so far in [docs/validation-log.md](docs/validation-log.md), including
 the ones that went against the project:
 
 - Three rules confirmed by targeted flips (spec persistence and reviewer provenance 0/2 → 2/2; one sentence about phase boundaries took a weak model from 0/4 sessions producing code to 2/2 delivering committed, tested work).

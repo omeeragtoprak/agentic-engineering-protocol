@@ -5,6 +5,26 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.14.2] - 2026-09-15
+
+### Measured
+- **Round 29 re-ran the six-ticket fixture under the new blocking default.** The win
+  survives: both runs recorded the ordering decision, delivered the final ticket and
+  produced the same $76.40, while running four to five fresh-context reviews where the
+  notice era ran none. Cost is roughly 1.5–2× ($4.00 and $3.39 against $3.26 and $1.66),
+  and two tickets per run produced no commit against one before. All of that is in the
+  log rather than implied.
+- **The first defects this project can point at.** Every measurement until now counted
+  whether a rule was followed. The forced reviews found a blocker (`refund_for_line`
+  indexing `items[line_index]` directly, so a negative index silently refunds the wrong
+  line), a unit mismatch between a 0–1 `tax_rate` and a 0–100 `DiscountCode.percentage`,
+  and a test that claimed to verify a discount and did not — all in code whose suite was
+  green. One fixture, two runs, and no user was ever exposed to them; it is still the
+  first evidence here about what the protocol *catches*.
+- One unasked-for change worth noting: the decision was recorded in `AGENTS.md`'s §P.4
+  decision log rather than the requirements ledger. Arguably its better home; observed,
+  not designed.
+
 ## [1.14.1] - 2026-09-15
 
 **The review block is on by default.** The first default this project has turned on
