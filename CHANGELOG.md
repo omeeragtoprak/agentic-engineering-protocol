@@ -5,6 +5,24 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.11.2] - 2026-09-15
+
+### Corrected
+- **A citation this project made hours earlier, checked by running it.** v1.11.1 called
+  RigorBench "the strongest external support for the premise AEP is built on", written
+  from the paper. Running their shipped `RigorScorer` on two of their own published
+  trajectories shows the composite gap coming almost entirely from presence checks on
+  action labels the agent's own adapter emits — `plan_created` is worth 90 against 20,
+  `test_written` actions stand in for verification coverage, and four of the scorers carry
+  the comment `# Mock logic`. On one artifact-reading pillar the baseline scored higher.
+- Stated fairly in `docs/ecosystem.md` and Round 23: the repository does ship real
+  artifact-based metrics in `compute_extended.py`, the paper may rest on those, and our
+  run lacked the task repositories so two pillars fell back to neutral. The bounded claim
+  is about the composite the leaderboard reports.
+- **R17 changed** as a result: being scored by a third party still matters, but not on
+  that composite, where AEP would mostly be measuring whether we taught an adapter to emit
+  the right label. It now asks for a rubric that reads artifacts.
+
 ## [1.11.1] - 2026-09-15
 
 ### Corrected

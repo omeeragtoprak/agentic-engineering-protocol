@@ -86,20 +86,43 @@ of them cut against the instinct to write more rules.
   [validation-log.md](validation-log.md)). AEP has no evidence at 27M tokens. Anyone
   telling you a protocol helps on long-horizon work, this one included, is extrapolating.
 
-- **Someone is now benchmarking process, not just outcome — and a big skills framework
-  scored at the baseline.** RigorBench ([arXiv:2606.22678](https://arxiv.org/abs/2606.22678))
-  scores five dimensions of engineering discipline — planning fidelity, verification
-  coverage, recovery efficiency, abstention quality, atomic transition integrity — from
-  the full execution trajectory, and reports that structured discipline improves process
-  quality by 41% and outcome correctness by 17%, with process and outcome correlated at
-  **r = 0.87**. That is the strongest external support for the premise AEP is built on.
-  It is also a warning: in both published versions of their leaderboard, **Superpowers
-  scored at or below the plain ReAct baseline on process discipline** (0.48 against 0.48
-  in the paper, 0.41 against 0.40 in the repository) while scoring higher on outcome. A
-  framework can be large, popular and useful without moving the discipline number, and
-  nothing here exempts AEP from that. Their harness accepts third-party trajectory logs,
-  which is the honest way for this project to find out where it lands — tracked as an
-  open requirement rather than claimed.
+- **Someone is benchmarking process rather than outcome — and the headline number is
+  mostly a label check.** RigorBench ([arXiv:2606.22678](https://arxiv.org/abs/2606.22678))
+  scores five dimensions of engineering discipline from an agent's full trajectory and
+  reports structured discipline at +41% process quality, +17% outcome correctness, and
+  process/outcome correlated at r = 0.87. The premise is the one AEP is built on, and the
+  attempt is a real one. Then we ran their shipped scorer on two of their own published
+  trajectories:
+
+  | Pillar | agent-rigor | baseline | what the code checks |
+  |---|---|---|---|
+  | Planning Fidelity | 90.0 | 20.0 | whether an action of type `plan_created` exists |
+  | Verification Coverage | 25.0 | 0.0 | count of `test_written` **actions** |
+  | Recovery Efficiency | 100.0 | 100.0 | `recovery_attempted` ÷ `error_encountered` |
+  | Abstention Quality | 100.0 | 100.0 | whether an `abstention_declared` action exists |
+  | Atomic Transition Integrity | 80.0 | **100.0** | count of `checkpoint_validated` actions |
+  | Test Assertion Density | 50.0 | 50.0 | *neutral — no repo path in these samples* |
+  | Exploration Efficiency | 40.0 | 0.0 | files modified ÷ files read |
+  | **Composite** | **69.2** | **53.0** | |
+
+  Four of those scorers carry the comment `# Mock logic` in the repository, and the gap in
+  this pair comes almost entirely from two presence checks on action labels that the
+  agent's own adapter emits. A harness that labels its actions scores; one that does the
+  same work without labelling it does not. The repository does ship real artifact-based
+  measurements in `compute_extended.py` — regression rate, assertion density, dead-code
+  ratio, diff minimality — and the paper may well rest on those; we could not verify which
+  pipeline produced the published figures, and the two artifact pillars fell back to
+  neutral in our run because we did not have the task repositories.
+
+  Two more things the vetting checklist below asks for: the repository carries **no licence
+  file**, so reuse rights are unclear whatever the paper says about open artifacts, and its
+  own numbers differ between sources — 30 tasks with agent-rigor at 0.61 and Superpowers at
+  0.48 in the paper, "100 complex software tasks" with 0.53 and 0.41 in the README.
+
+  What this does **not** license anyone to conclude is that AEP would score well, or badly.
+  On this composite AEP would mostly be measuring whether we wrote an adapter that emits
+  `plan_created`. Being scored by someone other than ourselves is still worth doing —
+  it is tracked as an open requirement — and it will need a rubric that reads artifacts.
 
 - **Process frameworks converge, and none covers everything.** A 2026 taxonomy of
   agent development frameworks ([arXiv:2606.04967](https://arxiv.org/abs/2606.04967))

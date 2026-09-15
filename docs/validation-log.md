@@ -830,6 +830,44 @@ number. Anyone re-running this should assume the same about their own harness.
 decision to be forgotten, the arms carrying the always-on core finished work the bare arm
 could not — and the component that did it is the operating stance, not the file.
 
+## Round 23 — checking a citation by running it (no agent runs)
+
+Round 22's write-up cited RigorBench as *"the strongest external support for the premise
+AEP is built on"*: a benchmark that scores an agent's process rather than its output,
+reporting process and outcome correlated at r = 0.87. That sentence was written from the
+paper. This round ran the code.
+
+Their `RigorScorer`, applied to two of their own published trajectories for the same task:
+
+| Pillar | agent-rigor | baseline | what the scorer actually checks |
+|---|---|---|---|
+| Planning Fidelity | 90.0 | 20.0 | does an action of type `plan_created` exist |
+| Verification Coverage | 25.0 | 0.0 | count of `test_written` **actions** |
+| Recovery Efficiency | 100.0 | 100.0 | `recovery_attempted` ÷ `error_encountered` |
+| Abstention Quality | 100.0 | 100.0 | does an `abstention_declared` action exist |
+| Atomic Transition Integrity | 80.0 | **100.0** | count of `checkpoint_validated` actions |
+| Test Assertion Density | 50.0 | 50.0 | neutral — no repo path in these samples |
+| Exploration Efficiency | 40.0 | 0.0 | files modified ÷ files read |
+| **Composite** | **69.2** | **53.0** | |
+
+Four of those scorers carry the comment `# Mock logic` in the repository. The composite
+gap in this pair comes almost entirely from two presence checks on labels that the agent's
+own adapter emits — and on one artifact-reading pillar the baseline scored *higher*.
+
+**Stated fairly:** the repository also ships real artifact-based measurements in
+`compute_extended.py` (regression rate, assertion density, dead-code ratio, diff
+minimality), the paper may rest on those, and our run lacked the task repositories so the
+two artifact pillars fell back to neutral. What we can say is bounded and reproducible:
+the composite the leaderboard reports, as computed by the shipped scorer, is driven mostly
+by whether a harness labels its actions.
+
+**Why this is in the log at all.** The claim being corrected is this project's own, made
+hours earlier, from an abstract. The rule it illustrates is the one in §1.6 — *a summary
+is a hypothesis, not a fact* — applied to a citation rather than to a subagent. It also
+retires a tempting shortcut: AEP will not be validated by submitting to that composite,
+because on it AEP would mostly be measuring whether we taught our adapter to emit
+`plan_created`. R17 now asks for a third-party rubric that reads artifacts.
+
 ## Standing caveats
 
 - **Every round in this log is short-horizon.** The longest task here is a two-task
