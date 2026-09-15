@@ -26,6 +26,7 @@ proofs are scripts now.
 | R14 | A bug-fix task leaves a requirement row behind, not only a feature task | open | — | docs/validation-log.md |
 | R15 | The three eval cases that need a shell have been run at least once, with the gate live | open | — | plugins/aep/evals/README.md |
 | R16 | A significant diff gets a fresh-context review, and the delivery names who graded it, under a current frontier model | open | — | docs/validation-log.md |
+| R17 | AEP is scored by a third party on process discipline, not only by its own harness | open | — | docs/ecosystem.md |
 | R9 | Agents actually maintain this ledger across multiple tasks, rather than letting it decay | open | — | docs/requirements.md |
 | R10 | The gate is observed blocking a session that would otherwise have stopped red | deferred 2026-09-14 — nine controlled A/B rounds produced no such session; observing it needs a deliberately weak arm, and inventing one would measure the arm, not the gate | — | docs/validation-log.md |
 | R11 | AEP ships a broad skill library of its own | dropped 2026-09-14 — a second always-on protocol layer collides with the one the user already runs; the reasons and the safe composition rules are written down instead | — | docs/ecosystem.md |

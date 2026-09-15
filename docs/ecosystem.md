@@ -28,6 +28,7 @@ main way people break both (see *Composing* below).
 | [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) (MIT, active) | A skill system that pushes agents toward the *smallest* possible change — a YAGNI decision ladder ("does this need to exist? is it in stdlib? can it be one line?"). | Orthogonal and genuinely complementary: ponytail constrains *what gets written*, AEP constrains *what counts as done*. Of everything on this page, this is the one most worth running alongside AEP. |
 | [Fission-AI/OpenSpec](https://github.com/Fission-AI/OpenSpec) (active) | Spec-driven development on a delta model: `propose → apply → archive`. Change proposals carry spec deltas; archiving merges them into `openspec/specs/`, which becomes the source of truth for current behaviour. | The closest neighbour to AEP's requirements ledger, and the difference is what gets re-checked. `openspec validate` "validate[s] changes and specs for structural issues, and check[s] a change's MODIFIED requirements against the main specs they would replace" — spec against spec. AEP's `trace.py` checks a requirement against the **tree**: a `done` row whose named test no longer exists fails the project's check. Specs describe; proofs decay. |
 | [github/spec-kit](https://github.com/github/spec-kit) (active) | The most widely adopted spec-driven toolkit: `/specify → /plan → /tasks → /implement`, multi-agent, template-driven. | Much larger surface and a real community. AEP is not a spec toolkit — it is a completion discipline with one hook, and it publishes the measurements behind each rule. If you want spec artefacts as the centre of gravity, Spec Kit is the better fit; the two overlap on planning and will fight over the loop if you run both. |
+| [MeherBhaskar/agent-rigor](https://github.com/MeherBhaskar/RigorBench) (no licence file) | A six-phase discipline lifecycle enforced as an **intercepting harness** — `agent-rigor wrap claude-code` — with a companion benchmark, RigorBench, that scores *how* an agent worked rather than only whether the tests passed. | The closest thing to a competitor with its own measurements, and the only project here that publishes a process-discipline leaderboard. AEP is a set of instructions plus one hook; agent-rigor wraps the execution loop. Two cautions before adopting either: the repository carries **no licence file**, so reuse rights are unclear whatever the paper says about open artifacts; and its own numbers do not line up between sources — the paper reports 30 tasks with agent-rigor at 0.61 RigorScore and Superpowers at 0.48, while the repository README reports "100 complex software tasks" with agent-rigor at 0.53 and Superpowers at 0.41. Neither is wrong on its face; they are different runs, and the vetting checklist below says to notice. |
 | GSD — "Get Shit Done" | A spec-driven meta-prompting system for Claude Code. | **Read this before adopting:** the original repository (`gsd-build/get-shit-done`) is **archived** (last push 2026-05-31) following ownership/trust concerns in the community; development continued in community forks. Evaluate the fork you are pointed at on its own merits, not the original's reputation. |
 
 
@@ -84,6 +85,21 @@ of them cut against the instinct to write more rules.
   the regime where a capable model needs none of it (see the ceiling effects in
   [validation-log.md](validation-log.md)). AEP has no evidence at 27M tokens. Anyone
   telling you a protocol helps on long-horizon work, this one included, is extrapolating.
+
+- **Someone is now benchmarking process, not just outcome — and a big skills framework
+  scored at the baseline.** RigorBench ([arXiv:2606.22678](https://arxiv.org/abs/2606.22678))
+  scores five dimensions of engineering discipline — planning fidelity, verification
+  coverage, recovery efficiency, abstention quality, atomic transition integrity — from
+  the full execution trajectory, and reports that structured discipline improves process
+  quality by 41% and outcome correctness by 17%, with process and outcome correlated at
+  **r = 0.87**. That is the strongest external support for the premise AEP is built on.
+  It is also a warning: in both published versions of their leaderboard, **Superpowers
+  scored at or below the plain ReAct baseline on process discipline** (0.48 against 0.48
+  in the paper, 0.41 against 0.40 in the repository) while scoring higher on outcome. A
+  framework can be large, popular and useful without moving the discipline number, and
+  nothing here exempts AEP from that. Their harness accepts third-party trajectory logs,
+  which is the honest way for this project to find out where it lands — tracked as an
+  open requirement rather than claimed.
 
 - **Process frameworks converge, and none covers everything.** A 2026 taxonomy of
   agent development frameworks ([arXiv:2606.04967](https://arxiv.org/abs/2606.04967))
