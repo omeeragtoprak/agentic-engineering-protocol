@@ -630,6 +630,43 @@ claude plugin eval . --tag no-shell   --allow-tools Write Edit --scaffold --trus
 claude plugin eval . --tag needs-shell --allow-tools Write Edit Bash --scaffold --trust-plugin
 ```
 
+## Round 18 — testing the new reviewer rule directly, and hitting a ceiling (n=3 per arm)
+
+v1.9.0 gave the adversarial reviewer a step 0: commit to your own expectations from the
+spec before reading the diff. The rule came from a measurement in another domain, so
+the obvious question was whether it does anything here.
+
+**Setup.** A hand-built fixture: a retry-budget spec with five numbered acceptance
+criteria and an implementation that satisfies four of them. The fifth is violated
+subtly — the spec says that when the next backoff would exceed the remaining budget the
+client *gives up*, and the code sleeps the remainder and continues, so a run with
+`time_budget=1.0` fires all six attempts with no delay after the first. Each arm ran as
+the reviewer itself (`claude -p --agent aep:adversarial-reviewer --plugin-dir …`),
+three times; arm B is the identical subagent with step 0 deleted.
+
+**Result: 6 of 6 caught it, both arms.** Every run returned `REFUTED (1 blocker)` and
+named the truncate-and-continue behaviour against acceptance criterion 5.
+
+**So the experiment measured nothing about step 0** — the defect was inside both arms'
+reach, which is a ceiling effect exactly as Round 12 was a floor effect. Two things it
+did show:
+
+- **Arm B predicted anyway.** With step 0 deleted, all three runs still opened with an
+  expectation list — *"Stop before sleeping (not sleep-then-stop) once
+  `spent + next_delay > time_budget`"* — before discussing the diff. Whatever produces
+  that behaviour in this model, an explicit step 0 is not the only thing that does.
+- **Reviewers reached for probes without being told to.** Four of six ran the code
+  rather than arguing about it: *"Verified empirically (AlwaysTransient transport,
+  `time.sleep` mocked, `time_budget=1.0`, `max_attempts=6`): send calls=6, sleeps
+  [0.5, 0.5, 0.0, 0.0, 0.0]"*. That is the v1.9.0 rule — a finding is promoted by a
+  probe, not by a majority — appearing on its own.
+
+Step 0 stays, because it costs one paragraph and its mechanism is sound where the
+evidence exists. It is **not** claimed to improve AEP's reviews: the one direct test of
+it could not tell the arms apart. The next attempt needs a defect that sits at the edge
+of what an unprompted reviewer catches, which is a harder fixture to build than it
+sounds — and until it exists, this is what the log says.
+
 ## Standing caveats
 
 - n=2 per round is a signal, not statistics. A 0/2 → 2/2 flip after a targeted

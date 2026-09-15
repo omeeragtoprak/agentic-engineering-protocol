@@ -5,6 +5,21 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.9.1] - 2026-09-15
+
+### Measured
+- **Round 18 tested v1.9.0's new reviewer step 0 directly and could not tell the arms
+  apart.** A retry-budget fixture with one subtly violated acceptance criterion, three
+  runs per arm, the reviewer invoked as the session itself: 6 of 6 returned
+  `REFUTED (1 blocker)` and named the defect, with and without step 0. A ceiling
+  effect, recorded as one. Two side observations worth more than the null result: the
+  arm *without* step 0 wrote an expectation list anyway in 3 of 3 runs, and four of six
+  reviewers ran the code rather than arguing about it — the "promote by probe" rule
+  appearing unprompted.
+- Step 0 stays on its mechanism and its one-paragraph cost. It is not claimed to
+  improve AEP's reviews, and `docs/validation-log.md` says so in the same place it
+  describes the rule.
+
 ## [1.9.0] - 2026-09-15
 
 Two changes to how AEP reviews work, both from primary sources, both with their limits
