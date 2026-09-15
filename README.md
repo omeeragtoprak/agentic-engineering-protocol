@@ -12,7 +12,7 @@ large skill library or a full toolkit, [docs/ecosystem.md](docs/ecosystem.md) na
 neighbours, says plainly where they are the better choice, and explains why running two
 protocol frameworks at once breaks both.
 
-## What twenty-six measured rounds say about when this pays
+## What twenty-seven measured rounds say about when this pays
 
 Everything below is in [docs/validation-log.md](docs/validation-log.md) with the runs
 behind it. Read this before installing — it is the part most projects leave out.
@@ -44,8 +44,12 @@ behind it. Read this before installing — it is the part most projects leave ou
   three runs **every `done` row's proof still resolved at the end**, because the checker
   runs inside the gate. Keep the rows and the checker keeps them true; do not expect an
   agent to write all of them for you.
-- **The gate has never blocked a real session** in eighteen rounds. It is insurance for
-  the tail case, not a performance multiplier.
+- **The gate has never blocked a real session on a failing check** in twenty-seven rounds.
+  It is insurance for the tail case. What *did* move a number was making a reminder block:
+  with `AEP_REVIEW_BLOCK=1`, a diff nothing had reviewed went from **0 of 3** sessions
+  running a fresh-context review to **3 of 3**, where the same reminder delivered as a
+  non-blocking note moved nothing at all. It stays off by default — n=3, one task, and
+  the review roughly doubles the cost.
 
 **Where it measurably pays, once:** on a six-ticket sequence in one repository — long
 enough for a decision to be forgotten — every run carrying AEP's always-on core delivered
@@ -82,6 +86,7 @@ Monolithic instruction files degrade: the longer the always-loaded file, the mor
 | Playbooks | 9 skills (`aep:*`) | On demand (name+description always visible; body loads when invoked/matched) | Deep procedural detail: 5 phases + standards + triangulated research + orchestration |
 | Fresh-context review | 5 subagents | On delegation, isolated context | Adversarial review, gap audit, security & performance audits — the author never grades its own work |
 | Hard enforcement | Stop hook (`verify-gate.sh`) | Deterministic, outside the model | Blocks "task complete" while the project's check fails |
+| Review visibility | SubagentStop hook (`record-review.sh`) | Every finished subagent | Lets the gate ask whether *any* fresh-context review ran since the last commit — the half of reviewer provenance a mechanism can see |
 | State at the right moment | SessionStart hook (`session-brief.sh`) | **Opt-in, off by default** | Reports tree state, check presence and open/deferred requirements. Built, measured, and left off because the measurement did not support turning it on — [why](plugins/aep/scripts/README.md) |
 | Bootstrap | `/aep:init` command | Manual | Installs the core + gate into any repository, populates project facts |
 | Project memory across tasks | `.claude/requirements.md` + `trace.py` | Read by the gate and by `/aep:status` | What the project has committed to and what proves it — survives the session that agreed to it |
@@ -200,7 +205,7 @@ agentic-engineering-protocol/
 ## Validation
 
 AEP is measured on real tasks, and the failures are published next to the wins —
-twenty-six rounds so far in [docs/validation-log.md](docs/validation-log.md), including
+twenty-seven rounds so far in [docs/validation-log.md](docs/validation-log.md), including
 the ones that went against the project:
 
 - Three rules confirmed by targeted flips (spec persistence and reviewer provenance 0/2 → 2/2; one sentence about phase boundaries took a weak model from 0/4 sessions producing code to 2/2 delivering committed, tested work).

@@ -72,6 +72,51 @@ if [ -f ".claude/requirements.md" ] && git rev-parse --is-inside-work-tree >/dev
   fi
 fi
 
+# Was this diff reviewed in a fresh context? The gate cannot read the conversation,
+# but the SubagentStop recorder leaves a line per finished subagent in .git, so it can
+# ask whether *any* review ran since the last commit. Measured in Round 20: three
+# sessions with a significant diff, none of which invoked a reviewer, and the core's
+# instruction to do so was loaded in every one. This reports; it does not block.
+UNREVIEWED=""
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  CHANGED=$(git status --porcelain 2>/dev/null | cut -c4- \
+    | grep -Ev '(^|/)(tests?|specs?)(/|$)|(^|/)test_[^/]*$|[^/]*(_test|\.test|\.spec)\.[A-Za-z0-9]+$|^\.claude/' \
+    | grep -Ec '\.(py|js|ts|tsx|jsx|go|rs|rb|java|cs|kt|swift|php|sh)$' || true)
+  # "Significant" is two or more source files, or one file substantially rewritten.
+  # The first version of this rule counted files only, and missed the commonest shape
+  # there is: a single module changed by thirty lines. Measured — three runs where the
+  # notice never fired because the diff touched one file.
+  LINES=0
+  if [ "${CHANGED:-0}" -ge 1 ]; then
+    LINES=$(git diff HEAD --numstat 2>/dev/null \
+      | grep -Ev '(^|/)(tests?|specs?)/|(^|/)test_[^/]*\s|^\.claude/' \
+      | awk '$3 ~ /\.(py|js|ts|tsx|jsx|go|rs|rb|java|cs|kt|swift|php|sh)$/ { n += $1 + $2 } END { print n + 0 }')
+    # `git diff` does not see a file that was never tracked, so a brand-new 30-line
+    # module counted as zero changed lines — which is exactly the shape that most
+    # deserves a review. Untracked source files are counted whole.
+    NEWLINES=$(git ls-files --others --exclude-standard 2>/dev/null \
+      | grep -Ev '(^|/)(tests?|specs?)/|(^|/)test_[^/]*$|^\.claude/' \
+      | grep -E '\.(py|js|ts|tsx|jsx|go|rs|rb|java|cs|kt|swift|php|sh)$' \
+      | tr '\n' '\0' | xargs -0 cat 2>/dev/null | wc -l | tr -d ' ')
+    LINES=$((LINES + ${NEWLINES:-0}))
+  fi
+  if [ "${CHANGED:-0}" -ge 2 ] || [ "${LINES:-0}" -ge 25 ]; then
+    GD=$(git rev-parse --git-dir 2>/dev/null)
+    REVIEWS="$GD/aep-reviews"
+    LAST_COMMIT=$(git log -1 --format=%ct 2>/dev/null || echo 0)
+    SEEN=""
+    if [ -f "$REVIEWS" ]; then
+      # Strictly after: a review recorded in the same second as the commit is
+      # discarded, because it was almost certainly the work being committed. That
+      # fails towards one notice too many rather than one too few, which is the
+      # right direction for a gate.
+      SEEN=$(awk -v since="$LAST_COMMIT" '$1 + 0 > since { print $3 }' "$REVIEWS" 2>/dev/null \
+        | sort -u | tr '\n' ' ')
+    fi
+    [ -z "$SEEN" ] && UNREVIEWED="$CHANGED source file(s), $LINES changed line(s)"
+  fi
+fi
+
 # A non-blocking notice at Stop arrives *after* the work is finished — measured: in
 # every eval run it landed on the second-to-last line of the transcript and the run
 # ended. It still reaches a human in an interactive session, which is why it stays
@@ -92,6 +137,26 @@ if [ "${AEP_LEDGER_BLOCK:-0}" = "1" ] && [ -n "$STALE_LEDGER" ]; then
   fi
 fi
 
+# Same shape as the ledger reminder, same reason: a notice at Stop cannot change the
+# run it appears in (measured — delivered 3/3, reviewer still named 0/3), so the only
+# version that could is one that blocks once. Off by default until that is measured.
+REVIEW_NUDGE=""
+if [ "${AEP_REVIEW_BLOCK:-0}" = "1" ] && [ -n "$UNREVIEWED" ]; then
+  RMARK=""
+  RGD=$(git rev-parse --git-dir 2>/dev/null)
+  [ -n "$RGD" ] && RMARK="$RGD/aep-review-nudge"
+  RHEAD=$(git log -1 --format=%H 2>/dev/null)
+  if [ -n "$RMARK" ] && [ "$(cat "$RMARK" 2>/dev/null)" != "$RHEAD" ]; then
+    printf '%s' "$RHEAD" > "$RMARK" 2>/dev/null || true
+    REVIEW_NUDGE="yes"
+  fi
+fi
+
+if [ -n "$REVIEW_NUDGE" ]; then
+  printf 'AEP REVIEW: this change touches %s and nothing graded it but you.\nDo one of two things, then finish:\n  1. run a fresh-context review (aep:adversarial-reviewer) over the diff and the spec; or\n  2. state in the delivery summary that the authoring context graded its own work.\nThis is asked once per commit; stopping again passes either way.\n' "$UNREVIEWED" >&2
+  exit 2
+fi
+
 if [ -n "$NUDGE" ]; then
   printf 'AEP LEDGER: this task changed %s, and .claude/requirements.md has no row for it.\nDo one of two things, then finish:\n  1. add a row - `done` with a proof that exists, or `deferred`/`dropped` with a date and a reason; or\n  2. state in one line that this task committed to nothing new.\nThis is asked once per session; stopping again passes either way.\n' "$STALE_LEDGER" >&2
   exit 2
@@ -101,6 +166,7 @@ NOTES=""
 add_note() { NOTES="$NOTES $1"; }
 [ -n "$TAMPER" ] && add_note "Test files or the gate own inputs have uncommitted changes ($(printf '%s' "$TAMPER" | tr '\n' ';' | tr -d '\"\\')) - confirm they were strengthened, not weakened."
 [ -n "$SUPPRESSED" ] && add_note "The suite reports suppressed tests ($(printf '%s' "$SUPPRESSED" | tr -d '\"\\')) - a green exit code does not mean every assertion ran; name each one and why."
+[ -n "$UNREVIEWED" ] && add_note "This change touches $UNREVIEWED and no fresh-context review ran since the last commit - the author graded its own diff. Name that in the delivery summary, or run aep:adversarial-reviewer before finishing."
 [ -n "$STALE_LEDGER" ] && add_note "The requirements ledger has no row for $STALE_LEDGER - if this task committed to something, record it in .claude/requirements.md (done with a proof, or deferred with a date and a reason); if it committed to nothing, say so in the delivery summary."
 
 if [ -n "$NOTES" ]; then

@@ -5,6 +5,51 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.13.0] - 2026-09-15
+
+The flagship rule finally moved, and what moved it was not wording.
+
+### Added
+- **`record-review.sh`, a `SubagentStop` hook**, and a gate that uses it. Round 20
+  concluded there was no mechanism for reviewer provenance because the gate cannot see
+  the conversation. That was wrong: `SubagentStop` carries `agent_type`, so every
+  finished subagent leaves a line inside `.git` and the gate can ask whether any review
+  ran since the last commit. On a green check it now reports a diff of two or more source
+  files — or one file changed by 25+ lines — that nothing reviewed.
+- **`AEP_REVIEW_BLOCK=1`** turns that report into a single block per commit, with an
+  either/or satisfiable in one turn: run the review, or say the authoring context graded
+  its own work.
+
+### Measured
+- **Round 27, prediction first.** Design rule 9 says a notice at Stop arrives after the
+  work and cannot change that run, so the prediction was written into the log *before* the
+  runs: the notice will not move reviewer usage, and only a blocking version could. Same
+  task, same model, three runs each:
+
+  | | reminder delivered | review actually ran | reviewer named |
+  |---|---|---|---|
+  | no mechanism (Round 20) | — | 0/3 | 0/3 |
+  | non-blocking notice | 3/3 | 0/3 | 0/3 |
+  | blocking once | 3/3 | **3/3** | **3/3** |
+
+  Every blocking run invoked `aep:adversarial-reviewer` — recorded by the hook, not
+  inferred from prose. Design rule 9 was inferred from where messages land in transcripts;
+  it is now confirmed against behaviour by a prediction made in advance.
+- **Blocking stays off by default.** One task, one model, n=3, and the review roughly
+  doubles the cost. The same standard was applied to the ledger block at two runs; what
+  would justify flipping the default is replication on another task and model.
+
+### Fixed
+- The first significance rule counted files only and never fired on the task it was built
+  for — one module, thirty lines. It now counts files **or** lines. CI then caught a second
+  miss: `git diff` does not see a never-tracked file, so a brand-new thirty-line module
+  counted as zero changed lines. Untracked source files are counted whole, and a mutation
+  removing that turns CI red.
+- Two bugs found by behavioural tests while building the recorder: an ISO timestamp parsed
+  by `awk` was read as local time, losing three hours silently; and a review recorded in
+  the same second as a commit counted as being after it. The comparison is now epoch-based
+  and strict.
+
 ## [1.12.0] - 2026-09-15
 
 ### Added

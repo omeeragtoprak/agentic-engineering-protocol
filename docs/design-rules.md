@@ -163,6 +163,13 @@ It is delivered, it is correct, and it is too late: the agent has finished. Acro
 twelve eval runs in which that notice fired every time, the behaviour it asked for
 happened zero times.
 
+**Confirmed by prediction.** Round 27 wrote this rule down as a prediction *before*
+building anything, then built both versions of the same reminder for the same task: a
+non-blocking notice, delivered in 3 of 3 runs, changed nothing (0/3 reviews run); the
+blocking version, which asks once per commit with an either/or satisfiable in one turn,
+moved it to **3/3**. The rule had been inferred from where messages land in a transcript;
+it is now measured against behaviour.
+
 **How to write it.** Decide who the message is for. For a *human* reading the session
 afterwards, an end-of-run notice is fine and cheap. For the *agent*, a message at Stop
 has to block — exit 2, with a way to satisfy it in one turn — or fire earlier, at a

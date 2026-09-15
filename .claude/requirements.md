@@ -25,7 +25,8 @@ proofs are scripts now.
 | R13 | A session that starts in a repository with AEP state is told what that state is, and one without it is not interrupted | done | cmd: .claude/proofs/r13_session_brief.sh | docs/design-rules.md |
 | R14 | A bug-fix task either attaches its regression test to the row it defends, or states that the task committed to nothing new | open | — | docs/validation-log.md |
 | R15 | The three eval cases that need a shell have been run at least once, with the gate live | open | — | plugins/aep/evals/README.md |
-| R16 | A significant diff gets a fresh-context review, and the delivery names who graded it, under a current frontier model | open | — | docs/validation-log.md |
+| R16 | A significant diff that no fresh-context review touched is reported at the Stop — the half a mechanism can see | done | cmd: .claude/proofs/r16_review_notice.sh | docs/validation-log.md |
+| R20 | Agents actually run a fresh-context review on a significant diff when the gate says none did | open | — | docs/validation-log.md |
 | R17 | AEP is scored by a third party on process discipline using a rubric that reads artifacts rather than action labels | open | — | docs/ecosystem.md |
 | R18 | The validation log's index links every round and every link resolves | done | cmd: python3 .claude/proofs/r18_log_index.py | docs/validation-log.md |
 | R19 | The validation log's summary counts match the table beneath them | done | cmd: python3 .claude/proofs/r19_log_counts.py | docs/validation-log.md |

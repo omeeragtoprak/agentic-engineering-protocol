@@ -6,7 +6,7 @@ held, and what did not.
 
 ## Every round at a glance
 
-Twenty-six rounds. **Nine** carry a negative or self-correcting verdict (rounds 5, 10,
+Twenty-seven rounds. **Nine** carry a negative or self-correcting verdict (rounds 5, 10,
 13, 14, 15, 20, 21, 23, 24 — counted from the table below, not asserted), **five** made
 the project withdraw or refuse to ship something, and **three** corrected a claim this log
 itself had published. That distribution is the point: a log where everything confirms the
@@ -40,6 +40,7 @@ thesis is a marketing page.
 | [24](#round-24--someone-elses-rubric-our-artifacts-no-agent-runs) | Can an outside rubric score us? | **not usable here** — 3 of 4 metrics flat |
 | [25](#round-25--does-the-ledger-decay-six-tickets-say-no-n3-artifacts-already-in-hand) | Does the ledger decay across six tickets? | **it held** — every proof still resolved, 3/3; coverage 2–4 of 6 |
 | [26](#round-26--a-bug-fix-leaves-no-row-and-an-agent-finds-a-hole-in-our-own-checker-n3) | Does a bug fix leave a row? | **0/3 — and R14 was the wrong question**; an agent found a real gap in our checker |
+| [27](#round-27--a-mechanism-for-the-rule-that-had-none-and-a-prediction-made-before-the-run) | Can the gate see whether a review happened? | **yes — and blocking moved the flagship rule 0/3 → 3/3**; the notice alone moved nothing, as predicted |
 
 ### Claims this project withdrew
 
@@ -1044,6 +1045,73 @@ checker's own output, which now says how many rows are existence-checked and tha
 **The finding worth keeping is not about ledgers.** An agent running this protocol, on a
 routine bug fix, audited the protocol's own tooling and reported a gap between what it
 claims and what it does. That is the behaviour §1.1 asks for, arriving unprompted.
+
+## Round 27 — a mechanism for the rule that had none, and a prediction made before the run
+
+Round 20 recorded reviewer provenance at 0/3 and concluded there was **no mechanism
+available**: the gate sees the working tree, not whether a subagent ran. That conclusion
+was wrong. Claude Code fires `SubagentStop` with the `agent_type` of every finished
+subagent, so a hook can record each one and the gate can ask whether *any* review ran
+since the last commit.
+
+That is now built: `record-review.sh` appends one line per finished subagent inside
+`.git`, and the gate, on a green check, reports a diff of two or more non-test source
+files that no review touched. Five behaviours are pinned by CI and by R16's proof, and
+two mutations — a gate that never reports, a recorder that records nothing — each turn
+that step red. Building it also surfaced two bugs worth naming: an ISO timestamp parsed
+by `awk` was read as local time, which silently lost three hours, and a review recorded
+in the same second as a commit counted as being after it. Both were found by a
+behavioural test, not by reading the code.
+
+**The prediction, written before the runs.** Round 16 established that a non-blocking
+notice at Stop lands on the second-to-last line of the transcript and cannot change the
+run it appears in. This notice fires in exactly that position. So the honest prediction
+is that it will **not** move reviewer usage — that it will reach the human reading the
+session and nothing else — and that the only version which could move it is a blocking
+one, which by this project's own standard needs evidence before it lands on everyone.
+
+**The first version never fired.** Three runs, no notice at all — because "significant"
+was written as *two or more source files* and the task changes one module by thirty
+lines, which is the commonest shape a diff has. The rule now counts files **or** lines
+(2 files, or 25 changed source lines), and that was found by measuring, not by reading.
+A second miss surfaced the same way in CI: `git diff` does not see a file that was never
+tracked, so a brand-new thirty-line module counted as **zero** changed lines — the shape
+that most deserves a review. Untracked source files are now counted whole.
+
+**Then the prediction held exactly.** Re-run with the notice firing:
+
+| | notice delivered | review actually ran | reviewer named |
+|---|---|---|---|
+| no mechanism ([Round 20](#round-20--the-flagship-rule-with-a-real-shell-against-a-frontier-model-n3-per-arm)) | — | 0/3 | 0/3 |
+| non-blocking notice | **3/3** (twice per run) | 0/3 | 0/3 |
+
+The message arrived, correctly, in every run, and changed nothing — which is what Round
+16 said a Stop-time notice can do, and why the prediction above was written before the
+runs rather than after them.
+
+**And the corollary held too.** The same gate with `AEP_REVIEW_BLOCK=1`, which blocks
+once per commit with an either/or the agent can satisfy in one turn:
+
+| | block delivered | review actually ran | reviewer named | cost |
+|---|---|---|---|---|
+| blocking once | 3/3 | **3/3** | **3/3** | $1.14 / $0.81 / $1.28 |
+
+Every run invoked `aep:adversarial-reviewer` — recorded by the hook, not inferred from
+prose — and every delivery named it. **0/3 → 3/3 on the project's flagship rule**, which
+no wording change had moved in twenty-six rounds.
+
+**What this does and does not license.** It is one task, one model, n=3, and the review
+costs roughly two to three times the run. So blocking ships **off by default**, behind
+`AEP_REVIEW_BLOCK=1`, documented with these numbers — the same standard applied to the
+ledger block, which had two usable runs and stayed off. What would justify flipping the
+default is replication on a different task and a different model; until then the cost
+lands only on people who choose it.
+
+The deeper result is about the shape of enforcement rather than about reviews. Design
+rule 9 said a notice arriving at the end cannot change the run it arrives in, and that
+anything meant to change behaviour has to block or fire earlier. That was inferred from
+transcripts. This round pre-registered it as a prediction, built both versions, and
+measured them against the same task: notice 0/3, block 3/3.
 
 ## Standing caveats
 

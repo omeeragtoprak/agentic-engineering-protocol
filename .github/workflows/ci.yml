@@ -15,6 +15,7 @@ jobs:
         run: |
           sh -n plugins/aep/scripts/verify-gate.sh
           sh -n plugins/aep/scripts/session-brief.sh
+          sh -n plugins/aep/scripts/record-review.sh
           sh -n plugins/aep/templates/aep-check.sh.example
           sh -n install.sh
           sh -n bench/score.sh
@@ -56,6 +57,7 @@ jobs:
       - name: Verify gate behavior
         run: |
           set -e
+          REPO="$PWD"
           T=$(mktemp -d); cp plugins/aep/scripts/verify-gate.sh "$T/gate.sh"
           cd "$T"; git init -q -b main
           mkdir .claude
@@ -114,6 +116,41 @@ jobs:
           echo "print(9)" >> src/a.py
           set +e; AEP_LEDGER_BLOCK=1 sh gate.sh 2>/dev/null >/dev/null; RC=$?; set -e
           test $RC -eq 2
+          # the gate reports a significant diff that no fresh-context review touched
+          rm -f .git/aep-reviews
+          git add -A && git -c user.email=a@b -c user.name=a commit -qm base3
+          mkdir -p src && echo "a=1" > src/a.py && echo "b=1" > src/b.py
+          git add -A && git -c user.email=a@b -c user.name=a commit -qm src
+          echo "a=2" >> src/a.py
+          OUT=$(sh gate.sh)
+          if echo "$OUT" | grep -q "no fresh-context review"; then echo "a three-line change should be below the threshold"; exit 1; fi
+          # one heavily rewritten file counts as significant on its own
+          python3 -c "open('src/a.py','a').write(chr(10).join(f'z{i}={i}' for i in range(30)))"
+          OUT=$(sh gate.sh); echo "$OUT" | grep -q "no fresh-context review"
+          git checkout -- src/a.py
+          echo "a=2" >> src/a.py
+          echo "b=2" >> src/b.py
+          OUT=$(sh gate.sh); echo "$OUT" | grep -q "no fresh-context review"
+          # a recorded review after the last commit silences it
+          sleep 1
+          printf '{"agent_type":"aep:adversarial-reviewer"}' | sh "$REPO/plugins/aep/scripts/record-review.sh"
+          OUT=$(sh gate.sh)
+          if echo "$OUT" | grep -q "no fresh-context review"; then echo "a recorded review was ignored"; exit 1; fi
+          # AEP_REVIEW_BLOCK=1 turns the notice into a single block
+          git add -A && git -c user.email=a@b -c user.name=a commit -qm reviewed1
+          python3 -c "open('src/c.py','w').write(chr(10).join(f'q{i}={i}' for i in range(30)))"
+          set +e; AEP_REVIEW_BLOCK=1 sh gate.sh 2>rev.txt >/dev/null; RC=$?; set -e
+          test $RC -eq 2
+          grep -q "AEP REVIEW" rev.txt
+          set +e; AEP_REVIEW_BLOCK=1 sh gate.sh >/dev/null 2>&1; RC=$?; set -e
+          test $RC -eq 0
+          rm -f src/c.py
+
+          # test-only changes never trigger it
+          git add -A && git -c user.email=a@b -c user.name=a commit -qm reviewed
+          mkdir -p tests && echo "x=1" > tests/test_a.py && echo "y=1" > tests/test_b.py
+          OUT=$(sh gate.sh)
+          if echo "$OUT" | grep -q "no fresh-context review"; then echo "complained about tests"; exit 1; fi
           echo "gate behavior ok"
 
       - name: Session brief behavior
