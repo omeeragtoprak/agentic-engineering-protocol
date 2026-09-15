@@ -12,7 +12,7 @@ large skill library or a full toolkit, [docs/ecosystem.md](docs/ecosystem.md) na
 neighbours, says plainly where they are the better choice, and explains why running two
 protocol frameworks at once breaks both.
 
-## What twenty-four measured rounds say about when this pays
+## What twenty-five measured rounds say about when this pays
 
 Everything below is in [docs/validation-log.md](docs/validation-log.md) with the runs
 behind it. Read this before installing — it is the part most projects leave out.
@@ -38,9 +38,12 @@ behind it. Read this before installing — it is the part most projects leave ou
   criteria, same grounding in the repo, same catch of a non-idempotent retry hazard —
   for 2.4× the turns. That matches the wider finding that scaffolding gains shrink as
   base models improve ([docs/ecosystem.md](docs/ecosystem.md) cites the work).
-- **The requirements ledger does not maintain itself.** Agents wrote rows in 2 of 12
-  task-sessions and dated deferrals in 0 of 12; the one condition that worked has not
-  replicated. Keep the rows yourself and the checker keeps them true — that part works.
+- **The requirements ledger does not maintain itself, but it does not rot either.** Agents
+  wrote rows in 2 of 12 single-task sessions and dated deferrals in 0 of 12. On a
+  six-ticket sequence it fared better — updated on two to four of six tickets, and in all
+  three runs **every `done` row's proof still resolved at the end**, because the checker
+  runs inside the gate. Keep the rows and the checker keeps them true; do not expect an
+  agent to write all of them for you.
 - **The gate has never blocked a real session** in eighteen rounds. It is insurance for
   the tail case, not a performance multiplier.
 
@@ -197,7 +200,7 @@ agentic-engineering-protocol/
 ## Validation
 
 AEP is measured on real tasks, and the failures are published next to the wins —
-twenty-four rounds so far in [docs/validation-log.md](docs/validation-log.md), including
+twenty-five rounds so far in [docs/validation-log.md](docs/validation-log.md), including
 the ones that went against the project:
 
 - Three rules confirmed by targeted flips (spec persistence and reviewer provenance 0/2 → 2/2; one sentence about phase boundaries took a weak model from 0/4 sessions producing code to 2/2 delivering committed, tested work).

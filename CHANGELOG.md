@@ -5,6 +5,27 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.11.4] - 2026-09-15
+
+### Measured
+- **Round 25 answers half of the project's oldest open question.** R9 has asked since
+  Round 10 whether the requirements ledger decays. Every attempt until now was
+  single-task; Round 22's six-ticket runs were not, and their trees were still on disk.
+  Across three runs the ledger was updated on two to four of six tickets, and **in all
+  three every `done` row's proof still resolved after six tickets of churn** — the decay
+  mode R9 was written to catch did not fire once. The mechanism is visible rather than
+  assumed: `trace.py` runs inside the project check, so a row whose proof vanished would
+  have turned the gate red on the next ticket.
+- **R9 splits.** The decay half is answered; the coverage half — a task that adds
+  behaviour and leaves no row — stays open, and is the same gap as R14. The round records
+  its own selection bias: it reuses artifacts produced to answer a different question, in
+  a fixture built to reward recording decisions.
+
+### Fixed
+- The log's own counts checker flagged the new round as a tenth negative verdict, because
+  its verdict read "**no**" while answering "does it decay?". Reworded to say what
+  happened. A crude check catching a real ambiguity is the check working.
+
 ## [1.11.3] - 2026-09-15
 
 ### Measured

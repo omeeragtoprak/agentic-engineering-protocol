@@ -6,7 +6,7 @@ held, and what did not.
 
 ## Every round at a glance
 
-Twenty-four rounds. **Nine** carry a negative or self-correcting verdict (rounds 5, 10,
+Twenty-five rounds. **Nine** carry a negative or self-correcting verdict (rounds 5, 10,
 13, 14, 15, 20, 21, 23, 24 — counted from the table below, not asserted), **five** made
 the project withdraw or refuse to ship something, and **three** corrected a claim this log
 itself had published. That distribution is the point: a log where everything confirms the
@@ -38,6 +38,7 @@ thesis is a marketing page.
 | [22](#round-22--six-tickets-in-one-tree-three-arms-and-a-correction-to-its-own-first-reading) | Six tickets, one tree | **for** — 5/5 vs 0/3, and its own first reading corrected |
 | [23](#round-23--checking-a-citation-by-running-it-no-agent-runs) | Is the citation we made sound? | **downgraded our own claim** |
 | [24](#round-24--someone-elses-rubric-our-artifacts-no-agent-runs) | Can an outside rubric score us? | **not usable here** — 3 of 4 metrics flat |
+| [25](#round-25--does-the-ledger-decay-six-tickets-say-no-n3-artifacts-already-in-hand) | Does the ledger decay across six tickets? | **it held** — every proof still resolved, 3/3; coverage 2–4 of 6 |
 
 ### Claims this project withdrew
 
@@ -961,6 +962,40 @@ usable third-party score for this codebase. The transferable lesson is about rub
 rather than about AEP: one only transfers when its assumptions hold — pytest-style
 assertions here, and comparable work volume for any "minimality" metric, which is not a
 safe assumption when the arms differ in how much they finished.
+
+## Round 25 — does the ledger decay? Six tickets say no (n=3, artifacts already in hand)
+
+R9 has been open since Round 10: *do agents maintain the requirements ledger across
+multiple tasks, or does it rot like every other hand-maintained project file?* Every
+round that tried to answer it was single-task. Round 22's sequence runs are not, and
+their trees were still on disk.
+
+| run | commits touching the ledger | tickets that updated it | rows after ticket 6 | `trace.py` at the end |
+|---|---|---|---|---|
+| A1 | 5 | 02, 03, 04, 06 | 8 | **traceability OK** |
+| A2 | 4 | 02, 03, 06 | 4 | **traceability OK** |
+| A3 | 3 | 03, 04 | 3 | **traceability OK** |
+
+**It did not decay — that part is answered.** After six tickets of churn, rewritten
+function signatures and a growing test suite, every `done` row's named proof still
+resolved in all three runs. That is the failure R9 was written to catch, and it did not
+happen once. The mechanism is visible: `trace.py` is chained into the project check, so a
+row whose proof disappeared would have turned the gate red on the next ticket rather than
+surviving to the end.
+
+**It was also not maintained every time.** Two to four of six tickets touched the ledger.
+A ticket that adds behaviour and leaves no row is the same gap Round 11 measured on bug
+fixes — the ledger records *some* of what a project commits to, reliably, and the rest
+not at all.
+
+So R9 splits. The decay half is answered by three runs: a ledger enforced by a checker
+that runs in the gate stays true. The coverage half stays open, and is the same open
+question as R14.
+
+**One caution about this round.** It reuses artifacts produced for a different question,
+which is cheap and also how selection bias gets in: these are the runs that finished, in
+a fixture built to reward recording decisions. It is evidence that the decay mode does
+not fire here, not that a ledger survives anywhere.
 
 ## Standing caveats
 
