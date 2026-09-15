@@ -10,6 +10,14 @@ It reads `.claude/requirements.md` — a plain Markdown table, one row per
 requirement — and fails when the ledger and the repository disagree:
 
   * a `done` row whose proof no longer exists  (the ledger went stale)
+
+A symbol proof is checked for **existence, not truth**: `test_x` naming a test that
+is present but failing still passes this checker, because running an arbitrary
+project's suite from here is not something this script can do reliably. The project
+check is what catches that, by running the tests before this runs at all — and when
+a row's truth matters more than its presence, write the proof as a command
+(`cmd: python3 -m pytest -k test_x -q`), which is executed. An agent running AEP
+found this gap in the promise; it is now stated instead of implied.
   * a `done` row with no proof, including an empty `cmd:`
   * a `deferred` row whose status cell lacks a date or a reason
   * a duplicate ID, an unknown status, a missing source spec, a malformed row
@@ -187,6 +195,9 @@ def main():
     for u in unverified:
         print("UNVERIFIED " + u)
     print(f"{len(rows)} requirement(s) — {summary}")
+    if symbols:
+        print(f"note: {len(symbols)} proof(s) checked for existence only, not for passing "
+              f"— write them as `cmd:` if that distinction matters")
     if unverified:
         print(f"{len(unverified)} command proof(s) NOT executed (AEP_TRACE_NO_CMD=1) "
               f"— those rows are unproven, not passing")

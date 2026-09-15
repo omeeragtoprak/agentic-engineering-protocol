@@ -23,7 +23,7 @@ proofs are scripts now.
 | R8 | Both manifests are well-formed JSON declaring the keys the plugin loader requires, with a matching slug | done | cmd: .claude/proofs/r8_manifest_keys.sh | — |
 | R12 | The always-on core stays inside a published density budget, with the operating stance in its first third | done | cmd: .claude/proofs/r12_core_density.sh | docs/ecosystem.md |
 | R13 | A session that starts in a repository with AEP state is told what that state is, and one without it is not interrupted | done | cmd: .claude/proofs/r13_session_brief.sh | docs/design-rules.md |
-| R14 | A bug-fix task leaves a requirement row behind, not only a feature task | open | — | docs/validation-log.md |
+| R14 | A bug-fix task either attaches its regression test to the row it defends, or states that the task committed to nothing new | open | — | docs/validation-log.md |
 | R15 | The three eval cases that need a shell have been run at least once, with the gate live | open | — | plugins/aep/evals/README.md |
 | R16 | A significant diff gets a fresh-context review, and the delivery names who graded it, under a current frontier model | open | — | docs/validation-log.md |
 | R17 | AEP is scored by a third party on process discipline using a rubric that reads artifacts rather than action labels | open | — | docs/ecosystem.md |

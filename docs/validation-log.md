@@ -6,7 +6,7 @@ held, and what did not.
 
 ## Every round at a glance
 
-Twenty-five rounds. **Nine** carry a negative or self-correcting verdict (rounds 5, 10,
+Twenty-six rounds. **Nine** carry a negative or self-correcting verdict (rounds 5, 10,
 13, 14, 15, 20, 21, 23, 24 — counted from the table below, not asserted), **five** made
 the project withdraw or refuse to ship something, and **three** corrected a claim this log
 itself had published. That distribution is the point: a log where everything confirms the
@@ -39,6 +39,7 @@ thesis is a marketing page.
 | [23](#round-23--checking-a-citation-by-running-it-no-agent-runs) | Is the citation we made sound? | **downgraded our own claim** |
 | [24](#round-24--someone-elses-rubric-our-artifacts-no-agent-runs) | Can an outside rubric score us? | **not usable here** — 3 of 4 metrics flat |
 | [25](#round-25--does-the-ledger-decay-six-tickets-say-no-n3-artifacts-already-in-hand) | Does the ledger decay across six tickets? | **it held** — every proof still resolved, 3/3; coverage 2–4 of 6 |
+| [26](#round-26--a-bug-fix-leaves-no-row-and-an-agent-finds-a-hole-in-our-own-checker-n3) | Does a bug fix leave a row? | **0/3 — and R14 was the wrong question**; an agent found a real gap in our checker |
 
 ### Claims this project withdrew
 
@@ -996,6 +997,53 @@ question as R14.
 which is cheap and also how selection bias gets in: these are the runs that finished, in
 a fixture built to reward recording decisions. It is evidence that the decay mode does
 not fire here, not that a ledger survives anywhere.
+
+## Round 26 — a bug fix leaves no row, and an agent finds a hole in our own checker (n=3)
+
+R14 has been open since Round 11: *does a bug-fix task leave a requirement row behind?*
+Every earlier attempt ran against an empty ledger. This one does not — the three finished
+`bench/sequence` trees from Round 22 were copied, each with a live ledger of 3 to 8 rows
+the same session had written, a regression was seeded by deleting the zero-floor clamp
+from the loyalty credit (two tests red in every tree), and each got a support ticket.
+
+| | rows before | rows after | suite | `trace.py` | gate ledger notices delivered |
+|---|---|---|---|---|---|
+| A1 | 8 | **8** | OK | OK | 2 |
+| A2 | 4 | **4** | OK | OK | 2 |
+| A3 | 3 | **3** | OK | OK | 2 |
+
+**0 of 3 added a row, and the gate asked twice in every run.** On the face of it that is
+R14 failing again. Reading the deliveries says something more interesting:
+
+> *"full suite now 48/48 passing (was 46/48); `.claude/trace.py` traceability check
+> passes, confirming R7/R8 proofs are valid again. **No new test was needed — the
+> regression coverage already existed** and simply wasn't being satisfied."*
+
+Two of the three read the ledger, ran the checker, tied the fix to the rows it defends by
+number, and concluded that nothing new had been committed to. For a regression that
+restores behaviour an existing row already claims, **that is the right answer** — and it
+is what the core's own escape hatch describes. R14 was the wrong requirement: it asked
+for a row where the honest output is a statement that no new commitment was made. It has
+been rewritten to ask for that instead.
+
+**And one of them found a real hole in this project's checker:**
+
+> *"whatever gate is supposed to keep `done` rows green isn't running, since the ledger
+> was silently wrong for at least the last commit."*
+
+It is right. `trace.py` checks a symbol proof for **existence, not truth** — `test_x`
+naming a test that is present but failing still passes. During the seeded regression,
+R4's proof existed while the test it names was failing, and the ledger read `traceability
+OK`. What saves it in practice is ordering: the project check runs the tests before
+`trace.py` runs at all, so the gate went red anyway. But the promise was wider than the
+guarantee, and that is now fixed in the template's docstring, in
+[requirements.md](requirements.md)'s table of what is and is not caught, and in the
+checker's own output, which now says how many rows are existence-checked and that a
+`cmd:` proof is what gets executed.
+
+**The finding worth keeping is not about ledgers.** An agent running this protocol, on a
+routine bug fix, audited the protocol's own tooling and reported a gap between what it
+claims and what it does. That is the behaviour §1.1 asks for, arriving unprompted.
 
 ## Standing caveats
 

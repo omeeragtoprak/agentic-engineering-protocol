@@ -53,6 +53,7 @@ the ledger. It exits non-zero when:
 | Condition | Why it is a failure, not a warning |
 |---|---|
 | A `done` row's proof no longer exists in the tree | The ledger is now claiming something nothing checks |
+| *(not caught)* a symbol proof that exists but **fails** | Checked for existence, not truth — the project check catches it by running the tests first. Write the proof as `cmd:` when the distinction matters; the checker now says how many rows this applies to |
 | A `cmd:` proof does not exit 0 | Same, with the failure already in hand |
 | A `deferred` row has no date, or no reason | An unauditable deferral is a forgotten one wearing a label |
 | Duplicate ID, unknown status, missing source spec | The table has stopped being a table |

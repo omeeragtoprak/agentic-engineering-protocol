@@ -5,6 +5,28 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.11.5] - 2026-09-15
+
+### Fixed
+- **`trace.py` promised more than it delivered, and an agent running AEP said so.** A
+  symbol proof is checked for existence, not truth: `test_x` naming a test that is
+  present but failing passed the checker. During Round 26's seeded regression a `done`
+  row's proof was failing while the ledger read `traceability OK`. Ordering saves it in
+  practice — the project check runs the tests before `trace.py` runs at all — but the
+  promise was wider than the guarantee. Now stated in the template's docstring, in
+  `docs/requirements.md`'s table of what is and is not caught, and in the checker's own
+  output, which reports how many rows are existence-checked and points at `cmd:` proofs,
+  which are executed.
+
+### Measured
+- **Round 26: 0 of 3 bug fixes added a ledger row**, with a live ledger of 3–8 rows in
+  each tree and the gate's reminder delivered twice per run. Reading the deliveries
+  changed the conclusion rather than confirming it: two of three read the ledger, ran the
+  checker, tied the fix to the rows it defends by number, and said no new commitment had
+  been made — which for a regression that restores behaviour an existing row already
+  claims is the right answer. **R14 was the wrong requirement** and has been rewritten to
+  ask for what those runs actually did.
+
 ## [1.11.4] - 2026-09-15
 
 ### Measured
