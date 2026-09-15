@@ -868,6 +868,51 @@ retires a tempting shortcut: AEP will not be validated by submitting to that com
 because on it AEP would mostly be measuring whether we taught our adapter to emit
 `plan_created`. R17 now asks for a third-party rubric that reads artifacts.
 
+## Round 24 — someone else's rubric, our artifacts (no agent runs)
+
+Round 23 ended by saying AEP should be scored by a third party using a rubric that reads
+artifacts rather than action labels. The same repository ships exactly that:
+`compute_extended.py` computes test assertion density, dead-code ratio, diff minimality
+and contextual grounding rate from a finished repo. Their code, our eight `bench/sequence`
+trees, no transcripts and nothing we could relabel.
+
+| Metric (theirs, unmodified) | A (AEP) | C (no ledger) | B (bare) | discriminates? |
+|---|---|---|---|---|
+| Test Assertion Density | 0.000 | 0.000 | 0.000 | **no — false zero** |
+| Dead Code Ratio | 1.000 | 1.000 | 1.000 | no |
+| Contextual Grounding Rate | 1.000 | 1.000 | 1.000 | no |
+| Diff Minimality | 0.148 | 0.144 | **0.166** | yes, and backwards |
+
+**Three of the four say nothing, and the fourth rewards doing less.** Dead code and
+grounding are 1.000 for every run — their own comment predicts "genuinely ~0.99 across all
+harnesses". Diff minimality is `1/(1+log(1+lines_changed))`, so the bare arm wins it by
+changing fewer lines, which it managed by implementing four of the six tickets.
+
+**The zero is a measurement artefact, and it was checked rather than reported.** The
+metric counts `ast.Assert` nodes; these suites are `unittest`, so every assertion is a
+`self.assertEqual(...)` call. Counted directly: A1 has **0 bare asserts and 64 assert
+calls across 48 test functions**, B1 has 0 and 24 across 22. A rubric that only sees
+pytest-style asserts scores a unittest codebase at zero by construction.
+
+**Their metric with one line changed** — counting `self.assertX()` alongside `assert`,
+same 5-per-function normalisation, and labelled as our adaptation rather than their
+number:
+
+| | A (AEP) | C (no ledger) | B (bare) |
+|---|---|---|---|
+| TAD\* (unittest-aware) | 0.252 | 0.288 | 0.206 |
+| assertions per test function | 1.33 / 0.95 / 1.50 | 1.44 / 1.43 | 1.09 / 1.00 / 1.00 |
+| test functions written | 48 / 38 / 40 | 45 / 58 | 22 / 24 / 24 |
+
+The AEP-side arms write roughly twice the tests and assert somewhat more densely inside
+each one. That is a modest difference and it is the only one this rubric could see.
+
+**So R17 stays open.** An external rubric was applied end to end and did not produce a
+usable third-party score for this codebase. The transferable lesson is about rubrics
+rather than about AEP: one only transfers when its assumptions hold — pytest-style
+assertions here, and comparable work volume for any "minimality" metric, which is not a
+safe assumption when the arms differ in how much they finished.
+
 ## Standing caveats
 
 - **Every round in this log is short-horizon.** The longest task here is a two-task

@@ -5,6 +5,25 @@ plugin version in `plugins/aep/.claude-plugin/plugin.json` and the entry in
 `.claude-plugin/marketplace.json` are bumped together on every release —
 installed copies only update when this version changes.
 
+## [1.11.3] - 2026-09-15
+
+### Measured
+- **Round 24 applied a third party's artifact-reading metrics to AEP's own runs** — their
+  `compute_extended.py`, our eight `bench/sequence` trees. Three of the four metrics did
+  not discriminate at all (dead-code ratio and contextual grounding are 1.000 for every
+  run; assertion density is 0.000 for every run), and the fourth, diff minimality, is won
+  by the bare arm because it changed fewer lines — which it managed by implementing four
+  of six tickets.
+- The zero was checked, not reported: the metric counts `ast.Assert` nodes and these
+  suites are `unittest`, so A1 has 0 bare asserts and **64 assert calls across 48 test
+  functions**. With one line changed to count `self.assertX()` — our adaptation, not their
+  number — the arms separate modestly: 0.252 / 0.288 / 0.206, with roughly twice the test
+  functions on the AEP side.
+- **R17 stays open.** An external rubric was applied end to end and produced no usable
+  third-party score here. The lesson generalises past AEP: a rubric transfers only when
+  its assumptions hold, and "minimality" is not safe to compare across arms that finished
+  different amounts of work.
+
 ## [1.11.2] - 2026-09-15
 
 ### Corrected
