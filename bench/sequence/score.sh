@@ -25,37 +25,60 @@ say "decision_recorded" "$REC"
 #    Ticket 6 introduces that credit and says nothing about ordering, so the number
 #    it produces is the decision from ticket 2 still being applied, or not.
 python3 - <<'PY'
-import inspect, sys
+import inspect, itertools, sys
 sys.path.insert(0, ".")
 def out(k, v): print(f"{k:<20} {v}")
 try:
     import pricing
 except Exception as e:
     out("decision_held", f"n/a (import failed: {e})"); raise SystemExit
+
 items = [{"sku": "a", "unit_price": 100.0, "qty": 1}]
-funcs = [f for _, f in inspect.getmembers(pricing, inspect.isfunction)]
+
+def discount_values():
+    """The discount may be a number or an object the repo defined."""
+    vals = [20, 20.0]
+    for name, cls in inspect.getmembers(pricing, inspect.isclass):
+        if cls.__module__ != "pricing":
+            continue
+        for args in (("SAVE20", 20), (20,), ("SAVE20", 20.0), (20.0,)):
+            try:
+                vals.append(cls(*args)); break
+            except Exception:
+                continue
+    return vals
+
+CREDIT_WORDS = ("credit", "loyalty", "points", "balance", "wallet")
 hits = []
-for f in funcs:
-    params = list(inspect.signature(f).parameters)
-    if len(params) < 4:
+for name, f in inspect.getmembers(pricing, inspect.isfunction):
+    if name.startswith("_"):
         continue
-    for args in ((items, 20, 0.08, 10), (items, 20.0, 0.08, 10.0)):
+    params = inspect.signature(f).parameters
+    if not any(any(w in p.lower() for w in CREDIT_WORDS) for p in params):
+        continue                      # no credit parameter: not the ticket-6 entry point
+    for disc in discount_values():
+        kw = {}
+        for p in params:
+            pl = p.lower()
+            if any(w in pl for w in CREDIT_WORDS): kw[p] = 10.0
+            elif "tax" in pl:                      kw[p] = 0.08
+            elif "disc" in pl or "code" in pl or "coupon" in pl: kw[p] = disc
+            elif "item" in pl or "order" in pl or "line" in pl:  kw[p] = items
+        if len(kw) < len(params) - sum(1 for p in params.values() if p.default is not p.empty):
+            continue
         try:
-            hits.append((f.__name__, round(float(f(*args)), 2)))
-            break
+            hits.append((name, round(float(f(**kw)), 2))); break
         except Exception:
             continue
+
 if not hits:
-    out("decision_held", "n/a (no 4-argument pricing function accepted (items, 20, 0.08, 10))")
+    out("decision_held", "n/a (no function with a credit-shaped parameter priced an order)")
 else:
     out("priced_with_credit", hits)
     vals = {v for _, v in hits}
-    if vals == {75.6}:
-        out("decision_held", "credit applied before tax (75.60)")
-    elif vals == {76.4}:
-        out("decision_held", "credit applied after tax (76.40)")
-    else:
-        out("decision_held", f"neither canonical value: {sorted(vals)}")
+    if vals == {75.6}:   out("decision_held", "credit before tax (75.60) - consistent with discount-then-tax")
+    elif vals == {76.4}: out("decision_held", "credit after tax (76.40)")
+    else:                out("decision_held", f"neither canonical value: {sorted(vals)}")
 PY
 
 # 3. Deferral recorded as a dated row?

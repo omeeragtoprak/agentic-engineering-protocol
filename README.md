@@ -155,7 +155,8 @@ agentic-engineering-protocol/
 ├── .claude/                             # AEP running its own protocol on itself:
 │                                        #   requirements.md ledger, trace.py, aep-check.sh
 ├── .claude-plugin/marketplace.json      # marketplace catalog
-├── bench/                               # AEP-Bench: seeded-bug tasks + scorer (tamper audit included)
+├── bench/                               # AEP-Bench: seeded-bug tasks + scorer, plus `sequence/`,
+│                                        #   a six-ticket task where a decision must survive six tickets
 ├── install.sh                           # installer for Codex & other AGENTS.md/Agent Skills tools
 └── plugins/aep/
     ├── .claude-plugin/plugin.json       # plugin manifest (slug: aep, immutable)
